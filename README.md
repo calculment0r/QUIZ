@@ -72,6 +72,7 @@ assets/css/app.css          tout le style (palette, animations, responsive)
 assets/js/app.js            logique de jeu (etat + rendu DOM)
 assets/js/quiz-data.js      les 108 questions (window.QUIZ_DATA)
 assets/js/quiz-gameplay.js  couche gameplay : quelle epreuve pour quelle question
+assets/js/quiz-moteurs.js   les moteurs de reponse du registre (carte au tresor...)
 assets/js/quiz-flash.js     les mini-jeux d'interlude (registre extensible)
 assets/js/quiz-music.js     la boucle 8 bits, synthetisee (aucun fichier audio)
 assets/fonts/               Press Start 2P auto-hebergee (+ licence OFL)
@@ -143,14 +144,26 @@ Le mode est choisi automatiquement, question par question, dans
 
 | Mode | Ce que fait le joueur | Questions concernees |
 |---|---|---|
-| **scene** | quatre creatures dans le noir ou quatre objets dans un coffre, sans etiquette : il faut reconnaitre | 16 |
+| **scene** | quatre creatures dans le noir ou quatre objets dans un coffre, sans etiquette : il faut reconnaitre | 24 |
 | **forge** | il compose une valeur avec des briques (+100, +10, +1...) sans voir la cible | 16 |
 | **atelier** | il pose les ingredients dans une grille 3x3 : la reponse est l'objet fabrique | 8 |
+| **carte** | quatre paysages sans nom : il reconnait le lieu, plante son epingle, confirme | 7 |
 | **profondeur** | il descend a la bonne couche dans une coupe verticale du monde | 4 |
-| **blocs** | QCM a 4 blocs a toucher | 64 |
+| **blocs** | QCM a 4 blocs a toucher | 49 |
 
-**44 questions sur 108 (41 %)** se jouent autrement qu'en QCM.
-Par quiz : Survie 27/36, Mobs 11/36, Bedrock 6/36.
+**59 questions sur 108 (55 %)** se jouent autrement qu'en QCM.
+Par quiz : Survie 29/36, Mobs 21/36, Bedrock 9/36.
+
+### Ajouter un moteur sans toucher a app.js
+
+`assets/js/quiz-moteurs.js` est un registre, comme celui des Flash. Une fiche
+donne `detecte(q)` (rend une spec, ou null si le moteur ne peut pas etre
+honnete sur cette question) et `build(zone, q, spec, etat, api)`. Le moteur est
+un simple dessin de (question, choix, verrouillage) : il ne garde aucun etat, ce
+qui lui donne gratuitement le rattrapage, le recapitulatif et le partage.
+
+Le registre est interroge **en dernier**, apres les moteurs cables : il ne prend
+donc que ce qui, sans lui, resterait un QCM.
 
 Trois regles de loyaute, verifiees par les tests :
 

@@ -91,6 +91,26 @@
   /* --- 3. Objets : un gabarit pixel par famille de matiere ----------------- */
   /* [gabarit, couleur principale, reflet, ombre, nom affiche] */
   var ITEMS = {
+    /* --- nourriture, butin et objets de villageois : ils servent au moteur
+       scene, qui demande de reconnaitre l'objet au lieu de lire son nom --- */
+    'pomme':          ['pomme',   '#C4362B', '#E06A5F', '#8E2419', 'POMME'],
+    'pomme-doree':    ['pomme',   '#C9962F', '#F2CE7B', '#A87C22', 'POMME DORÉE'],
+    'carotte':        ['carotte', '#F2712C', '#FF9A5F', '#B4491A', 'CAROTTE'],
+    'carotte-doree':  ['carotte', '#C9962F', '#F2CE7B', '#A87C22', 'CAROTTE DORÉE'],
+    'ble':            ['ble',     '#B8973A', '#D6BC6E', '#8A7024', 'BLÉ'],
+    'ble-dore':       ['ble',     '#C9962F', '#FFF0B8', '#A87C22', 'BLÉ DORÉ'],
+    'graines':        ['graines', '#9AA84A', '#C4D07A', '#6E7A2A', 'GRAINES'],
+    'pain':           ['pain',    '#C08A4A', '#E0B073', '#8E6224', 'PAIN'],
+    'steak':          ['steak',   '#A8442A', '#C9705A', '#7A2A18', 'STEAK CUIT'],
+    'os':             ['os',      '#E8E8E8', '#FFFFFF', '#BFBFBF', 'OS'],
+    'livre':          ['livre',   '#8B5A2B', '#B37C46', '#5C3A1B', 'LIVRE'],
+    'livre-enchante': ['livre',   '#6B3FA0', '#8F63C4', '#4A2A72', 'LIVRE ENCHANTÉ'],
+    'potion':         ['potion',  '#C4362B', '#E06A5F', '#8E2419', 'POTION'],
+    'carte':          ['carte',   '#D9C79A', '#F2E6C4', '#A8956A', 'CARTE'],
+    'fleche':         ['fleche',  '#C4C4C4', '#E8E8E8', '#8F8F8F', 'FLÈCHE'],
+    'totem':          ['totem',   '#C9962F', '#F2CE7B', '#4CD137', 'TOTEM D’IMMORTALITÉ'],
+    'disque':         ['disque',  '#4CD137', '#8BE07C', '#2E8B26', 'DISQUE DE MUSIQUE'],
+    'selle':          ['selle',   '#8B5A2B', '#B37C46', '#5C3A1B', 'SELLE'],
     'planche':     ['cube',   '#B0813F', '#D3A25C', '#8A6127', 'PLANCHE'],
     'buche':       ['log',    '#8B5A2B', '#B37C46', '#5C3A1B', 'BÛCHE'],
     'laine':       ['cube',   '#E8E8E8', '#FFFFFF', '#BFBFBF', 'LAINE'],

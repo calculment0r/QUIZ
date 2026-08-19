@@ -694,6 +694,50 @@ button { font: inherit; color: inherit; border: 0; background: none; }
   .crea-art svg { width: 44px; height: 44px; }
 }
 
+/* ------------------ 10 sexies. LES MOTEURS DU REGISTRE ------------------
+   Une aire generique, remplie par quiz-moteurs.js. Chaque moteur ajoute sa
+   propre classe (mot-<id>) et pose ses regles ici, sous ce titre. */
+.moteur { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+.moteur.is-locked { pointer-events: none; }
+.moteur-aide {
+  margin: 0; text-align: center;
+  font-family: var(--pix); font-size: 8px; line-height: 1.8; color: var(--ui-mute);
+}
+
+/* --- la carte au tresor : quatre territoires, aucun nom --- */
+.carte-monde { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.terr {
+  position: relative; display: block; padding: 0; cursor: pointer;
+  background: #0C0714; overflow: hidden;
+  box-shadow: inset 4px 4px 0 0 rgba(255, 255, 255, .12), inset -4px -4px 0 0 rgba(0, 0, 0, .55);
+  transition: transform 90ms steps(2), filter 120ms linear;
+}
+.terr:active { transform: translateY(3px); }
+.terr-vue { display: block; height: 88px; line-height: 0; }
+.terr-vue svg { display: block; width: 100%; height: 100%; }
+.terr-nom {
+  display: block; min-height: 26px; padding: 6px 4px;
+  font-family: var(--pix); font-size: 7px; line-height: 1.6; color: #FFFFFF;
+  background: rgba(12, 7, 20, .8); text-align: center;
+}
+/* l'epingle : elle ne se pose que sur le territoire choisi */
+.terr-pin { position: absolute; top: 6px; right: 6px; width: 14px; height: 22px; opacity: 0; }
+.terr-pin::before {
+  content: ''; position: absolute; inset: 0 0 8px 0; display: block;
+  background: #FF4B4B; box-shadow: inset 3px 3px 0 0 #FF8A8A, inset -3px -3px 0 0 #B42A2A;
+}
+.terr-pin::after {
+  content: ''; position: absolute; left: 5px; bottom: 0; width: 4px; height: 9px; display: block;
+  background: #E8E8E8;
+}
+.terr.is-pique { filter: brightness(1.12); box-shadow: inset 0 0 0 4px #FFC145; }
+.terr.is-pique .terr-pin { opacity: 1; animation: popIn 240ms steps(3) both; }
+.terr.is-ok  { box-shadow: inset 0 0 0 4px var(--ok); }
+.terr.is-ok .terr-nom  { background: var(--ok-lo); }
+.terr.is-ko  { box-shadow: inset 0 0 0 4px var(--ko); }
+.terr.is-ko .terr-nom  { background: #8E2419; }
+.terr.is-dim { filter: brightness(.5) saturate(.6); }
+
 /* ------------------ 10 bis. MOTEUR ATELIER (grille de craft) ------------------ */
 /* Il pose lui-meme les ingredients : la reponse n'existe pas avant qu'il la
    construise. La grille fait toujours 3x3 pour ne jamais trahir la quantite. */
@@ -1000,6 +1044,8 @@ button { font: inherit; color: inherit; border: 0; background: none; }
   .fz-scene { height: 96px; }
   .fz-btn { min-height: 50px; }
   .mini-zone { gap: 6px; margin-top: 8px; }
+  .terr-vue { height: 58px; }
+  .moteur { margin-top: 8px; gap: 6px; }
 }
 
 /* --- la lave qui monte : le rouge d'alerte quand la marge fond --- */

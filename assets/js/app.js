@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var BUILD = '7';
+  var BUILD = '8';
 
   /* ------------------------- tables d'effets (verbatim) ------------------------- */
   var FXOK = [
@@ -184,6 +184,65 @@
         body = r(2, 4, 12, 9, c) + r(2, 4, 12, 2, hi) + r(4, 6, 8, 3, '#3A7BBF') +
                r(2, 11, 12, 2, lo) + r(3, 13, 2, 2, lo) + r(11, 13, 2, 2, lo);
         break;
+      /* --- nourriture, butin, objets de villageois --- */
+      case 'pomme':
+        body = r(5, 4, 6, 1, c) + r(4, 5, 8, 7, c) + r(5, 12, 6, 1, lo) +
+               r(4, 5, 3, 3, hi) + r(8, 2, 1, 3, '#5C3A1B') + r(9, 2, 3, 2, '#4CD137');
+        break;
+      case 'carotte':
+        body = r(4, 2, 2, 3, '#4CD137') + r(7, 1, 2, 4, '#4CD137') + r(10, 2, 2, 3, '#4CD137') +
+               r(5, 5, 6, 3, c) + r(5, 5, 6, 1, hi) + r(6, 8, 4, 3, c) + r(7, 11, 2, 3, lo);
+        break;
+      case 'ble':
+        body = r(7, 2, 2, 12, lo) + r(4, 3, 3, 2, c) + r(9, 3, 3, 2, c) +
+               r(4, 6, 3, 2, hi) + r(9, 6, 3, 2, hi) + r(4, 9, 3, 2, c) + r(9, 9, 3, 2, c);
+        break;
+      case 'graines':
+        body = r(3, 5, 2, 2, c) + r(7, 3, 2, 2, hi) + r(11, 6, 2, 2, c) +
+               r(5, 9, 2, 2, hi) + r(9, 10, 2, 2, c) + r(7, 7, 2, 2, lo) + r(3, 12, 2, 2, hi);
+        break;
+      case 'pain':
+        body = r(3, 5, 10, 1, hi) + r(2, 6, 12, 6, c) + r(2, 6, 12, 2, hi) + r(2, 11, 12, 2, lo) +
+               r(5, 8, 2, 1, lo) + r(9, 9, 2, 1, lo);
+        break;
+      case 'steak':
+        body = r(3, 4, 10, 8, c) + r(3, 4, 10, 2, hi) + r(3, 11, 10, 2, lo) +
+               r(6, 7, 4, 3, lo) + r(4, 6, 3, 2, hi);
+        break;
+      case 'os':
+        body = r(3, 7, 10, 3, c) + r(2, 4, 3, 3, hi) + r(2, 10, 3, 3, hi) +
+               r(11, 4, 3, 3, hi) + r(11, 10, 3, 3, hi) + r(5, 8, 6, 1, lo);
+        break;
+      case 'livre':
+        body = r(2, 3, 12, 11, c) + r(2, 3, 2, 11, lo) + r(5, 4, 8, 9, '#FFF3D0') +
+               r(6, 6, 5, 1, lo) + r(6, 9, 5, 1, lo) + r(2, 3, 12, 1, hi);
+        break;
+      case 'potion':
+        body = r(7, 1, 2, 3, lo) + r(6, 4, 4, 2, hi) + r(4, 6, 8, 8, c) +
+               r(4, 6, 8, 2, hi) + r(4, 12, 8, 2, lo) + r(5, 8, 2, 2, hi);
+        break;
+      case 'carte':
+        body = r(2, 3, 12, 11, c) + r(2, 3, 12, 1, hi) + r(2, 13, 12, 1, lo) +
+               r(6, 6, 2, 2, '#C4362B') + r(9, 6, 2, 2, '#C4362B') +
+               r(7, 8, 2, 2, '#C4362B') + r(6, 10, 2, 2, '#C4362B') + r(9, 10, 2, 2, '#C4362B');
+        break;
+      case 'fleche':
+        body = r(11, 1, 3, 3, hi) + r(10, 3, 2, 2, c) + r(8, 5, 2, 2, WOOD) +
+               r(6, 7, 2, 2, WOOD) + r(4, 9, 2, 2, WOOD) + r(1, 11, 4, 4, '#E8E8E8') + r(2, 12, 2, 2, '#BFBFBF');
+        break;
+      case 'totem':
+        body = r(5, 1, 6, 4, c) + r(6, 2, 1, 1, lo) + r(9, 2, 1, 1, lo) + r(7, 4, 2, 1, lo) +
+               r(4, 5, 8, 5, c) + r(1, 6, 3, 3, hi) + r(12, 6, 3, 3, hi) +
+               r(5, 10, 6, 4, lo) + r(6, 6, 4, 2, hi);
+        break;
+      case 'disque':
+        body = r(3, 3, 10, 10, '#1A1A22') + r(4, 4, 8, 8, c) + r(5, 5, 2, 2, hi) +
+               r(7, 7, 2, 2, '#E8E8E8') + r(9, 9, 2, 2, lo);
+        break;
+      case 'selle':
+        body = r(6, 3, 4, 3, c) + r(3, 6, 10, 5, c) + r(3, 6, 10, 2, hi) +
+               r(1, 8, 2, 4, lo) + r(13, 8, 2, 4, lo) + r(3, 10, 10, 2, lo);
+        break;
       default:
         body = r(4, 4, 8, 8, c);
     }
@@ -201,6 +260,40 @@
      Une tete de 8x8 par creature : c'est la silhouette et les couleurs qui la
      rendent reconnaissable, pas le detail. '.' = rien du tout. */
   var MOB_ART = {
+    /* --- animaux et illageois ajoutes pour la scene : chacun doit se
+       distinguer d'un coup d'oeil des autres reponses possibles, sinon la
+       question serait injouable (le chat est noir, le renard orange ; les
+       trois illageois se reconnaissent a leur arme) --- */
+    chat:      { p: ['k......k', 'kk....kk', '.kkkkkk.', '.kxkkxk.', '.kkwwkk.', '.wwwwww.', '.wwwwww.', '.k....k.'],
+                 c: { k: '#2A2A33', w: '#F2F2F2', x: '#4CD137', '.': null } },
+    perroquet: { p: ['..rr....', '.rrrr...', '.rxrbb..', '.rrrbbb.', '..bbbbb.', '..bbyy..', '...yy...', '...y.y..'],
+                 c: { r: '#FF4B4B', b: '#3A7BBF', y: '#FFC145', x: '#2A2A33', '.': null } },
+    renard:    { p: ['o......o', 'oo....oo', '.oooooo.', '.oxooxo.', '.oooooo.', '..wwww..', '..wwww..', '.o....o.'],
+                 c: { o: '#E07A2A', x: '#2A2A33', w: '#FFFFFF', '.': null } },
+    lapin:     { p: ['.w....w.', '.w....w.', '.wwwwww.', '.wxwwxw.', '.wwnnww.', '.wwwwww.', '.wwwwww.', '.w....w.'],
+                 c: { w: '#D9C7A8', x: '#2A2A33', n: '#F0A0A0', '.': null } },
+    mouton:    { p: ['..wwww..', '.wWwwWw.', 'wWwwwwWw', 'wwwwwwkk', 'wWwwwWkx', '.wwwwkkk', '..w..w..', '..w..w..'],
+                 c: { w: '#F2F2F2', W: '#D8D8D8', k: '#3A2A22', x: '#FFFFFF', '.': null } },
+    tortue:    { p: ['...gg...', '..gggg..', '.GGGGGG.', 'GGssssGG', 'GGssssGG', '.GGGGGG.', '..g..g..', '........'],
+                 c: { g: '#8BE07C', G: '#2E8B26', s: '#4CD137', '.': null } },
+    dauphin:   { p: ['....bb..', '...bbb..', 'b.bbbbbb', 'bbbbbbbx', 'bbwwwwbb', '.bwwww..', '........', '........'],
+                 c: { b: '#6BA3DB', w: '#E8F0FF', x: '#1A1A22', '.': null } },
+    nautile:   { p: ['..CCCC..', '.CccccC.', 'CccOOccC', 'CcOOOOcC', 'CccOOccC', '.CccccC.', '..CCCC..', '..t..t..'],
+                 c: { C: '#3EC4BC', c: '#ADF5F0', O: '#2E9E97', t: '#F5A9C8', '.': null } },
+    raie:      { p: ['..m..m..', '.mmmmmm.', 'mmmmmmmm', 'mmmxxmmm', 'mmmmmmmm', '.mmmmmm.', '..mmmm..', '...mm...'],
+                 c: { m: '#4A5A7A', x: '#E8E8E8', '.': null } },
+    sorciere:  { p: ['..kkkk..', '.kkkkkk.', 'kkkkkkkk', '.ssssss.', '.sxssxs.', '.ssnnss.', '.pppppp.', '.pp..pp.'],
+                 c: { k: '#4A2A72', s: '#C8A882', x: '#2A2A33', n: '#8B5A2B', p: '#6B3FA0', '.': null } },
+    pillard:   { p: ['.ssssss.', 'ssssssss', 'sxssssxs', 'ssnnnnss', 'bbbbbbbb', '.gggggg.', '.gggggg.', '.gg..gg.'],
+                 c: { s: '#9AA8A0', x: '#2A2A33', n: '#7A8880', b: '#8B5A2B', g: '#3A4A6A', '.': null } },
+    vindicateur: { p: ['.ssssss.', 'ssssssss', 'sxssssxs', 'ssnnnnss', 'aaggggaa', '.gggggg.', '.gggggg.', '.gg..gg.'],
+                 c: { s: '#9AA8A0', x: '#2A2A33', n: '#7A8880', a: '#C4C4C4', g: '#3A5A2A', '.': null } },
+    evocateur: { p: ['.ssssss.', 'ssssssss', 'sxssssxs', 'ssnnnnss', 'yyyyyyyy', '.kkkkkk.', '.kkkkkk.', '.kk..kk.'],
+                 c: { s: '#9AA8A0', x: '#2A2A33', n: '#7A8880', y: '#C9962F', k: '#2A2A33', '.': null } },
+    slime:     { p: ['.gggggg.', 'gGGGGGGg', 'gGxGGxGg', 'gGGGGGGg', 'gGGmmGGg', 'gGGGGGGg', 'gGGGGGGg', '.gggggg.'],
+                 c: { g: '#4CD137', G: '#7CE85F', x: '#2A2A33', m: '#2E8B26', '.': null } },
+    cubesoufre:{ p: ['.yyyyyy.', 'yYYYYYYy', 'yYxYYxYy', 'yYYYYYYy', 'yYYooYYy', 'yYYYYYYy', 'yYYYYYYy', '.yyyyyy.'],
+                 c: { y: '#D9B34A', Y: '#F2D98A', x: '#4A3A10', o: '#A8842A', '.': null } },
     creeper:   { p: ['..o...o.', '.xx..xx.', '.xx..xx.', '...xx...', '..xxxx..', '..xxxx..', '..x..x..', '.o....o.'],
                  c: { '.': '#4CD137', o: '#2E8B26', x: '#0C2B08' } },
     enderman:  { p: ['xxxxxxxx', 'xxxxxxxx', 'xxxxxxxx', 'xPPxxPPx', 'xPPxxPPx', 'xxxxxxxx', 'xxxxxxxx', 'xxxxxxxx'],
@@ -342,6 +435,21 @@
      distinguer deux images identiques. */
   var SCENE_LEX = [
     [/happy ?ghast/i, 'happyghast'],
+    [/cube de soufre/i, 'cubesoufre'],
+    [/perroquet/i, 'perroquet'],
+    [/\bchat\b/i, 'chat'],
+    [/renard/i, 'renard'],
+    [/lapin/i, 'lapin'],
+    [/mouton/i, 'mouton'],
+    [/tortue/i, 'tortue'],
+    [/dauphin/i, 'dauphin'],
+    [/nautile/i, 'nautile'],
+    [/\braies?\b/i, 'raie'],
+    [/sorci[èe]re/i, 'sorciere'],
+    [/[ée]vocateur/i, 'evocateur'],
+    [/vindicateur/i, 'vindicateur'],
+    [/pillard/i, 'pillard'],
+    [/slime/i, 'slime'],
     [/cheval|mule|poney/i, 'cheval'],
     [/creeper/i, 'creeper'],
     [/noy[ée]/i, 'noye'],
@@ -370,6 +478,16 @@
   /* meme principe pour les objets : outils, blocs et minerais se reconnaissent
      aussi bien qu'une creature, et cela couvre les questions de Survie */
   var SCENE_OBJ = [
+    /* les variantes dorees d'abord : sinon "carotte doree" tomberait sur la
+       carotte ordinaire et deux reponses se dessineraient pareil */
+    [/pomme dor[ée]e/i, 'pomme-doree'], [/carotte dor[ée]e/i, 'carotte-doree'],
+    [/bl[ée] dor[ée]/i, 'ble-dore'], [/pissenlit dor[ée]/i, 'pissenlit-dore'],
+    [/pomme/i, 'pomme'], [/carotte/i, 'carotte'], [/\bbl[ée]\b/i, 'ble'],
+    [/graine/i, 'graines'], [/\bpain\b/i, 'pain'], [/steak|viande|b[œe]uf/i, 'steak'],
+    [/\bos\b/i, 'os'], [/livre/i, 'livre-enchante'], [/potion/i, 'potion'],
+    [/cartes? d.explorateur|\bcartes?\b/i, 'carte'], [/fl[èe]che/i, 'fleche'],
+    [/totem/i, 'totem'], [/disque/i, 'disque'], [/selle/i, 'selle'],
+    [/pissenlit/i, 'pissenlit'],
     [/table de craft/i, 'table'], [/terre cuite/i, 'terrecuite'],
     [/pioche/i, 'pioche'], [/hache/i, 'hache'], [/pelle/i, 'pelle'], [/[ée]p[ée]e/i, 'epee'],
     [/four\b/i, 'four'], [/chaudron/i, 'chaudron'], [/enclume/i, 'enclume'],
@@ -409,12 +527,28 @@
     return { arts: arts, lieu: lieu, creatures: creatures };
   }
 
+  /* ===================== LE REGISTRE DES MOTEURS =====================
+     Les epreuves qui ne sont pas cablees dans ce fichier vivent dans
+     quiz-moteurs.js. On leur demande, question par question, si l'une sait la
+     jouer. Le registre passe en DERNIER : il ne prend que ce qui, sans lui,
+     resterait un QCM — aucune epreuve existante ne peut lui etre volee. */
+  function moteurSpec(q) {
+    var reg = window.QUIZ_MOTEURS || [];
+    for (var i = 0; i < reg.length; i++) {
+      var sp = null;
+      try { sp = reg[i].detecte(q); } catch (e) { sp = null; }
+      if (sp) return { def: reg[i], spec: sp };
+    }
+    return null;
+  }
+
   function routeOf(q) {
     var low = q.q.toLowerCase();
     if (/hauteur|jusqu.o[ùu]|niveau de lumi|creuser|profondeur/.test(low)) return 'slider';
     if (craftSpec(q)) return 'craft';
     if (forgeSpec(q)) return 'forge';
     if (sceneSpec(q)) return 'scene';
+    if (moteurSpec(q)) return 'moteur';
     return 'blocks';
   }
 
@@ -466,7 +600,7 @@
     usedOk: [], usedKo: [],
     confirmBack: false, openRecap: null, copied: false,
     sound: true, musique: true,
-    craft: null, forge: null,        /* etat des deux moteurs jouables */
+    craft: null, forge: null, moteur: null,   /* etat des moteurs jouables */
     echo: null, inEcho: false, echoQ: null   /* epreuve de rattrapage */
   };
 
@@ -487,7 +621,7 @@
     hudLabel: $('hudLabel'), combo: $('combo'), track: $('track'), counter: $('counter'),
     playfield: $('playfield'), consigne: $('consigne'), qText: $('qText'),
     depth: $('depth'), answers: $('answers'), expl: $('expl'),
-    scene: $('scene'),
+    scene: $('scene'), moteur: $('moteur'),
     craft: $('craft'), craftOut: $('craftOut'), craftOutSlot: $('craftOutSlot'),
     craftOutName: $('craftOutName'), craftGrid: $('craftGrid'), craftHint: $('craftHint'),
     craftDock: $('craftDock'),
@@ -666,6 +800,10 @@
       var sp = sceneSpec(q);
       return (sp && sp.creatures) ? 'TROUVE LA BONNE CRÉATURE' : 'TOUCHE LE BON OBJET';
     }
+    if (mode === 'moteur') {
+      var mo = S.moteur || moteurSpec(q);
+      try { return mo.def.consigne(mo.spec); } catch (e) { return 'À TOI DE JOUER'; }
+    }
     if (mode === 'craft') return 'CONSTRUIS LA RECETTE';
     if (mode === 'forge') return 'COMPOSE LA BONNE VALEUR';
     if (mode === 'slider') return /lumi/.test(q.q.toLowerCase()) ? 'RÈGLE LE BON NIVEAU' : 'DESCENDS À LA BONNE HAUTEUR';
@@ -679,7 +817,14 @@
   function setupEngines(q) {
     S.craft = null;
     S.forge = null;
+    S.moteur = null;
     if (!q) return;
+    if (q.m === 'moteur') {
+      var ms = moteurSpec(q);
+      if (ms) S.moteur = { def: ms.def, spec: ms.spec };
+      else q.m = 'blocks';
+      return;
+    }
     if (q.m === 'craft') {
       var cs = craftSpec(q);
       if (cs) {
@@ -906,6 +1051,7 @@
     snd('sel');
     S.sel = i;
     if (q && q.m === 'slider') { render(); return; }
+    if (q && q.m === 'moteur' && S.moteur && S.moteur.def.confirme) { render(); return; }
     validate(false, i);
   }
 
@@ -962,6 +1108,10 @@
     } else if (q.m === 'forge') {
       if (!S.forge || S.forge.total === 0) return;
       ok = S.forge.total === S.forge.target;
+    } else if (q.m === 'moteur') {
+      if (S.sel === null && !timeout) return;
+      ok = !timeout && S.sel === q.ok;
+      q.pick = S.sel;
     } else {
       var pick = (forced === undefined || forced === null) ? S.sel : forced;
       if (pick === null && !timeout) return;
@@ -1364,6 +1514,7 @@
       el.craft.hidden = mode !== 'craft';
       el.forge.hidden = mode !== 'forge';
       el.scene.hidden = mode !== 'scene';
+      el.moteur.hidden = mode !== 'moteur';
       el.answers.hidden = mode !== 'blocks';
 
       if (mode === 'craft') { buildCraft(q); lastQSig = ''; }
@@ -1374,6 +1525,7 @@
           lastQSig = sig;
           if (mode === 'slider') { buildBands(q); el.answers.textContent = ''; }
           else if (mode === 'scene') { buildScene(q); el.answers.textContent = ''; }
+          else if (mode === 'moteur') { buildMoteur(q); el.answers.textContent = ''; }
           else { buildAnswers(q); el.depth.textContent = ''; }
         }
       }
@@ -1398,6 +1550,11 @@
       } else if (mode === 'forge') {
         if (!S.forge || S.forge.total === 0) el.btnCta.textContent = 'COMPOSE LA VALEUR';
         else { el.btnCta.textContent = 'VALIDER LA VALEUR'; el.btnCta.classList.add('is-ready'); }
+      } else if (mode === 'moteur' && S.moteur) {
+        var lbl = 'VALIDER';
+        try { lbl = S.moteur.def.cta(S.moteur.spec, { sel: S.sel, locked: S.locked }); } catch (e) {}
+        el.btnCta.textContent = lbl;
+        if (S.sel !== null) el.btnCta.classList.add('is-ready');
       } else if (mode === 'scene') {
         var sps = sceneSpec(q);
         el.btnCta.textContent = (sps && sps.creatures) ? 'TOUCHE LA CRÉATURE' : "TOUCHE L'OBJET";
@@ -1645,6 +1802,22 @@
   /* --- LA SCENE : quatre creatures dans le noir, aucune etiquette ---
      Les noms n'apparaissent qu'apres la reponse : sinon ce serait un QCM avec
      des images, et l'enfant n'aurait rien reconnu du tout. */
+  /* le moteur est un simple dessin de (question, choix, verrouillage) : on le
+     reconstruit a chaque changement, comme la scene, et il n'a aucun etat */
+  function buildMoteur(q) {
+    var m = S.moteur;
+    el.moteur.textContent = '';
+    if (!m) { q.m = 'blocks'; buildAnswers(q); return; }
+    el.moteur.className = 'moteur mot-' + m.def.id;
+    el.moteur.classList.toggle('is-locked', S.locked);
+    var api = {
+      item: itemSvg, mob: mobSvg, rm: rm, snd: snd,
+      choisir: function (i) { select(i); }
+    };
+    try { m.def.build(el.moteur, q, m.spec, { sel: S.sel, locked: S.locked, ok: S.wasOk }, api); }
+    catch (e) { q.m = 'blocks'; buildAnswers(q); }
+  }
+
   function buildScene(q) {
     el.scene.textContent = '';
     if (!q) return;

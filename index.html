@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Quiz Minecraft 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="only light">
+<meta name="theme-color" content="#140A26">
+<meta name="description" content="Quiz Minecraft 2026 : 3 quiz thematiques x 3 niveaux, 108 questions a jour, jouable au telephone et installable comme appli.">
+
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="64x64" href="./assets/icons/favicon-64.png">
+<link rel="apple-touch-icon" href="./assets/icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Quiz Minecraft">
+<meta name="application-name" content="Quiz Minecraft">
+
+<!-- Recette anti-repeint (handoff SS12) : le fond doit etre pose avant tout le reste. -->
+<style>
+  :root { color-scheme: only light; --page-bg: #140A26; }
+  html, body { margin:0; padding:0; height:100%; background-color:#140A26 !important; }
+  body::before { content:''; position:fixed; inset:0; background-color:var(--page-bg); z-index:-1; }
+</style>
+<link rel="stylesheet" href="./assets/css/app.css">
+</head>
+<body>
+
+<div class="app" id="app" data-screen="home" data-phase="dusk">
+
+  <!-- ============================ DECOR ============================ -->
+  <div class="decor" aria-hidden="true">
+    <div class="sky sky-dusk"></div>
+    <div class="sky sky-day"></div>
+    <div class="sky sky-night" id="skyNight">
+      <i style="left:11%;top:12%;width:3px;height:3px;background:#FFFFFF"></i>
+      <i style="left:23%;top:26%;width:2px;height:2px;background:#DDE4FF"></i>
+      <i style="left:37%;top:9%;width:3px;height:3px;background:#FFFFFF"></i>
+      <i style="left:52%;top:20%;width:2px;height:2px;background:#DDE4FF"></i>
+      <i style="left:64%;top:7%;width:3px;height:3px;background:#FFFFFF"></i>
+      <i style="left:78%;top:23%;width:2px;height:2px;background:#DDE4FF"></i>
+      <i style="left:88%;top:14%;width:3px;height:3px;background:#FFFFFF"></i>
+      <i style="left:94%;top:31%;width:2px;height:2px;background:#DDE4FF"></i>
+    </div>
+    <div class="sky sky-rose"></div>
+
+    <div class="clouds">
+      <span class="cloud" style="left:8%;top:10%;width:34%;height:10px"></span>
+      <span class="cloud" style="left:26%;top:34%;width:22%;height:8px"></span>
+      <span class="cloud" style="left:56%;top:56%;width:30%;height:10px"></span>
+    </div>
+
+    <div class="sun" id="sun">
+      <svg viewBox="0 0 8 8" width="100%" height="100%" shape-rendering="crispEdges">
+        <rect x="2" y="0" width="4" height="1" fill="#FFB021"></rect>
+        <rect x="1" y="1" width="6" height="1" fill="#FFC145"></rect>
+        <rect x="0" y="2" width="8" height="4" fill="#FFC145"></rect>
+        <rect x="1" y="6" width="6" height="1" fill="#FFC145"></rect>
+        <rect x="2" y="7" width="4" height="1" fill="#E9A21B"></rect>
+        <rect x="3" y="1" width="2" height="1" fill="#FFE9A8"></rect>
+        <rect x="2" y="2" width="4" height="3" fill="#FFE9A8"></rect>
+      </svg>
+    </div>
+
+    <div class="moon" id="moon">
+      <svg viewBox="0 0 8 8" width="100%" height="100%" shape-rendering="crispEdges">
+        <rect x="2" y="0" width="4" height="1" fill="#C8CEEA"></rect>
+        <rect x="1" y="1" width="6" height="1" fill="#E4E8FF"></rect>
+        <rect x="0" y="2" width="8" height="4" fill="#E4E8FF"></rect>
+        <rect x="1" y="6" width="6" height="1" fill="#E4E8FF"></rect>
+        <rect x="2" y="7" width="4" height="1" fill="#C8CEEA"></rect>
+        <rect x="2" y="3" width="2" height="2" fill="#C3CAE8"></rect>
+        <rect x="5" y="2" width="1" height="1" fill="#C3CAE8"></rect>
+        <rect x="5" y="5" width="1" height="1" fill="#C3CAE8"></rect>
+      </svg>
+    </div>
+
+    <div class="islands">
+      <svg viewBox="0 0 200 60" preserveAspectRatio="none" width="100%" height="100%" shape-rendering="crispEdges" fill="#0C0714">
+        <rect x="8" y="52" width="75" height="8"></rect>
+        <rect x="18" y="46" width="58" height="6"></rect>
+        <rect x="28" y="40" width="40" height="6"></rect>
+        <rect x="40" y="34" width="22" height="6"></rect>
+        <rect x="48" y="28" width="10" height="6"></rect>
+        <rect x="51" y="20" width="6" height="8"></rect>
+        <rect x="49" y="17" width="10" height="3"></rect>
+        <rect x="118" y="54" width="52" height="6"></rect>
+        <rect x="128" y="49" width="32" height="5"></rect>
+        <rect x="136" y="45" width="16" height="4"></rect>
+        <rect x="176" y="56" width="24" height="4"></rect>
+        <rect x="182" y="52" width="12" height="4"></rect>
+        <rect x="0" y="57" width="10" height="3"></rect>
+      </svg>
+    </div>
+
+    <div class="sea">
+      <span class="glint" style="top:4%;width:46%;margin-left:-23%;height:7px;opacity:.5"></span>
+      <span class="glint" style="top:14%;width:36%;margin-left:-18%;height:6px;opacity:.4;animation-delay:400ms"></span>
+      <span class="glint" style="top:26%;width:26%;margin-left:-13%;height:5px;opacity:.3;animation-delay:800ms"></span>
+      <span class="glint" style="top:40%;width:18%;margin-left:-9%;height:5px;opacity:.2;animation-delay:1200ms"></span>
+    </div>
+
+    <div class="ground"><span class="ground-tex"></span></div>
+
+    <div class="rise">
+      <i style="left:12%;width:6px;height:6px;background:#FFC145;animation-delay:60ms"></i>
+      <i style="left:28%;width:8px;height:8px;background:#FFE9A8;animation-delay:180ms"></i>
+      <i style="left:44%;width:5px;height:5px;background:#4CD137;animation-delay:0ms"></i>
+      <i style="left:58%;width:7px;height:7px;background:#FFC145;animation-delay:240ms"></i>
+      <i style="left:74%;width:5px;height:5px;background:#4FD9D0;animation-delay:120ms"></i>
+      <i style="left:88%;width:6px;height:6px;background:#FFE9A8;animation-delay:300ms"></i>
+    </div>
+
+    <div class="pixel-grid"></div>
+  </div>
+
+  <!-- ============================ HOME ============================ -->
+  <section class="screen screen-home" id="screen-home">
+    <div class="home-tools">
+      <button type="button" class="tool-btn" id="btnSound" aria-pressed="true" aria-label="Couper le son" title="Son">
+        <svg viewBox="0 0 16 16" width="22" height="22" shape-rendering="crispEdges" aria-hidden="true">
+          <rect x="2" y="6" width="3" height="4" fill="#FFE9A8"></rect>
+          <rect x="5" y="4" width="2" height="8" fill="#FFE9A8"></rect>
+          <rect x="7" y="2" width="2" height="12" fill="#FFE9A8"></rect>
+          <g class="snd-on">
+            <rect x="11" y="5" width="2" height="6" fill="#4CD137"></rect>
+            <rect x="14" y="3" width="2" height="10" fill="#4CD137"></rect>
+          </g>
+          <g class="snd-off">
+            <rect x="11" y="4" width="2" height="2" fill="#FF4B4B"></rect>
+            <rect x="13" y="6" width="2" height="2" fill="#FF4B4B"></rect>
+            <rect x="11" y="10" width="2" height="2" fill="#FF4B4B"></rect>
+            <rect x="13" y="8" width="2" height="2" fill="#FF4B4B"></rect>
+            <rect x="15" y="4" width="1" height="2" fill="#FF4B4B"></rect>
+            <rect x="15" y="10" width="1" height="2" fill="#FF4B4B"></rect>
+          </g>
+        </svg>
+      </button>
+    </div>
+
+    <div class="home-inner">
+      <h1 class="home-title">QUIZ<br>MINECRAFT</h1>
+      <button type="button" class="btn-play" id="btnPlay" aria-label="Commencer">&#9654; JOUER</button>
+      <button type="button" class="btn-install" id="btnInstall" hidden>INSTALLER L'APPLI</button>
+      <p class="edition" id="edition">ed. 2026</p>
+    </div>
+  </section>
+
+  <!-- ============================ CHOIX DU QUIZ ============================ -->
+  <section class="screen screen-pick" id="screen-quizzes">
+    <div class="panel-wrap">
+      <div class="panel-head">
+        <button type="button" class="btn-back" data-nav="home" aria-label="Retour">&#8249;</button>
+        <h2 class="panel-title">TON TERRAIN</h2>
+      </div>
+
+      <button type="button" class="card card-survie" data-quiz="0">
+        <span class="card-ico">
+          <svg viewBox="0 0 16 16" width="48" height="48" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="2" y="5" width="2" height="2" fill="#D8D8D8"></rect>
+            <rect x="4" y="3" width="2" height="2" fill="#D8D8D8"></rect>
+            <rect x="6" y="2" width="4" height="2" fill="#FFFFFF"></rect>
+            <rect x="10" y="3" width="2" height="2" fill="#D8D8D8"></rect>
+            <rect x="12" y="5" width="2" height="2" fill="#D8D8D8"></rect>
+            <rect x="7" y="4" width="2" height="4" fill="#FFC145"></rect>
+            <rect x="6" y="8" width="2" height="2" fill="#FFC145"></rect>
+            <rect x="5" y="10" width="2" height="2" fill="#E0A62E"></rect>
+            <rect x="4" y="12" width="2" height="2" fill="#E0A62E"></rect>
+          </svg>
+        </span>
+        <span class="card-body">
+          <span class="card-name">SURVIE &amp; CRAFT</span>
+          <span class="card-sub">Blocs, outils, recettes</span>
+        </span>
+      </button>
+
+      <button type="button" class="card card-mobs" data-quiz="1">
+        <span class="card-ico">
+          <svg viewBox="0 0 16 16" width="48" height="48" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="3" y="3" width="10" height="10" fill="#1F4A12"></rect>
+            <rect x="3" y="3" width="10" height="2" fill="#2E6B1D"></rect>
+            <rect x="5" y="6" width="2" height="3" fill="#4CD137"></rect>
+            <rect x="9" y="6" width="2" height="3" fill="#4CD137"></rect>
+            <rect x="6" y="10" width="4" height="2" fill="#4CD137"></rect>
+            <rect x="1" y="5" width="2" height="4" fill="#1F4A12"></rect>
+            <rect x="13" y="5" width="2" height="4" fill="#1F4A12"></rect>
+          </svg>
+        </span>
+        <span class="card-body">
+          <span class="card-name">MOBS &amp; MONDES</span>
+          <span class="card-sub">Créatures, biomes, dimensions</span>
+        </span>
+      </button>
+
+      <button type="button" class="card card-bedrock" data-quiz="2">
+        <span class="card-ico">
+          <svg viewBox="0 0 16 16" width="48" height="48" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="2" y="4" width="12" height="9" fill="#C6613A"></rect>
+            <rect x="2" y="4" width="12" height="3" fill="#E08850"></rect>
+            <rect x="2" y="11" width="12" height="2" fill="#9E4A2A"></rect>
+            <rect x="4" y="8" width="2" height="2" fill="#5FBFA8"></rect>
+            <rect x="9" y="7" width="2" height="2" fill="#5FBFA8"></rect>
+            <rect x="11" y="9" width="2" height="2" fill="#5FBFA8"></rect>
+          </svg>
+        </span>
+        <span class="card-body">
+          <span class="card-name">BEDROCK &amp; 2026</span>
+          <span class="card-sub">Les nouveautés qui viennent de sortir</span>
+        </span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============================ CHOIX DU NIVEAU ============================ -->
+  <section class="screen screen-pick" id="screen-levels">
+    <div class="panel-wrap">
+      <div class="panel-head">
+        <button type="button" class="btn-back" data-nav="quizzes" aria-label="Retour">&#8249;</button>
+        <h2 class="panel-title" id="levelsTitle"></h2>
+      </div>
+
+      <button type="button" class="card card-l1" data-level="0">
+        <span class="card-ico">
+          <svg viewBox="0 0 16 16" width="46" height="46" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="2" y="4" width="12" height="9" fill="#8B8B8B"></rect>
+            <rect x="2" y="4" width="12" height="3" fill="#ABABAB"></rect>
+            <rect x="2" y="11" width="12" height="2" fill="#6A6A6A"></rect>
+            <rect x="5" y="8" width="2" height="2" fill="#6E6E6E"></rect>
+            <rect x="9" y="9" width="2" height="2" fill="#6E6E6E"></rect>
+          </svg>
+        </span>
+        <span class="card-body">
+          <span class="card-name">DÉBUTANT</span>
+          <span class="card-sub">Tu connais les bases</span>
+          <span class="card-pool" data-pool></span>
+        </span>
+      </button>
+
+      <button type="button" class="card card-l2" data-level="1">
+        <span class="card-ico">
+          <svg viewBox="0 0 16 16" width="46" height="46" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="2" y="4" width="12" height="9" fill="#C9962F"></rect>
+            <rect x="2" y="4" width="12" height="3" fill="#F2CE7B"></rect>
+            <rect x="2" y="11" width="12" height="2" fill="#A87C22"></rect>
+            <rect x="4" y="8" width="3" height="2" fill="#FFF0B8"></rect>
+            <rect x="9" y="8" width="2" height="3" fill="#FFF0B8"></rect>
+          </svg>
+        </span>
+        <span class="card-body">
+          <span class="card-name">CONFIRMÉ</span>
+          <span class="card-sub">Tu joues sérieusement</span>
+          <span class="card-pool" data-pool></span>
+        </span>
+      </button>
+
+      <button type="button" class="card card-l3" data-level="2">
+        <span class="card-ico">
+          <svg viewBox="0 0 16 16" width="46" height="46" shape-rendering="crispEdges" aria-hidden="true">
+            <rect x="2" y="4" width="12" height="9" fill="#3EC4BC"></rect>
+            <rect x="2" y="4" width="12" height="3" fill="#ADF5F0"></rect>
+            <rect x="2" y="11" width="12" height="2" fill="#2E9E97"></rect>
+            <rect x="4" y="8" width="2" height="2" fill="#FFFFFF"></rect>
+            <rect x="8" y="7" width="2" height="2" fill="#FFFFFF"></rect>
+            <rect x="10" y="9" width="2" height="2" fill="#FFFFFF"></rect>
+          </svg>
+        </span>
+        <span class="card-body">
+          <span class="card-name">EXPERT</span>
+          <span class="card-sub">Tu connais les chiffres exacts</span>
+          <span class="card-pool" data-pool></span>
+        </span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============================ QUESTION ============================ -->
+  <section class="screen screen-q" id="screen-q">
+    <div class="q-stage" id="qStage">
+      <div class="hud">
+        <button type="button" class="btn-back btn-back-sm" id="btnQuit" aria-label="Quitter">&#8249;</button>
+        <div class="hud-label" id="hudLabel"></div>
+        <div class="combo" id="combo" hidden></div>
+      </div>
+
+      <div class="track-row">
+        <div class="track" id="track"></div>
+        <div class="counter" id="counter"></div>
+      </div>
+
+      <div class="playfield" id="playfield">
+        <div class="playfield-inner">
+          <p class="consigne" id="consigne"></p>
+          <p class="q-text" id="qText"></p>
+          <div class="depth" id="depth" hidden></div>
+          <div class="answers" id="answers" hidden></div>
+          <div class="expl" id="expl" hidden></div>
+        </div>
+      </div>
+
+      <div class="cta-row">
+        <button type="button" class="btn-cta" id="btnCta"></button>
+      </div>
+
+      <div class="fx" id="fx" hidden>
+        <div class="fx-parts" id="fxParts"></div>
+        <div class="fx-label" id="fxLabel"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ RESULTAT ============================ -->
+  <section class="screen screen-result" id="screen-result">
+    <div class="result-wrap">
+      <div class="result-head">
+        <p class="result-sub" id="resultSub"></p>
+        <p class="result-score" id="resultScore"></p>
+        <p class="result-rank" id="resultRank"></p>
+        <div class="stats">
+          <div class="stat"><span class="stat-k">SAVOIR</span><span class="stat-v" id="statScore"></span></div>
+          <div class="stat"><span class="stat-k">COMBO</span><span class="stat-v stat-green" id="statCombo"></span></div>
+          <div class="stat"><span class="stat-k">CHAOS</span><span class="stat-v stat-cyan" id="statChaos"></span></div>
+        </div>
+        <p class="result-msg" id="resultMsg"></p>
+      </div>
+
+      <div class="recap" id="recap"></div>
+
+      <div class="result-actions">
+        <button type="button" class="btn-share" id="btnShare">PARTAGER</button>
+        <button type="button" class="btn-replay" id="btnReplay">REJOUER</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================ MINI-JEU FLASH ============================ -->
+  <div class="overlay overlay-mini" id="overlayMini" hidden>
+    <div class="mini-panel" id="miniPanel" role="dialog" aria-modal="true" aria-labelledby="miniTitle">
+      <div class="mini-alarm">
+        <span>ALERTE FLASH</span>
+        <span id="miniBadge"></span>
+      </div>
+      <div class="mini-timebar"><span id="miniTime"></span></div>
+      <div class="mini-body">
+        <p class="mini-title" id="miniTitle"></p>
+        <p class="mini-sub" id="miniSub"></p>
+
+        <div class="mini-bricks" id="miniBricks" hidden>
+          <div class="mini-model">
+            <div class="mini-target" id="miniTarget"></div>
+            <p class="mini-stat" id="miniStat"></p>
+          </div>
+          <div class="mini-grid" id="miniGrid"></div>
+        </div>
+
+        <div class="mini-melt" id="miniMelt" hidden>
+          <div class="melt-pips" id="meltPips"></div>
+          <button type="button" class="btn-stab" id="btnStab"></button>
+        </div>
+
+        <button type="button" class="btn-mini-next" id="btnMiniNext" hidden></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ CONFIRMATION ============================ -->
+  <div class="overlay overlay-confirm" id="overlayConfirm" hidden>
+    <div class="confirm-panel" role="dialog" aria-modal="true">
+      <p class="confirm-text">Tu vas perdre ta partie. On arrête ?</p>
+      <div class="confirm-actions">
+        <button type="button" class="btn-continue" id="btnCancelBack">ON CONTINUE</button>
+        <button type="button" class="btn-stop" id="btnDoBack">STOP</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ AIDE INSTALLATION iOS ============================ -->
+  <div class="overlay overlay-confirm" id="overlayInstall" hidden>
+    <div class="confirm-panel confirm-panel-wide" role="dialog" aria-modal="true" aria-labelledby="installTitle">
+      <p class="install-title" id="installTitle">METTRE LE JEU SUR L'ÉCRAN</p>
+      <ol class="install-steps" id="installSteps"></ol>
+      <button type="button" class="btn-continue btn-install-close" id="btnInstallClose">C'EST BON</button>
+    </div>
+  </div>
+
+  <p class="sr-live" id="live" aria-live="polite"></p>
+</div>
+
+<script src="./assets/js/quiz-data.js"></script>
+<script src="./assets/js/app.js"></script>
+</body>
+</html>

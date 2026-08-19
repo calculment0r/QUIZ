@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="color-scheme" content="only light">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<script src="./quiz-data.js"></script>
+<style>
+:root { color-scheme: only light; --page-bg: #140A26; }
+html, body { margin:0; padding:0; height:100%; background-color:#140A26; overflow:hidden; }
+body::before { content:''; position:fixed; inset:0; background-color:var(--page-bg); z-index:-1; }
+* { -webkit-tap-highlight-color: transparent; }
+a { color:#FFC145; text-decoration:none; }
+a:hover { color:#FFE9A8; }
+@keyframes halo{0%{opacity:.85}100%{opacity:1}}
+@keyframes drift{0%{transform:translateX(-6%)}100%{transform:translateX(6%)}}
+@keyframes glint{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.86)}}
+@keyframes breathe{0%{transform:scale(1)}100%{transform:scale(1.03)}}
+@keyframes rose{0%{opacity:0}45%{opacity:.85}100%{opacity:0}}
+@keyframes grassUp{from{clip-path:inset(100% 0 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes riseFade{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-80px);opacity:0}}
+@keyframes fadeOut{to{opacity:0}}
+@keyframes panelIn{0%{transform:translateY(40px);opacity:0}70%{transform:translateY(-6px);opacity:1}100%{transform:translateY(0);opacity:1}}
+@keyframes popOk{0%{transform:scale(1)}50%{transform:scale(1.06)}100%{transform:scale(1)}}
+@keyframes shakeKo{0%{transform:translateX(-5px)}25%{transform:translateX(5px)}50%{transform:translateX(-3px)}75%{transform:translateX(3px)}100%{transform:translateX(0)}}
+@keyframes pulseOk{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3)}}
+@keyframes fadeUp{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes ansA{from{transform:translateX(24px);opacity:0}70%{transform:translateX(-3px);opacity:1}to{transform:translateX(0);opacity:1}}
+@keyframes ansB{from{transform:translateX(24px);opacity:0}70%{transform:translateX(-3px);opacity:1}to{transform:translateX(0);opacity:1}}
+@keyframes qA{from{transform:translateX(24px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes qB{from{transform:translateX(24px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes qOut{to{transform:translateX(-24px);opacity:0}}
+@keyframes crackIn{from{opacity:0}to{opacity:.35}}
+@keyframes pL{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(-38px,-54px) scale(.4);opacity:0}}
+@keyframes pC{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(0,-68px) scale(.4);opacity:0}}
+@keyframes pR{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(38px,-54px) scale(.4);opacity:0}}
+@keyframes burst{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-110px) scale(.5);opacity:0}}
+@keyframes zoomIn{0%{transform:scale(.9);opacity:0}60%{transform:scale(1.04);opacity:1}100%{transform:scale(1);opacity:1}}
+@media (forced-colors: active) { * { forced-color-adjust:none; } }
+@media (prefers-reduced-motion: reduce){ * { animation-duration:1ms !important; animation-iteration-count:1 !important; transition-duration:200ms !important; } }
+</style>
+</helmet>
+<div style="position:relative;width:100%;height:100dvh;min-height:100%;overflow:hidden;background-color:#140A26;color:#2B2B2B;font-family:-apple-system,'Segoe UI',Roboto,sans-serif;user-select:none;-webkit-user-select:none">
+
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,#140A26 0%,#3D1B4E 30%,#7A2B52 48%,#C43B22 57%,#F2712C 61%,#F2712C 100%)"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,#87CEEB 0%,#B8E3F0 100%);opacity:0;transition:opacity 1100ms ease-in-out 200ms;{{ skyDayLive }}"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,#FF9E7A 0%,#FFC49E 60%,#FFD9B0 100%);opacity:0;{{ roseLive }}"></div>
+
+  <div style="position:absolute;left:0;right:0;top:8%;height:26%;animation:drift 40s linear infinite alternate">
+    <div style="position:absolute;left:8%;top:10%;width:34%;height:10px;background:#7A2B52;opacity:.45;transition:background-color 600ms linear 900ms, opacity 600ms linear 900ms;{{ cloudLive }}"></div>
+    <div style="position:absolute;left:26%;top:34%;width:22%;height:8px;background:#7A2B52;opacity:.45;transition:background-color 600ms linear 900ms, opacity 600ms linear 900ms;{{ cloudLive }}"></div>
+    <div style="position:absolute;left:56%;top:56%;width:30%;height:10px;background:#7A2B52;opacity:.45;transition:background-color 600ms linear 900ms, opacity 600ms linear 900ms;{{ cloudLive }}"></div>
+  </div>
+
+  <div style="position:absolute;left:50%;top:58%;width:clamp(48px,12vw,96px);height:clamp(48px,12vw,96px);background:#FFC145;transform:translateX(-50%) scale(1);box-shadow:0 0 40px 18px rgba(242,113,44,.5), 0 0 90px 45px rgba(196,59,34,.28);transition:top 1300ms cubic-bezier(.16,.84,.44,1) 100ms, transform 1300ms cubic-bezier(.16,.84,.44,1) 100ms, box-shadow 1300ms ease-in-out 100ms;{{ sunLive }}"></div>
+
+  <div style="position:absolute;left:0;right:0;top:44%;height:20%;transition:opacity 800ms ease-in 400ms, transform 800ms ease-in 400ms, filter 800ms linear 400ms;{{ islandsLive }}">
+    <svg viewBox="0 0 200 60" preserveAspectRatio="none" width="100%" height="100%" shape-rendering="crispEdges" fill="#0C0714" aria-hidden="true">
+      <rect x="8" y="52" width="75" height="8"></rect>
+      <rect x="18" y="46" width="58" height="6"></rect>
+      <rect x="28" y="40" width="40" height="6"></rect>
+      <rect x="40" y="34" width="22" height="6"></rect>
+      <rect x="48" y="28" width="10" height="6"></rect>
+      <rect x="51" y="20" width="6" height="8"></rect>
+      <rect x="49" y="17" width="10" height="3"></rect>
+      <rect x="118" y="54" width="52" height="6"></rect>
+      <rect x="128" y="49" width="32" height="5"></rect>
+      <rect x="136" y="45" width="16" height="4"></rect>
+      <rect x="176" y="56" width="24" height="4"></rect>
+      <rect x="182" y="52" width="12" height="4"></rect>
+      <rect x="0" y="57" width="10" height="3"></rect>
+    </svg>
+  </div>
+
+  <div style="position:absolute;left:0;right:0;top:64%;bottom:0;background:linear-gradient(180deg,#1E1236 0%,#0E0820 100%);transition:opacity 700ms ease-in 500ms;{{ seaLive }}">
+    <div style="position:absolute;left:50%;top:4%;width:46%;height:7px;margin-left:-23%;background:#F2712C;opacity:.5;animation:glint 3s steps(4) infinite"></div>
+    <div style="position:absolute;left:50%;top:12%;width:38%;height:6px;margin-left:-19%;background:#F2712C;opacity:.42;animation:glint 3s steps(4) 300ms infinite"></div>
+    <div style="position:absolute;left:50%;top:21%;width:30%;height:6px;margin-left:-15%;background:#F2712C;opacity:.34;animation:glint 3s steps(4) 600ms infinite"></div>
+    <div style="position:absolute;left:50%;top:31%;width:24%;height:5px;margin-left:-12%;background:#F2712C;opacity:.27;animation:glint 3s steps(4) 900ms infinite"></div>
+    <div style="position:absolute;left:50%;top:42%;width:18%;height:5px;margin-left:-9%;background:#F2712C;opacity:.2;animation:glint 3s steps(4) 1200ms infinite"></div>
+    <div style="position:absolute;left:50%;top:54%;width:12%;height:4px;margin-left:-6%;background:#F2712C;opacity:.14;animation:glint 3s steps(4) 1500ms infinite"></div>
+  </div>
+
+  <div style="position:absolute;left:0;right:0;top:64%;bottom:0;opacity:0;background:linear-gradient(180deg,#98D982 0px,#98D982 14px,#7CB765 14px,#7CB765 40px,#8B5A2B 40px,#6E4522 100%);transition:opacity 500ms linear;{{ grassLive }}">
+    <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.07) 0 2px,transparent 2px 24px),repeating-linear-gradient(0deg,rgba(0,0,0,.07) 0 2px,transparent 2px 24px)"></div>
+  </div>
+
+  <sc-if value="{{ isRising }}">
+    <div style="position:absolute;left:0;right:0;top:60%;height:20%;pointer-events:none">
+      <div style="position:absolute;left:10%;bottom:0;width:6px;height:6px;background:#FFC145;animation:riseFade 700ms ease-out 60ms both"></div>
+      <div style="position:absolute;left:22%;bottom:0;width:4px;height:4px;background:#FFE9A8;animation:riseFade 700ms ease-out 180ms both"></div>
+      <div style="position:absolute;left:31%;bottom:0;width:8px;height:8px;background:#FFC145;animation:riseFade 700ms ease-out 0ms both"></div>
+      <div style="position:absolute;left:44%;bottom:0;width:5px;height:5px;background:#FFE9A8;animation:riseFade 700ms ease-out 240ms both"></div>
+      <div style="position:absolute;left:52%;bottom:0;width:6px;height:6px;background:#FFC145;animation:riseFade 700ms ease-out 120ms both"></div>
+      <div style="position:absolute;left:63%;bottom:0;width:4px;height:4px;background:#FFE9A8;animation:riseFade 700ms ease-out 300ms both"></div>
+      <div style="position:absolute;left:71%;bottom:0;width:7px;height:7px;background:#FFC145;animation:riseFade 700ms ease-out 90ms both"></div>
+      <div style="position:absolute;left:84%;bottom:0;width:5px;height:5px;background:#FFE9A8;animation:riseFade 700ms ease-out 210ms both"></div>
+      <div style="position:absolute;left:92%;bottom:0;width:6px;height:6px;background:#FFC145;animation:riseFade 700ms ease-out 150ms both"></div>
+    </div>
+  </sc-if>
+
+  <div style="position:absolute;inset:0;pointer-events:none;background-image:repeating-linear-gradient(0deg,transparent 0 20px,rgba(255,255,255,.03) 20px 40px),repeating-linear-gradient(90deg,transparent 0 20px,rgba(255,255,255,.03) 20px 40px)"></div>
+
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute;inset:0;z-index:6;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding:0 20px 12%;box-sizing:border-box;{{ homeLive }}">
+      <h1 style="margin:0 0 28px;text-align:center;font-family:'Press Start 2P',monospace;font-size:clamp(22px,6vw,42px);line-height:1.4;color:#FFE9A8;text-shadow:4px 4px 0 rgba(12,7,20,.85), 0 0 32px rgba(242,113,44,.6);letter-spacing:1px">QUIZ<br>MINECRAFT</h1>
+      <button type="button" onClick="{{ start }}" aria-label="Commencer le quiz" style="min-width:220px;height:64px;padding:0 24px;font-family:'Press Start 2P',monospace;font-size:clamp(11px,2.6vw,14px);color:#2B2B2B;background:#FFC145;border:0;border-radius:0;box-shadow:inset 4px 4px 0 0 #FFE9A8, inset -4px -4px 0 0 #C99416, 0 4px 0 0 #8F6A0E, 0 6px 14px rgba(0,0,0,.35);cursor:pointer;animation:breathe 2200ms ease-in-out infinite alternate;transition:box-shadow 90ms steps(2), filter 120ms linear" style-hover="filter:brightness(1.08)" style-active="box-shadow:inset -4px -4px 0 0 #FFE9A8, inset 4px 4px 0 0 #C99416, 0 0 0 0 #8F6A0E">&#9654; START</button>
+      <div style="position:absolute;left:16px;bottom:calc(14px + env(safe-area-inset-bottom));font-family:'Press Start 2P',monospace;font-size:clamp(8px,2vw,10px);line-height:1.8;color:#FFE9A8;opacity:.55">{{ edition }}</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isQuizzes }}">
+    <div style="position:absolute;inset:0;z-index:6;display:flex;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom));box-sizing:border-box">
+      <div style="width:100%;max-width:860px;margin:auto;max-height:100%;display:flex;flex-direction:column;background-color:#F5F5F5;border:6px solid #333333;box-shadow:0 0 0 4px #555555, 0 0 0 8px #777777, 0 10px 30px rgba(0,0,0,.5);overflow:hidden;animation:panelIn 480ms cubic-bezier(.34,1.4,.64,1) both">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background-color:#E4E4E4;border-bottom:4px solid #333333;flex:none">
+          <button type="button" onClick="{{ toHome }}" aria-label="Retour à l'accueil" style="width:44px;height:44px;flex:none;font-family:'Press Start 2P',monospace;font-size:14px;color:#2B2B2B;background:#E4E4E4;border:0;box-shadow:inset 4px 4px 0 0 #FFFFFF, inset -4px -4px 0 0 #B9B9B9, 0 4px 0 0 #8F8F8F;cursor:pointer;transition:transform 90ms steps(2), filter 120ms linear" style-hover="filter:brightness(1.08)" style-active="transform:translateY(4px)">&#8249;</button>
+          <h2 style="margin:0;font-family:'Press Start 2P',monospace;font-size:clamp(11px,2.6vw,16px);line-height:1.5;color:#3B8526">CHOISIS TON QUIZ</h2>
+        </div>
+        <div style="padding:14px;overflow-y:auto;background-color:#F5F5F5;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">
+
+          <button type="button" onClick="{{ pickSurvie }}" style="position:relative;text-align:left;padding:0 0 14px;background:#E4E4E4;border:0;cursor:pointer;box-shadow:inset 4px 4px 0 0 #FFFFFF, inset -4px -4px 0 0 #B9B9B9, 0 4px 0 0 #8F8F8F, 0 6px 10px rgba(0,0,0,.2);transition:transform 90ms steps(2), filter 120ms linear" style-hover="transform:translateY(-4px);filter:brightness(1.05)" style-active="transform:translateY(4px)">
+            <div style="height:8px;background-color:#8B5A2B"></div>
+            <div style="display:flex;align-items:center;gap:14px;padding:14px 14px 0">
+              <svg width="44" height="44" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" style="flex:none">
+                <rect x="2" y="5" width="2" height="2" fill="#9A9A9A"></rect>
+                <rect x="4" y="3" width="2" height="2" fill="#9A9A9A"></rect>
+                <rect x="6" y="2" width="4" height="2" fill="#B4B4B4"></rect>
+                <rect x="10" y="3" width="2" height="2" fill="#9A9A9A"></rect>
+                <rect x="12" y="5" width="2" height="2" fill="#9A9A9A"></rect>
+                <rect x="7" y="4" width="2" height="2" fill="#8B5A2B"></rect>
+                <rect x="7" y="6" width="2" height="2" fill="#8B5A2B"></rect>
+                <rect x="6" y="8" width="2" height="2" fill="#8B5A2B"></rect>
+                <rect x="5" y="10" width="2" height="2" fill="#6E4522"></rect>
+                <rect x="4" y="12" width="2" height="2" fill="#6E4522"></rect>
+              </svg>
+              <div>
+                <div style="font-family:'Press Start 2P',monospace;font-size:clamp(11px,2.6vw,14px);line-height:1.6;color:#2B2B2B">SURVIE &amp; CRAFT</div>
+                <div style="margin-top:8px;font-size:clamp(12px,3vw,14px);line-height:1.5;color:#6A6A6A;text-wrap:pretty">Blocs, outils, recettes, les bases qui sauvent la vie</div>
+              </div>
+            </div>
+          </button>
+
+          <button type="button" onClick="{{ pickMobs }}" style="position:relative;text-align:left;padding:0 0 14px;background:#E4E4E4;border:0;cursor:pointer;box-shadow:inset 4px 4px 0 0 #FFFFFF, inset -4px -4px 0 0 #B9B9B9, 0 4px 0 0 #8F8F8F, 0 6px 10px rgba(0,0,0,.2);transition:transform 90ms steps(2), filter 120ms linear" style-hover="transform:translateY(-4px);filter:brightness(1.05)" style-active="transform:translateY(4px)">
+            <div style="height:8px;background-color:#3B8526"></div>
+            <div style="display:flex;align-items:center;gap:14px;padding:14px 14px 0">
+              <svg width="44" height="44" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" style="flex:none">
+                <rect x="3" y="3" width="10" height="10" fill="#3B8526"></rect>
+                <rect x="3" y="3" width="10" height="2" fill="#4CAF3E"></rect>
+                <rect x="5" y="6" width="2" height="3" fill="#14300E"></rect>
+                <rect x="9" y="6" width="2" height="3" fill="#14300E"></rect>
+                <rect x="6" y="10" width="4" height="2" fill="#14300E"></rect>
+                <rect x="1" y="5" width="2" height="4" fill="#2E6B1D"></rect>
+                <rect x="13" y="5" width="2" height="4" fill="#2E6B1D"></rect>
+              </svg>
+              <div>
+                <div style="font-family:'Press Start 2P',monospace;font-size:clamp(11px,2.6vw,14px);line-height:1.6;color:#2B2B2B">MOBS &amp; MONDES</div>
+                <div style="margin-top:8px;font-size:clamp(12px,3vw,14px);line-height:1.5;color:#6A6A6A;text-wrap:pretty">Créatures, biomes, dimensions, structures</div>
+              </div>
+            </div>
+          </button>
+
+          <button type="button" onClick="{{ pickBedrock }}" style="position:relative;text-align:left;padding:0 0 14px;background:#E4E4E4;border:0;cursor:pointer;box-shadow:inset 4px 4px 0 0 #FFFFFF, inset -4px -4px 0 0 #B9B9B9, 0 4px 0 0 #8F8F8F, 0 6px 10px rgba(0,0,0,.2);transition:transform 90ms steps(2), filter 120ms linear" style-hover="transform:translateY(-4px);filter:brightness(1.05)" style-active="transform:translateY(4px)">
+            <div style="height:8px;background-color:#F2712C"></div>
+            <div style="display:flex;align-items:center;gap:14px;padding:14px 14px 0">
+              <svg width="44" height="44" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" style="flex:none">
+                <rect x="2" y="4" width="12" height="9" fill="#C6613A"></rect>
+                <rect x="2" y="4" width="12" height="3" fill="#E08850"></rect>
+                <rect x="2" y="11" width="12" height="2" fill="#9E4A2A"></rect>
+                <rect x="4" y="8" width="2" height="2" fill="#5FBFA8"></rect>
+                <rect x="9" y="7" width="2" height="2" fill="#5FBFA8"></rect>
+                <rect x="11" y="9" width="2" height="2" fill="#5FBFA8"></rect>
+              </svg>
+              <div>
+                <div style="font-family:'Press Start 2P',monospace;font-size:clamp(11px,2.6vw,14px);line-height:1.6;color:#2B2B2B">BEDROCK &amp; 2026</div>
+                <div style="margin-top:8px;font-size:clamp(12px,3vw,14px);line-height:1.5;color:#6A6A6A;text-wrap:pretty">Bedrock, Marketplace et tout ce qui est sorti récemment</div>
+              </div>
+            </div>
+          </button>
+
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isLevels }}">
+    <div style="position:absolute;inset:0;z-index:6;display:flex;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom));box-sizing:border-box">
+      <div style="width:100%;max-width:860px;margin:auto;max-height:100%;display:flex;flex-direction:column;background-color:#F5F5F5;border:6px solid #333333;box-shadow:0 0 0 4px #555555, 0 0 0 8px #777777, 0 10px 30px rgba(0,0,0,.5);overflow:hidden;animation:panelIn 480ms cubic-bezier(.34,1.4,.64,1) both">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background-color:#E4E4E4;border-bottom:4px solid #333333;flex:none">
+          <button type="button" onClick="{{ toQuizzes }}" aria-label="Retour au choix du quiz" style="width:44px;height:44px;flex:none;font-family:'Press Start 2P',monospace;font-size:14px;color:#2B2B2B;background:#E4E4E4;border:0;box-shadow:inset 4px 4px 0 0 #FFFFFF, inset -4px -4px 0 0 #B9B9B9, 0 4px 0 0 #8F8F8F;cursor:pointer;transition:transform 90ms steps(2), filter 120ms linear" style-hover="filter:brightness(1.08)" style-active="transform:translateY(4px)">&#8249;</button>
+          <h2 style="margin:0;font-family:'Press Start 2P',monospace;font-size:clamp(11px,2.6vw,16px);line-height:1.5;color:#3B8526">{{ quizTitle }}</h2>
+        </div>
+        <div style="padding:14px;overflow-y:auto;background-color:#F5F5F5;display:flex;flex-direction:column;gap:14px">
+
+          <button type="button" onClick="{{ pickL1 }}" style="display:flex;align-items:center;gap:16px;padding:14px;text-align:left;background:#8B8B8B;border:0;cursor:pointer;box-shadow:inset 4px 4px 0 0 #B4B4B4, inset -4px -4px 0 0 #6A6A6A, 0 4px 0 0 #4F4F4F, 0 6px 10px rgba(0,0,0,.25);transition:transform 90ms steps(2), filter 120ms linear" style-hover="transform:translateY(-4px);filter:brightness(1.1)" style-active="transform:translateY(4px)">
+            <svg width="46" height="46" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" style="flex:none">
+              <rect x="2" y="4" width="12" height="9" fill="#8B8B8B"></rect>
+              <rect x="2" y="4" width="12" height="3" fill="#A8A8A8"></rect>
+              <rect x="2" y="11" width="12" height="2" fill="#6A6A6A"></rect>
+              <rect x="5" y="8" width="2" height="2" fill="#6E6E6E"></rect>
+              <rect x="9" y="9" width="2" height="2" fill="#6E6E6E"></rect>
+            </svg>
+            <div style="flex:1">
+              <div style="font-family:'Press Start 2P',monospace;font-size:clamp(11px,2.6vw,15px);line-height:1.6;color:#FFFFFF;text-shadow:2px 2px 0 rgba(0,0,0,.4)">DÉBUTANT</div>
+              <div style="margin-top:8px;font-size:clamp(13px,3.4vw,16px);color:#F5F5F5">Tu connais les bases</div>
+            </div>
+            <div style="flex:none;max-width:80px;text-align:right;font-family:'Press Start 2P',monospace;font-size:clamp(8px,2vw,10px);line-height:1.8;color:#FFFFFF;opacity:.8">{{ nbLabel }}</div>
+          </button>
+
+          <button type="button" onClick="{{ pickL2 }}" style="display:flex;align-items:center;gap:16px;padding:14px;text-align:left;background:#D9A441;border:0;cursor:pointer;box-shadow:inset 4px 4px 0 0 #F2CE7B, inset -4px -4px 0 0 #A87C22, 0 4px 0 0 #7E5C16, 0 6px 10px rgba(0,0,0,.25);transition:transform 90ms steps(2), filter 120ms linear" style-hover="transform:translateY(-4px);filter:brightness(1.1)" style-active="transform:translateY(4px)">
+            <svg width="46" height="46" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" style="flex:none">
+              <rect x="2" y="4" width="12" height="9" fill="#C9962F"></rect>
+              <rect x="2" y="4" width="12" height="3" fill="#F2CE7B"></rect>
+              <rect x="2" y="11" width="12" height="2" fill="#A87C22"></rect>
+              <rect x="4" y="8" width="3" height="2" fill="#FFF0B8"></rect>
+              <rect x="9" y="8" width="2" height="3" fill="#FFF0B8"></rect>
+            </svg>
+            <div style="flex:1">
+              <div style="font-family:'Press Start 2P',monospace;font-size:clamp(11px,2.6vw,15px);line-height:1.6;color:#3A2A05;text-shadow:2px 2px 0 rgba(255,255,255,.25)">CONFIRMÉ</div>
+              <div style="margin-top:8px;font-size:clamp(13px,3.4vw,16px);color:#3A2A05">Tu joues sérieusement</div>
+            </div>
+            <div style="flex:none;max-width:80px;text-align:right;font-family:'Press Start 2P',monospace;font-size:clamp(8px,2vw,10px);line-height:1.8;color:#3A2A05;opacity:.75">{{ nbLabel }}</div>
+          </button>
+
+          <button type="button" onClick="{{ pickL3 }}" style="display:flex;align-items:center;gap:16px;padding:14px;text-align:left;background:#4FD9D0;border:0;cursor:pointer;box-shadow:inset 4px 4px 0 0 #ADF5F0, inset -4px -4px 0 0 #2E9E97, 0 4px 0 0 #1F736E, 0 6px 10px rgba(0,0,0,.25);transition:transform 90ms steps(2), filter 120ms linear" style-hover="transform:translateY(-4px);filter:brightness(1.1)" style-active="transform:translateY(4px)">
+            <svg width="46" height="46" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true" style="flex:none">
+              <rect x="2" y="4" width="12" height="9" fill="#3EC4BC"></rect>
+              <rect x="2" y="4" width="12" height="3" fill="#ADF5F0"></rect>
+              <rect x="2" y="11" width="12" height="2" fill="#2E9E97"></rect>
+              <rect x="4" y="8" width="2" height="2" fill="#FFFFFF"></rect>
+              <rect x="8" y="7" width="2" height="2" fill="#FFFFFF"></rect>
+              <rect x="10" y="9" width="2" height="2" fill="#FFFFFF"></rect>
+            </svg>
+            <div style="flex:1">
+              <div style="font-family:'Press Start 2P',monospace;font-size:clamp(11px,2.6vw,15px);line-height:1.6;color:#0C3B38;text-shadow:2px 2px 0 rgba(255,255,255,.3)">EXPERT</div>
+              <div style="margin-top:8px;font-size:clamp(13px,3.4vw,16px);color:#0C3B38">Tu connais les chiffres exacts</div>
+            </div>
+            <div style="flex:none;max-width:80px;text-align:right;font-family:'Press Start 2P',monospace;font-size:clamp(8px,2vw,10px);line-height:1.8;color:#0C3B38;opacity:.75">{{ nbLabel }}</div>
+          </button>
+
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isQuestion }}">
+    <div style="position:absolute;inset:0;z-index:6;display:flex;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom));box-sizing:border-box">
+      <div style="width:100%;max-width:860px;margin:auto;max-height:100%;display:flex;flex-direction:column;background-color:#F5F5F5;border:6px solid #333333;box-shadow:0 0 0 4px #555555, 0 0 0 8px #777777, 0 10px 30px rgba(0,0,0,.5);overflow:hidden;animation:panelIn 480ms cubic-bezier(.34,1.4,.64,1) both">
+        <div style="flex:none;background-color:#E4E4E4;border-bottom:4px solid #333333;padding:10px 12px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <button type="button" onClick="{{ askBack }}" aria-label="Quitter le quiz" style="width:44px;height:44px;flex:none;font-family:'Press Start 2P',monospace;font-size:14px;color:#2B2B2B;background:#E4E4E4;border:0;box-shadow:inset 4px 4px 0 0 #FFFFFF, inset -4px -4px 0 0 #B9B9B9, 0 4px 0 0 #8F8F8F;cursor:pointer;transition:transform 90ms steps(2), filter 120ms linear" style-hover="filter:brightness(1.08)" style-active="transform:translateY(4px)">&#8249;</button>
+            <div style="flex:1;font-family:'Press Start 2P',monospace;font-size:clamp(8px,2vw,11px);line-height:1.8;color:#6A6A6A">{{ headerLabel }}</div>
+            <div style="display:flex;gap:5px;flex:none">
+              <sc-for list="{{ lives }}" as="life" hint-placeholder-count="3">
+                <div style="width:20px;height:18px;line-height:0;color:#C4362B;{{ life.live }}">
+                  <svg width="20" height="18" viewBox="0 0 7 6" shape-rendering="crispEdges" aria-hidden="true" fill="currentColor">
+                    <rect x="1" y="0" width="2" height="1"></rect>
+                    <rect x="4" y="0" width="2" height="1"></rect>
+                    <rect x="0" y="1" width="7" height="2"></rect>
+                    <rect x="1" y="3" width="5" height="1"></rect>
+                    <rect x="2" y="4" width="3" height="1"></rect>
+                    <rect x="3" y="5" width="1" height="1"></rect>
+                  </svg>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+            <div style="flex:1;height:14px;background-color:#3A3A3A;box-shadow:inset 0 2px 0 rgba(0,0,0,.5);position:relative;overflow:hidden">
+              <div style="height:100%;width:0%;background-color:#4CAF3E;border-top:2px solid #8BE07C;box-sizing:border-box;transition:width 400ms steps(8);{{ xpLive }}"></div>
+            </div>
+            <div style="flex:none;font-family:'Press Start 2P',monospace;font-size:clamp(8px,2vw,11px);line-height:1.8;color:#2B2B2B">{{ counter }}</div>
+          </div>
+        </div>
+
+        <div style="padding:16px;overflow-y:auto;background-color:#F5F5F5;{{ qBlockLive }}">
+          <p style="margin:0 0 18px;font-size:clamp(16px,4.2vw,22px);line-height:1.45;font-weight:600;color:#2B2B2B;text-wrap:pretty">{{ qText }}</p>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px">
+            <sc-for list="{{ answers }}" as="a" hint-placeholder-count="4">
+              <button type="button" onClick="{{ a.tap }}" aria-label="{{ a.text }}" style="position:relative;overflow:hidden;min-height:56px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;font-family:-apple-system,'Segoe UI',Roboto,sans-serif;font-size:clamp(14px,3.6vw,17px);line-height:1.4;font-weight:600;color:#2B2B2B;background:#E4E4E4;border:0;cursor:pointer;box-shadow:inset 4px 4px 0 0 #FFFFFF, inset -4px -4px 0 0 #B9B9B9, 0 4px 0 0 #8F8F8F, 0 6px 10px rgba(0,0,0,.22);transition:transform 90ms steps(2), box-shadow 90ms steps(2), filter 120ms linear;{{ a.live }}" style-active="transform:translateY(4px)">
+                <span>{{ a.text }}</span>
+                <span style="flex:none;font-family:'Press Start 2P',monospace;font-size:13px">{{ a.mark }}</span>
+                <sc-if value="{{ a.isKo }}">
+                  <svg width="100%" height="100%" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;animation:crackIn 180ms steps(3) both">
+                    <polyline points="16,4 21,15 15,24 19,35" fill="none" stroke="#FFFFFF" stroke-width="1.5"></polyline>
+                    <polyline points="55,1 50,12 57,21 52,33" fill="none" stroke="#FFFFFF" stroke-width="1.5"></polyline>
+                    <polyline points="85,7 90,17 82,26 86,37" fill="none" stroke="#FFFFFF" stroke-width="1.5"></polyline>
+                  </svg>
+                </sc-if>
+                <sc-if value="{{ a.isPop }}">
+                  <span style="position:absolute;left:50%;bottom:8px;pointer-events:none">
+                    <span style="position:absolute;width:5px;height:5px;background:#FFC145;animation:pL 450ms ease-out both"></span>
+                    <span style="position:absolute;width:4px;height:4px;background:#4CAF3E;animation:pL 450ms ease-out 60ms both"></span>
+                    <span style="position:absolute;width:6px;height:6px;background:#FFC145;animation:pC 450ms ease-out 30ms both"></span>
+                    <span style="position:absolute;width:4px;height:4px;background:#FFE9A8;animation:pC 450ms ease-out 100ms both"></span>
+                    <span style="position:absolute;width:5px;height:5px;background:#FFC145;animation:pR 450ms ease-out both"></span>
+                    <span style="position:absolute;width:4px;height:4px;background:#4CAF3E;animation:pR 450ms ease-out 70ms both"></span>
+                  </span>
+                </sc-if>
+              </button>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ showExpl }}">
+            <div style="margin-top:16px;padding:12px 14px;background-color:#E4E4E4;border-left:4px solid #4CAF3E;font-size:clamp(12px,3vw,14px);line-height:1.5;color:#2B2B2B;text-wrap:pretty;animation:fadeUp 180ms ease-out 400ms both;{{ explLive }}">{{ explText }}</div>
+            <div style="display:flex;justify-content:flex-end;margin-top:14px">
+              <button type="button" onClick="{{ next }}" style="min-height:48px;padding:0 20px;font-family:'Press Start 2P',monospace;font-size:clamp(10px,2.4vw,13px);color:#FFFFFF;background:#3B8526;border:0;cursor:pointer;box-shadow:inset 4px 4px 0 0 #5FA845, inset -4px -4px 0 0 #2A611B, 0 4px 0 0 #1F4A14, 0 6px 10px rgba(0,0,0,.25);animation:fadeUp 180ms ease-out 600ms both;transition:transform 90ms steps(2), filter 120ms linear" style-hover="filter:brightness(1.1)" style-active="transform:translateY(4px)">{{ nextLabel }}</button>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isResult }}">
+    <div style="position:absolute;inset:0;z-index:6;display:flex;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom));box-sizing:border-box">
+      <div style="width:100%;max-width:860px;margin:auto;max-height:100%;display:flex;flex-direction:column;background-color:#F5F5F5;border:6px solid #333333;box-shadow:0 0 0 4px #555555, 0 0 0 8px #777777, 0 10px 30px rgba(0,0,0,.5);overflow:hidden;animation:panelIn 480ms cubic-bezier(.34,1.4,.64,1) both">
+        <div style="position:relative;flex:none;padding:20px 14px 16px;background-color:#E4E4E4;border-bottom:4px solid #333333;text-align:center;overflow:hidden">
+          <sc-if value="{{ perfect }}">
+            <span style="position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none">
+              <span style="position:absolute;left:8%;bottom:0;width:6px;height:6px;background:#FFC145;animation:burst 900ms ease-out both"></span>
+              <span style="position:absolute;left:20%;bottom:0;width:4px;height:4px;background:#FFE9A8;animation:burst 900ms ease-out 120ms both"></span>
+              <span style="position:absolute;left:32%;bottom:0;width:7px;height:7px;background:#FFC145;animation:burst 900ms ease-out 60ms both"></span>
+              <span style="position:absolute;left:46%;bottom:0;width:5px;height:5px;background:#FFE9A8;animation:burst 900ms ease-out 200ms both"></span>
+              <span style="position:absolute;left:58%;bottom:0;width:6px;height:6px;background:#FFC145;animation:burst 900ms ease-out 30ms both"></span>
+              <span style="position:absolute;left:70%;bottom:0;width:4px;height:4px;background:#FFE9A8;animation:burst 900ms ease-out 260ms both"></span>
+              <span style="position:absolute;left:84%;bottom:0;width:6px;height:6px;background:#FFC145;animation:burst 900ms ease-out 160ms both"></span>
+              <span style="position:absolute;left:92%;bottom:0;width:5px;height:5px;background:#FFE9A8;animation:burst 900ms ease-out 90ms both"></span>
+            </span>
+          </sc-if>
+          <div style="font-family:'Press Start 2P',monospace;font-size:clamp(8px,2vw,10px);line-height:1.8;color:#6A6A6A">{{ headerLabel }}</div>
+          <div style="margin-top:14px;font-family:'Press Start 2P',monospace;font-size:clamp(28px,9vw,54px);line-height:1.2;color:#FFC145;text-shadow:3px 3px 0 rgba(0,0,0,.35);animation:zoomIn 420ms cubic-bezier(.34,1.4,.64,1) 260ms both">{{ scoreLabel }}</div>
+          <div style="margin-top:14px;font-family:'Press Start 2P',monospace;font-size:clamp(11px,2.8vw,18px);line-height:1.5;animation:zoomIn 350ms cubic-bezier(.34,1.4,.64,1) 900ms both;{{ rankLive }}">{{ rankName }}</div>
+          <p style="margin:14px 0 0;font-size:clamp(14px,3.6vw,17px);line-height:1.4;color:#2B2B2B;text-wrap:pretty">{{ rankMsg }}</p>
+        </div>
+
+        <div style="padding:14px;overflow-y:auto;background-color:#F5F5F5">
+          <div style="font-family:'Press Start 2P',monospace;font-size:clamp(8px,2vw,10px);line-height:1.8;color:#6A6A6A;margin-bottom:10px">RÉCAP</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <sc-for list="{{ recap }}" as="r" hint-placeholder-count="12">
+              <button type="button" onClick="{{ r.toggle }}" style="display:block;width:100%;text-align:left;padding:8px 10px;background-color:#E4E4E4;border:0;cursor:pointer;box-shadow:inset 2px 2px 0 0 #FFFFFF, inset -2px -2px 0 0 #C4C4C4;{{ r.live }}">
+                <div style="display:flex;align-items:center;gap:10px;overflow:hidden">
+                  <span style="flex:none;width:14px;height:14px;background-color:{{ r.color }}"></span>
+                  <span style="flex:none;font-family:'Press Start 2P',monospace;font-size:9px;color:#6A6A6A">{{ r.num }}</span>
+                  <span style="flex:1;min-width:0;font-size:13px;line-height:1.4;color:#2B2B2B;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.q }}</span>
+                </div>
+                <sc-if value="{{ r.open }}">
+                  <div style="margin-top:8px;padding-left:24px;font-size:13px;line-height:1.5;color:#3B8526;text-wrap:pretty">{{ r.answer }}</div>
+                </sc-if>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="flex:none;display:flex;gap:10px;padding:12px 14px;background-color:#E4E4E4;border-top:4px solid #333333">
+          <button type="button" onClick="{{ share }}" style="flex:1;min-height:48px;font-family:'Press Start 2P',monospace;font-size:clamp(9px,2.2vw,12px);color:#FFFFFF;background:#3A7BBF;border:0;cursor:pointer;box-shadow:inset 4px 4px 0 0 #6BA3DB, inset -4px -4px 0 0 #2A5C90, 0 4px 0 0 #1E456C;transition:transform 90ms steps(2), filter 120ms linear" style-hover="filter:brightness(1.1)" style-active="transform:translateY(4px)">{{ shareLabel }}</button>
+          <button type="button" onClick="{{ replay }}" style="flex:1;min-height:48px;font-family:'Press Start 2P',monospace;font-size:clamp(9px,2.2vw,12px);color:#FFFFFF;background:#3B8526;border:0;cursor:pointer;box-shadow:inset 4px 4px 0 0 #5FA845, inset -4px -4px 0 0 #2A611B, 0 4px 0 0 #1F4A14;transition:transform 90ms steps(2), filter 120ms linear" style-hover="filter:brightness(1.1)" style-active="transform:translateY(4px)">REJOUER</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ confirmBack }}">
+    <div style="position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:20px;background-color:rgba(20,10,38,.75)">
+      <div style="width:100%;max-width:360px;padding:18px;background-color:#F5F5F5;border:6px solid #333333;box-shadow:0 0 0 4px #555555, 0 10px 30px rgba(0,0,0,.5);text-align:center;animation:panelIn 300ms cubic-bezier(.34,1.4,.64,1) both">
+        <p style="margin:0 0 16px;font-size:clamp(14px,3.6vw,17px);line-height:1.45;color:#2B2B2B;text-wrap:pretty">Tu vas perdre ta progression. Continuer ?</p>
+        <div style="display:flex;gap:10px">
+          <button type="button" onClick="{{ cancelBack }}" style="flex:1;min-height:48px;font-family:'Press Start 2P',monospace;font-size:11px;color:#2B2B2B;background:#E4E4E4;border:0;cursor:pointer;box-shadow:inset 4px 4px 0 0 #FFFFFF, inset -4px -4px 0 0 #B9B9B9, 0 4px 0 0 #8F8F8F;transition:transform 90ms steps(2)" style-active="transform:translateY(4px)">NON</button>
+          <button type="button" onClick="{{ doBack }}" style="flex:1;min-height:48px;font-family:'Press Start 2P',monospace;font-size:11px;color:#FFFFFF;background:#C4362B;border:0;cursor:pointer;box-shadow:inset 4px 4px 0 0 #E06A5F, inset -4px -4px 0 0 #8E2419, 0 4px 0 0 #6E1A11;transition:transform 90ms steps(2)" style-active="transform:translateY(4px)">OUI</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <div aria-live="polite" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap">{{ liveMsg }}</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 390, &quot;height&quot;: 844 },
+  &quot;nbQuestions&quot;: { &quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 12, &quot;tsType&quot;: &quot;number&quot;, &quot;min&quot;: 4, &quot;max&quot;: 12, &quot;unit&quot;: &quot;questions&quot;, &quot;section&quot;: &quot;Règles du jeu&quot; },
+  &quot;vies&quot;: { &quot;editor&quot;: &quot;int&quot;, &quot;default&quot;: 3, &quot;tsType&quot;: &quot;number&quot;, &quot;min&quot;: 1, &quot;max&quot;: 5, &quot;unit&quot;: &quot;cœurs&quot;, &quot;section&quot;: &quot;Règles du jeu&quot; },
+  &quot;melangerReponses&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Règles du jeu&quot; },
+  &quot;afficherExplications&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Règles du jeu&quot; }
+}">
+class Component extends DCLogic {
+  state = {
+    data: (typeof window !== "undefined" && window.QUIZ_DATA) || null,
+    screen: "home", phase: "dusk",
+    qz: 0, lv: 0,
+    questions: [], qi: 0, chosen: null, results: [],
+    leaving: false, confirmBack: false, openRecap: null,
+    displayScore: 0, copied: false, liveMsg: ""
+  };
+
+  componentDidMount() {
+    this.rm = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+    if (!this.state.data) {
+      this._poll = setInterval(() => {
+        if (window.QUIZ_DATA) { clearInterval(this._poll); this.setState({ data: window.QUIZ_DATA }); }
+      }, 60);
+    }
+    this._key = (e) => this.onKey(e);
+    window.addEventListener("keydown", this._key);
+    this.paint("#140A26");
+  }
+
+  componentWillUnmount() {
+    clearInterval(this._poll);
+    window.removeEventListener("keydown", this._key);
+  }
+
+  paint(c) {
+    document.documentElement.style.setProperty("--page-bg", c);
+    document.documentElement.style.backgroundColor = c;
+    document.body.style.backgroundColor = c;
+  }
+
+  shuf(a) {
+    const b = a.slice();
+    for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = b[i]; b[i] = b[j]; b[j] = t; }
+    return b;
+  }
+
+  get nb() { const n = parseInt(this.props.nbQuestions, 10); return isNaN(n) ? 12 : Math.max(1, Math.min(12, n)); }
+  get vies() { const n = parseInt(this.props.vies, 10); return isNaN(n) ? 3 : Math.max(1, Math.min(5, n)); }
+
+  start() {
+    if (this.state.phase !== "dusk") return;
+    this.setState({ phase: "rising" });
+    this.paint("#87CEEB");
+    const d = this.rm ? 1 : 1;
+    this._t1 = setTimeout(() => this.setState({ screen: "quizzes" }), this.rm ? 300 : 1300 * d);
+    this._t2 = setTimeout(() => this.setState({ phase: "day" }), this.rm ? 320 : 1800);
+  }
+
+  toHome() {
+    clearTimeout(this._t1); clearTimeout(this._t2);
+    this.paint("#140A26");
+    this.setState({ screen: "home", phase: "dusk", chosen: null, questions: [], confirmBack: false });
+  }
+
+  toQuizzes() { this.setState({ screen: "quizzes", confirmBack: false }); }
+
+  pickQuiz(i) { this.setState({ qz: i, screen: "levels" }); }
+
+  begin(lv) {
+    const d = this.state.data;
+    if (!d) return;
+    const src = d.quiz[this.state.qz].niveaux[lv].questions;
+    const n = Math.min(this.nb, src.length);
+    let qs = n < src.length ? this.shuf(src).slice(0, n) : src.slice();
+    if (this.props.melangerReponses !== false) {
+      qs = qs.map((q) => {
+        const idx = this.shuf(q.r.map((_, i) => i));
+        return { q: q.q, r: idx.map((i) => q.r[i]), ok: idx.indexOf(q.ok), explication: q.explication };
+      });
+    }
+    this.setState({ lv: lv, screen: "question", questions: qs, qi: 0, chosen: null, results: [], leaving: false, openRecap: null, displayScore: 0, liveMsg: "" });
+  }
+
+  answer(i) {
+    const s = this.state;
+    if (s.chosen !== null || s.leaving) return;
+    const q = s.questions[s.qi];
+    if (!q) return;
+    const ok = i === q.ok;
+    this.setState({
+      chosen: i,
+      results: s.results.concat([ok]),
+      liveMsg: ok ? "Correct" : "Incorrect, la bonne réponse était " + q.r[q.ok]
+    });
+  }
+
+  next() {
+    const s = this.state;
+    if (s.chosen === null) return;
+    if (s.qi + 1 >= s.questions.length) { this.toResult(); return; }
+    const target = s.qi + 1;
+    this.setState({ qi: target, chosen: null, leaving: false, liveMsg: "" });
+  }
+
+  toResult() {
+    this.setState({ screen: "result", copied: false, openRecap: null });
+  }
+
+  rankFor(score, total) {
+    const p = total ? score / total : 0;
+    if (total && score === total) return { n: "ARCHITECTE DU NETHER", c: "#4FD9D0", m: "Sans faute. Tu as tout dans la tête, même les chiffres." };
+    if (p >= 0.83) return { n: "MAÎTRE BÂTISSEUR", c: "#C08A0C", m: "Presque parfait. Il te manque deux détails de rien." };
+    if (p >= 0.58) return { n: "AVENTURIER CONFIRMÉ", c: "#3B8526", m: "Solide. Tu joues bien, mais le niveau expert t'attend." };
+    if (p >= 0.33) return { n: "EXPLORATEUR", c: "#8B5A2B", m: "Tu as encore des grottes à explorer. Retente !" };
+    return { n: "NOUVEAU NÉ", c: "#6A6A6A", m: "Début de partie. Va casser du bois et reviens." };
+  }
+
+  quizName() { const d = this.state.data; return d ? d.quiz[this.state.qz].titre : ""; }
+  levelName() { const d = this.state.data; return d ? d.quiz[this.state.qz].niveaux[this.state.lv].nom : ""; }
+
+  shareText() {
+    const s = this.state;
+    const total = s.questions.length;
+    const score = s.results.filter(Boolean).length;
+    const r = this.rankFor(score, total);
+    const squares = s.results.map((x) => (x ? "\uD83D\uDFE9" : "\uD83D\uDFE5")).join("");
+    return "Quiz Minecraft 2026 — " + this.quizName() + " · " + this.levelName() + "\nScore : " + score + "/" + total + " — " + r.n + "\n" + squares;
+  }
+
+  share() {
+    const txt = this.shareText();
+    const fallback = () => {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(() => {
+          this.setState({ copied: true });
+          setTimeout(() => this.setState({ copied: false }), 1500);
+        }).catch(() => {});
+      }
+    };
+    if (navigator.share) { navigator.share({ text: txt }).catch(fallback); } else { fallback(); }
+  }
+
+  onKey(e) {
+    const s = this.state;
+    if (s.screen === "question" && !s.confirmBack) {
+      if (s.chosen === null && e.key >= "1" && e.key <= "4") { this.answer(parseInt(e.key, 10) - 1); return; }
+      if (e.key === "Enter" && s.chosen !== null) { this.next(); return; }
+      if (e.key === "Escape") { this.setState({ confirmBack: true }); return; }
+    }
+    if (s.screen === "home" && (e.key === "Enter" || e.key === " ")) { this.start(); return; }
+    if (e.key === "Escape") {
+      if (s.screen === "levels") this.toQuizzes();
+      else if (s.screen === "quizzes") this.toHome();
+      else if (s.screen === "result") this.setState({ screen: "levels" });
+    }
+  }
+
+  renderVals() {
+    const s = this.state;
+    const rm = this.rm;
+    const day = s.phase !== "dusk";
+    const total = s.questions.length;
+    const score = s.results.filter(Boolean).length;
+    const q = s.questions[s.qi];
+    const revealed = s.chosen !== null;
+    const wrong = s.results.filter((x) => !x).length;
+    const left = Math.max(0, this.vies - wrong);
+    const lives = [];
+    for (let i = 0; i < this.vies; i++) lives.push({ live: i < left ? "color:#C4362B" : "color:#5A2621" });
+
+    const OK = "background:#4CAF3E;color:#14300E;box-shadow:inset 4px 4px 0 0 #86DD78, inset -4px -4px 0 0 #2E7D22, 0 4px 0 0 #235E1A, 0 6px 20px rgba(76,175,62,.45);pointer-events:none";
+    const KO = "background:#C4362B;color:#FFFFFF;box-shadow:inset 4px 4px 0 0 #E06A5F, inset -4px -4px 0 0 #8E2419, 0 4px 0 0 #6E1A11, 0 6px 14px rgba(0,0,0,.3);pointer-events:none";
+    const av = s.qi % 2 ? "ansB" : "ansA";
+    const qv = s.qi % 2 ? "qB" : "qA";
+
+    const answers = (q ? q.r : []).map((txt, i) => {
+      const isOk = q && i === q.ok;
+      const mine = s.chosen === i;
+      let live, mark = "", isKo = false, isPop = false;
+      if (!revealed) {
+        live = rm ? "" : "animation:" + av + " 220ms cubic-bezier(.34,1.4,.64,1) " + i * 45 + "ms both";
+      } else if (mine && isOk) {
+        live = OK + (rm ? "" : ";animation:popOk 220ms steps(3) both"); mark = "\u2713"; isPop = !rm;
+      } else if (mine) {
+        live = KO + (rm ? "" : ";animation:shakeKo 280ms steps(1) both"); mark = "\u2717"; isKo = !rm;
+      } else if (isOk) {
+        live = OK + (rm ? "" : ";animation:pulseOk 700ms ease-in-out 2"); mark = "\u2713";
+      } else {
+        live = "opacity:.35;filter:grayscale(.7);pointer-events:none";
+      }
+      return { text: txt, live: live, mark: mark, isKo: isKo, isPop: isPop, tap: () => this.answer(i) };
+    });
+
+    const recap = s.results.map((ok, i) => {
+      const qq = s.questions[i];
+      const open = s.openRecap === i;
+      return {
+        num: (i + 1 < 10 ? "0" : "") + (i + 1),
+        color: ok ? "#4CAF3E" : "#C4362B",
+        q: qq ? qq.q : "",
+        answer: qq ? "Réponse : " + qq.r[qq.ok] : "",
+        open: open,
+        live: (rm ? "" : "animation:fadeUp 200ms ease-out " + Math.min(600, 40 * i) + "ms both") + (open ? ";box-shadow:inset 2px 2px 0 0 #FFFFFF, inset -2px -2px 0 0 #C4C4C4, 0 0 0 3px #3B8526" : ""),
+        toggle: () => this.setState({ openRecap: open ? null : i })
+      };
+    });
+
+    const rank = this.rankFor(score, total);
+    const answeredCount = s.qi + (revealed ? 1 : 0);
+
+    return {
+      edition: "éd. 2026 · à jour " + (s.data ? s.data.aJour : "26.3"),
+      isHome: s.screen === "home",
+      isRising: s.phase === "rising" && !rm,
+      isQuizzes: s.screen === "quizzes",
+      isLevels: s.screen === "levels",
+      isQuestion: s.screen === "question",
+      isResult: s.screen === "result",
+      confirmBack: s.confirmBack,
+
+      skyDayLive: day ? "opacity:1" : "opacity:0",
+      roseLive: s.phase === "rising" && !rm ? "animation:rose 1100ms 200ms linear both" : "opacity:0",
+      sunLive: day ? "top:14%;transform:translateX(-50%) scale(1.35);box-shadow:0 0 50px 24px rgba(255,233,168,.5), 0 0 110px 55px rgba(242,113,44,.28)" : "",
+      islandsLive: day ? "opacity:0;transform:translateY(120%);filter:brightness(2.4)" : "",
+      seaLive: day ? "opacity:0;display:none" : "opacity:1",
+      grassLive: day ? (rm ? "opacity:1" : "opacity:1;animation:grassUp 1000ms steps(8) 500ms both") : "opacity:0",
+      cloudLive: day ? "background:#FFFFFF;opacity:.85" : "",
+      homeLive: s.phase === "rising" ? "animation:fadeOut 160ms steps(3) both;pointer-events:none" : "",
+
+      start: () => this.start(),
+      toHome: () => this.toHome(),
+      toQuizzes: () => this.toQuizzes(),
+      pickSurvie: () => this.pickQuiz(0),
+      pickMobs: () => this.pickQuiz(1),
+      pickBedrock: () => this.pickQuiz(2),
+      pickL1: () => this.begin(0),
+      pickL2: () => this.begin(1),
+      pickL3: () => this.begin(2),
+      askBack: () => this.setState({ confirmBack: true }),
+      cancelBack: () => this.setState({ confirmBack: false }),
+      doBack: () => this.setState({ screen: "levels", confirmBack: false }),
+      next: () => this.next(),
+      share: () => this.share(),
+      replay: () => this.setState({ screen: "levels", confirmBack: false }),
+
+      quizTitle: this.quizName(),
+      nbLabel: this.nb + " QUESTIONS",
+      headerLabel: this.quizName() + " · " + this.levelName(),
+      counter: Math.min(answeredCount + (revealed ? 0 : 1), total || 1) + "/" + (total || 12),
+      xpLive: "width:" + (total ? Math.round((answeredCount / total) * 100) : 0) + "%",
+      qText: q ? q.q : "",
+      qBlockLive: rm ? "" : "animation:" + qv + " 220ms ease-out 80ms both",
+      answers: answers,
+      lives: lives,
+      showExpl: revealed && this.props.afficherExplications !== false,
+      explText: q ? q.explication : "",
+      explLive: revealed && q && s.chosen === q.ok ? "border-left-color:#4CAF3E" : "border-left-color:#C4362B",
+      nextLabel: s.qi + 1 >= total ? "RÉSULTAT \u203A" : "SUIVANT \u203A",
+
+      scoreLabel: score + "/" + (total || 12),
+      rankName: rank.n,
+      rankLive: "color:" + rank.c,
+      rankMsg: rank.m,
+      perfect: total > 0 && score === total && !rm,
+      recap: recap,
+      shareLabel: s.copied ? "COPIÉ !" : "PARTAGER",
+      liveMsg: s.liveMsg
+    };
+  }
+}
+</script>
+</body>
+</html>

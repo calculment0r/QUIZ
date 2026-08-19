@@ -1,0 +1,193 @@
+{
+  "version": "2026.1",
+  "aJour": "26.3",
+  "note": "Contenu verifie sur minecraft.net, minecraft.wiki et presse specialisee. Ne pas inventer de features.",
+  "quiz": [
+    {
+      "id": "survie",
+      "titre": "SURVIE & CRAFT",
+      "description": "Blocs, outils, recettes, les bases qui sauvent la vie",
+      "couleur": "#8B5A2B",
+      "niveaux": [
+        {
+          "id": 1,
+          "nom": "DÉBUTANT",
+          "questions": [
+            {"q": "Que casse-t-on presque toujours en premier dans une nouvelle partie ?", "r": ["Du bois", "De la pierre", "Du fer", "Du sable"], "ok": 0, "explication": "Sans bois, pas de table de craft ni d'outils. C'est le point de départ."},
+            {"q": "Combien de planches obtient-on avec une bûche ?", "r": ["2", "3", "4", "6"], "ok": 2, "explication": "Une bûche donne toujours 4 planches."},
+            {"q": "Que faut-il pour fabriquer une table de craft ?", "r": ["2 planches", "4 planches", "6 planches", "4 bûches"], "ok": 1, "explication": "4 planches dans les 4 cases de l'inventaire, et c'est fait."},
+            {"q": "Quel outil casse la pierre le plus vite ?", "r": ["La hache", "La pelle", "La pioche", "L'épée"], "ok": 2, "explication": "La pioche est l'outil dédié à la pierre et aux minerais."},
+            {"q": "Combien de cœurs a-t-on au début du jeu ?", "r": ["5", "10", "15", "20"], "ok": 1, "explication": "10 cœurs, soit 20 points de vie."},
+            {"q": "Que faut-il pour fabriquer un lit ?", "r": ["3 laines et 3 planches", "2 laines et 4 planches", "4 laines et 2 planches", "6 laines"], "ok": 0, "explication": "3 blocs de laine au-dessus de 3 planches."},
+            {"q": "Quel bloc est impossible à casser en survie ?", "r": ["L'obsidienne", "La bedrock", "Le netherite", "L'enclume"], "ok": 1, "explication": "La bedrock forme le fond du monde. Aucun outil ne l'entame."},
+            {"q": "Avec quoi fait-on cuire de la nourriture ?", "r": ["La table de craft", "L'enclume", "Le four", "Le chaudron"], "ok": 2, "explication": "Le four, avec du combustible (charbon, bois...)."},
+            {"q": "Quel minerai est le plus courant ?", "r": ["Le diamant", "L'or", "Le fer", "Le charbon"], "ok": 3, "explication": "Le charbon se trouve partout, même en surface."},
+            {"q": "Que faut-il pour fabriquer une torche ?", "r": ["1 bâton et 1 charbon", "2 bâtons et 1 charbon", "1 planche et 1 charbon", "1 bâton et 2 charbons"], "ok": 0, "explication": "1 bâton, 1 charbon (ou charbon de bois) : 4 torches."},
+            {"q": "Dans quel mode de jeu ne peut-on pas mourir ?", "r": ["Survie", "Aventure", "Créatif", "Difficile"], "ok": 2, "explication": "En Créatif on vole, on a tout, et rien ne peut nous tuer."},
+            {"q": "Combien de bâtons obtient-on avec 2 planches ?", "r": ["2", "4", "6", "8"], "ok": 1, "explication": "2 planches l'une sur l'autre donnent 4 bâtons."}
+          ]
+        },
+        {
+          "id": 2,
+          "nom": "CONFIRMÉ",
+          "questions": [
+            {"q": "Combien d'obsidienne faut-il au minimum pour un portail du Nether ?", "r": ["8", "10", "12", "14"], "ok": 1, "explication": "10 suffisent si on laisse les quatre coins vides."},
+            {"q": "Quel enchantement permet de récupérer un bloc tel quel, sans le casser ?", "r": ["Fortune", "Toucher de soie", "Efficacité", "Solidité"], "ok": 1, "explication": "Toucher de soie ramasse le bloc d'origine : glace, minerai brut, ruche..."},
+            {"q": "À quelle hauteur les diamants sont-ils les plus fréquents ?", "r": ["Y 11", "Y 0", "Y -59", "Y -32"], "ok": 2, "explication": "Depuis Caves & Cliffs, le pic est vers Y -59, tout près de la bedrock."},
+            {"q": "Que faut-il pour fabriquer une enclume ?", "r": ["4 blocs de fer et 3 lingots", "3 blocs de fer et 4 lingots", "5 blocs de fer", "3 blocs de fer et 3 lingots"], "ok": 1, "explication": "3 blocs de fer en haut, 4 lingots en dessous. Soit 31 lingots au total."},
+            {"q": "Combien de niveaux d'expérience faut-il pour l'enchantement le plus fort d'une table ?", "r": ["10", "20", "30", "50"], "ok": 2, "explication": "Niveau 30, avec 15 bibliothèques autour de la table."},
+            {"q": "Quel bloc résiste le mieux à l'explosion d'un creeper ?", "r": ["La pierre", "Le fer", "L'obsidienne", "Le bois"], "ok": 2, "explication": "L'obsidienne encaisse même une explosion de lit dans le Nether."},
+            {"q": "Que vend un villageois bibliothécaire ?", "r": ["Des livres enchantés", "Des potions", "Des cartes", "Des flèches"], "ok": 0, "explication": "C'est le meilleur moyen d'obtenir Réparation ou Fortune III."},
+            {"q": "Combien de temps dure un jour complet dans Minecraft ?", "r": ["10 minutes", "15 minutes", "20 minutes", "30 minutes"], "ok": 2, "explication": "20 minutes réelles : 10 de jour, 7 de nuit, 3 de transitions."},
+            {"q": "Quel aliment a la meilleure saturation du jeu ?", "r": ["Le steak cuit", "La carotte dorée", "Le pain", "La pomme dorée"], "ok": 1, "explication": "La carotte dorée : 6 points de faim mais une saturation énorme."},
+            {"q": "Comment obtient-on du netherite ?", "r": ["En minant directement du netherite", "En fondant des débris antiques", "En combinant or et diamant", "Dans les coffres de l'End"], "ok": 1, "explication": "Débris antiques fondus en ferraille, puis 4 ferrailles + 4 lingots d'or."},
+            {"q": "Que fait l'enchantement Chute amortie ?", "r": ["Il permet de sauter plus haut", "Il réduit les dégâts de chute", "Il ralentit la descente", "Il empêche de tomber"], "ok": 1, "explication": "Sur les bottes uniquement. Chute amortie IV réduit énormément les dégâts."},
+            {"q": "Que faut-il pour fabriquer une boussole ?", "r": ["4 lingots de fer et 1 redstone", "4 lingots d'or et 1 redstone", "4 diamants et 1 redstone", "2 lingots de fer et 2 redstone"], "ok": 0, "explication": "4 lingots de fer en croix, 1 poudre de redstone au centre."}
+          ]
+        },
+        {
+          "id": 3,
+          "nom": "EXPERT",
+          "questions": [
+            {"q": "Sur combien de blocs un signal de redstone se propage-t-il avant de s'éteindre ?", "r": ["8", "12", "15", "16"], "ok": 2, "explication": "15 blocs. Au-delà il faut un répéteur pour relancer le signal."},
+            {"q": "Combien de pépites d'or faut-il pour un lingot ?", "r": ["4", "6", "8", "9"], "ok": 3, "explication": "9 pépites remplissent la grille 3x3 et donnent 1 lingot."},
+            {"q": "Quel niveau de lumière minimum empêche l'apparition de monstres dans l'Overworld ?", "r": ["0", "1", "7", "8"], "ok": 1, "explication": "Depuis la 1.18, les monstres n'apparaissent qu'au niveau 0. Un seul point de lumière suffit."},
+            {"q": "Combien de temps un objet posé au sol reste-t-il avant de disparaître ?", "r": ["1 minute", "3 minutes", "5 minutes", "10 minutes"], "ok": 2, "explication": "5 minutes, soit 6000 ticks."},
+            {"q": "Quelle est la hauteur maximale de construction ?", "r": ["Y 256", "Y 300", "Y 320", "Y 384"], "ok": 2, "explication": "Y 320 depuis Caves & Cliffs. Avant, c'était Y 256."},
+            {"q": "Jusqu'où peut-on creuser vers le bas ?", "r": ["Y 0", "Y -32", "Y -64", "Y -128"], "ok": 2, "explication": "Y -64 est le plancher du monde, sous une couche de bedrock."},
+            {"q": "Combien d'emplacements contient une boîte de Shulker ?", "r": ["9", "18", "27", "36"], "ok": 2, "explication": "27 emplacements, comme un coffre simple."},
+            {"q": "Quel enchantement est incompatible avec Toucher de soie ?", "r": ["Efficacité", "Fortune", "Solidité", "Réparation"], "ok": 1, "explication": "Les deux s'excluent : soit on ramasse le bloc, soit on multiplie les gains."},
+            {"q": "Combien d'yeux de l'Ender faut-il au maximum pour activer le portail de l'End ?", "r": ["8", "10", "12", "16"], "ok": 2, "explication": "12 cadres au total, mais certains sont parfois déjà remplis."},
+            {"q": "Que fait l'enchantement Réparation ?", "r": ["Il rend l'objet incassable", "Il répare l'objet avec l'expérience ramassée", "Il double la durabilité", "Il répare l'objet avec le temps"], "ok": 1, "explication": "Chaque orbe d'XP ramassé répare l'équipement au lieu de monter le niveau."},
+            {"q": "Sur quelle distance maximale un Enderman peut-il se téléporter ?", "r": ["16 blocs", "32 blocs", "64 blocs", "8 blocs"], "ok": 1, "explication": "32 blocs, et il ne peut pas se téléporter dans l'eau."},
+            {"q": "Combien de points de dégâts inflige une épée en netherite sans enchantement ?", "r": ["7", "8", "9", "10"], "ok": 1, "explication": "8 points, soit 4 cœurs. L'épée en diamant en fait 7."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mobs",
+      "titre": "MOBS & MONDES",
+      "description": "Créatures, biomes, dimensions, structures",
+      "couleur": "#3B8526",
+      "niveaux": [
+        {
+          "id": 1,
+          "nom": "DÉBUTANT",
+          "questions": [
+            {"q": "Quel mob vert explose quand on s'approche ?", "r": ["Le zombie", "Le creeper", "L'Enderman", "Le squelette"], "ok": 1, "explication": "Le creeper siffle trois secondes avant d'exploser. Recule vite."},
+            {"q": "Que se passe-t-il si on regarde un Enderman dans les yeux ?", "r": ["Il s'enfuit", "Il devient agressif", "Il disparaît", "Rien"], "ok": 1, "explication": "Il se met à trembler puis il attaque. Vise ses pieds pour l'éviter."},
+            {"q": "Quel animal s'apprivoise avec un os ?", "r": ["Le chat", "Le cheval", "Le loup", "Le perroquet"], "ok": 2, "explication": "Quelques os et le loup devient un chien avec un collier rouge."},
+            {"q": "Que lâche un mouton quand on le tue ?", "r": ["De la laine et du mouton cru", "Juste de la laine", "Juste de la viande", "Rien"], "ok": 0, "explication": "Mieux vaut le tondre : la laine repousse s'il mange de l'herbe."},
+            {"q": "Comment s'appelle la dimension principale ?", "r": ["Le Nether", "L'End", "L'Overworld", "Le Void"], "ok": 2, "explication": "L'Overworld, le monde où l'on apparaît au début."},
+            {"q": "Quel mob apparaît la nuit et tire des flèches ?", "r": ["Le zombie", "Le squelette", "L'araignée", "Le creeper"], "ok": 1, "explication": "Le squelette. Il brûle au soleil, sauf s'il porte un casque."},
+            {"q": "Avec quoi attire-t-on un cochon ?", "r": ["Du blé", "Une carotte", "Une pomme", "Des graines"], "ok": 1, "explication": "Carotte, betterave ou pomme de terre fonctionnent."},
+            {"q": "Quel mob vole dans le Nether et lance des boules de feu ?", "r": ["Le blaze", "Le ghast", "Le piglin", "Le wither"], "ok": 1, "explication": "Le ghast. On peut renvoyer ses boules de feu en les frappant."},
+            {"q": "Où vit le Warden ?", "r": ["Dans le Nether", "Dans l'End", "Dans le Deep Dark", "Dans l'océan"], "ok": 2, "explication": "Dans le Deep Dark, tout en bas. Il est aveugle mais entend tout."},
+            {"q": "Quel animal ramasse les objets posés par terre ?", "r": ["Le loup", "Le renard", "Le chat", "Le lapin"], "ok": 1, "explication": "Le renard porte des objets dans sa gueule et peut même les utiliser."},
+            {"q": "Comment s'appelle le boss de l'End ?", "r": ["Le Wither", "Le Warden", "Le Dragon de l'End", "L'Ender Golem"], "ok": 2, "explication": "Le Dragon de l'End. Il faut d'abord casser les cristaux d'obsidienne."},
+            {"q": "Quel mob peut être monté et permet de voler ?", "r": ["Le cheval", "Le happy ghast", "Le cochon", "Le lama"], "ok": 1, "explication": "Le happy ghast, arrivé avec Chase the Skies. La première monture volante du jeu."}
+          ]
+        },
+        {
+          "id": 2,
+          "nom": "CONFIRMÉ",
+          "questions": [
+            {"q": "Comment obtient-on un happy ghast ?", "r": ["En apprivoisant un ghast", "En hydratant un ghast séché", "Dans un œuf du Nether", "En le craftant"], "ok": 1, "explication": "Un ghast séché hydraté donne un ghastling, qu'on nourrit de boules de neige."},
+            {"q": "À quoi sert le golem de cuivre ?", "r": ["Il attaque les monstres", "Il range les objets des coffres en cuivre", "Il éclaire la zone", "Il transporte des blocs"], "ok": 1, "explication": "Il trie tout seul et s'oxyde avec le temps, comme le reste du cuivre."},
+            {"q": "Dans quel biome trouve-t-on les cités anciennes ?", "r": ["Les grottes luxuriantes", "Les grottes de gemmes", "Le Deep Dark", "Les ravins"], "ok": 2, "explication": "Dans le Deep Dark, avec le sculk et les capteurs qui réveillent le Warden."},
+            {"q": "Comment attrape-t-on un axolotl ?", "r": ["Avec une laisse", "Avec un seau d'eau", "En l'apprivoisant", "Avec un filet"], "ok": 1, "explication": "Un seau d'eau, comme pour les poissons tropicaux."},
+            {"q": "En quoi se transforme un villageois frappé par la foudre ?", "r": ["Un zombie", "Une sorcière", "Un pillard", "Rien"], "ok": 1, "explication": "Il devient une sorcière. Un creeper foudroyé, lui, devient chargé."},
+            {"q": "Où trouve-t-on les débris antiques ?", "r": ["Dans l'End", "Dans le Deep Dark", "Dans le Nether", "Au fond des océans"], "ok": 2, "explication": "Dans le Nether, surtout entre Y 8 et Y 22."},
+            {"q": "Quel mob apparaît dans les nouvelles grottes de soufre ?", "r": ["Le cube de soufre", "Le golem de soufre", "Le slime jaune", "Le mineur"], "ok": 0, "explication": "Le cube de soufre, arrivé avec le drop Chaos Cubed."},
+            {"q": "Que fait le cube de soufre quand il absorbe de la glace ?", "r": ["Il fond", "Il glisse comme un palet", "Il gèle sur place", "Il rebondit"], "ok": 1, "explication": "Ses propriétés changent selon ce qu'il avale. La glace le fait glisser."},
+            {"q": "Quel mob est enfin sorti du mode Créatif avec Mounts of Mayhem ?", "r": ["Le cheval squelette", "Le cheval zombie", "Le lama de commerçant", "Le mule"], "ok": 1, "explication": "Le cheval zombie, disponible en survie depuis décembre 2025."},
+            {"q": "Quelle monture sous-marine est arrivée avec Mounts of Mayhem ?", "r": ["Le dauphin", "La tortue", "Le nautile", "La raie"], "ok": 2, "explication": "Le nautile. On peut même construire depuis son dos, comme sur le happy ghast."},
+            {"q": "Que peut-on équiper à un nautile apprivoisé ?", "r": ["Une selle uniquement", "Une armure de nautile", "Un coffre", "Une bannière"], "ok": 1, "explication": "L'armure de nautile existe en cuivre, fer, or, diamant et netherite."},
+            {"q": "Quelle structure abrite le totem d'immortalité ?", "r": ["La cité ancienne", "Le manoir", "Le temple de la jungle", "L'avant-poste"], "ok": 1, "explication": "Le manoir, porté par les Évocateurs qu'on y affronte."}
+          ]
+        },
+        {
+          "id": 3,
+          "nom": "EXPERT",
+          "questions": [
+            {"q": "Combien de points de vie a le Warden ?", "r": ["200", "300", "500", "1000"], "ok": 2, "explication": "500 points, soit 250 cœurs. C'est de loin le mob le plus résistant."},
+            {"q": "Combien de points de vie a le Dragon de l'End ?", "r": ["100", "150", "200", "300"], "ok": 2, "explication": "200 points de vie, mais les cristaux le soignent en permanence."},
+            {"q": "Quel bloc bloque les vibrations et rend le sculk sourd ?", "r": ["L'obsidienne", "La laine", "Le fer", "Le verre"], "ok": 1, "explication": "La laine absorbe les vibrations. Indispensable face au Warden."},
+            {"q": "Quel effet donnent les mares toxiques des grottes de soufre ?", "r": ["Le poison", "Un effet de vertige", "La cécité", "La lenteur"], "ok": 1, "explication": "Un effet étrange qui donne le tournis si on s'approche trop."},
+            {"q": "Lequel de ces mobs ne brûle PAS au soleil ?", "r": ["Le zombie", "Le squelette", "Le creeper", "Le noyé"], "ok": 2, "explication": "Le creeper survit très bien en plein jour. C'est ce qui le rend traître."},
+            {"q": "Quel mob invoque des vex ?", "r": ["Le pillard", "L'Évocateur", "Le vindicateur", "La sorcière"], "ok": 1, "explication": "L'Évocateur invoque des vex et des crocs. Il lâche le totem d'immortalité."},
+            {"q": "Combien de points de vie a un Ravageur ?", "r": ["50", "75", "100", "150"], "ok": 2, "explication": "100 points de vie, et il détruit les blocs sur son passage."},
+            {"q": "Combien de temps met un villageois zombie à être soigné ?", "r": ["30 secondes", "1 minute", "Entre 3 et 5 minutes", "10 minutes"], "ok": 2, "explication": "Potion de faiblesse puis pomme dorée. Des lits et des barreaux de fer autour accélèrent la guérison."},
+            {"q": "Dans quelle dimension la boussole ne pointe-t-elle plus vers le spawn ?", "r": ["L'Overworld", "Le Nether", "L'End", "Aucune"], "ok": 1, "explication": "Dans le Nether elle tourne dans le vide. Il faut une boussole de Lodestone."},
+            {"q": "Où trouve-t-on les Allays enfermés dans des cages ?", "r": ["Dans les villages", "Aux avant-postes de pillards et dans les manoirs", "Dans les cités anciennes", "Dans les temples du désert"], "ok": 1, "explication": "Il faut les libérer. Ensuite ils ramassent les objets qu'on leur montre."},
+            {"q": "Combien de blocs de haut fait un Warden ?", "r": ["2 blocs", "2,5 blocs", "3 blocs", "3,5 blocs"], "ok": 2, "explication": "3 blocs de haut. Impossible de le semer dans un tunnel étroit."},
+            {"q": "Quel mob se téléporte vers le joueur au lieu de marcher ?", "r": ["Le vex", "L'Enderman", "Le shulker", "Le phantom"], "ok": 0, "explication": "Le vex traverse les murs et se téléporte. L'Enderman, lui, se téléporte pour fuir."}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bedrock2026",
+      "titre": "BEDROCK & 2026",
+      "description": "Bedrock, Marketplace et tout ce qui est sorti récemment",
+      "couleur": "#F2712C",
+      "niveaux": [
+        {
+          "id": 1,
+          "nom": "DÉBUTANT",
+          "questions": [
+            {"q": "Sur quelles machines joue-t-on à Minecraft Bedrock ?", "r": ["Seulement sur PC", "Console, mobile et Windows", "Seulement sur console", "Seulement sur téléphone"], "ok": 1, "explication": "C'est la version qui tourne partout. Java, elle, est réservée aux ordinateurs."},
+            {"q": "Comment s'appelle la boutique intégrée à Bedrock ?", "r": ["Le Store", "Le Marketplace", "Le Bazar", "La Boutique Mojang"], "ok": 1, "explication": "Le Marketplace, avec des mondes, des skins et des textures faits par des créateurs."},
+            {"q": "Quelle monnaie utilise-t-on sur le Marketplace ?", "r": ["Les Minecoins", "Les émeraudes", "Les Robux", "Les crédits Mojang"], "ok": 0, "explication": "Les Minecoins s'achètent avec de l'argent réel."},
+            {"q": "Peut-on jouer avec un ami sur une autre plateforme en Bedrock ?", "r": ["Non, jamais", "Oui, c'est le cross-play", "Seulement entre consoles", "Seulement avec un abonnement"], "ok": 1, "explication": "Xbox, PlayStation, Switch, mobile et PC peuvent jouer ensemble."},
+            {"q": "Comment s'appellent les modifications sur Bedrock ?", "r": ["Les mods", "Les add-ons", "Les plugins", "Les patchs"], "ok": 1, "explication": "Les add-ons. Les vrais mods Forge et Fabric, c'est réservé à Java."},
+            {"q": "Comment s'appelle le premier drop de 2026 ?", "r": ["Chaos Cubed", "Tiny Takeover", "Spring to Life", "The Copper Age"], "ok": 1, "explication": "Tiny Takeover, tout entier consacré aux bébés mobs."},
+            {"q": "Qu'est-ce qui a changé chez les bébés mobs en 2026 ?", "r": ["Ils grandissent plus vite", "Ils ont un nouveau look", "Ils sont plus rares", "Ils ne peuvent plus mourir"], "ok": 1, "explication": "Avant c'étaient des adultes rétrécis. Maintenant ils ont leurs propres modèles."},
+            {"q": "Quel instrument a été ajouté au bloc de note en 2026 ?", "r": ["Le violon", "La trompette", "L'accordéon", "La flûte"], "ok": 1, "explication": "La trompette, arrivée avec Tiny Takeover."},
+            {"q": "Que faut-il placer sous un bloc de note pour obtenir la trompette ?", "r": ["Un bloc d'or", "Un bloc de cuivre", "Un bloc de fer", "Un bloc de redstone"], "ok": 1, "explication": "Un bloc de cuivre. Et le son change selon son état d'oxydation."},
+            {"q": "Comment s'appellent les serveurs officiels payants de Minecraft ?", "r": ["Les Realms", "Les Servers", "Les Worlds", "Les Hubs"], "ok": 0, "explication": "Les Realms : un monde en ligne accessible à ses amis, hébergé par Mojang."},
+            {"q": "Quel bloc coloré a reçu des escaliers et des dalles en 2026 ?", "r": ["La terre cuite", "Le béton", "La laine", "Le verre"], "ok": 1, "explication": "Le béton, dans les 16 couleurs. Les builders attendaient ça depuis longtemps."},
+            {"q": "Quel objet empêche les bébés mobs de grandir ?", "r": ["La carotte dorée", "Le pissenlit doré", "La pomme dorée", "Le blé doré"], "ok": 1, "explication": "Le pissenlit doré, une des nouveautés de Tiny Takeover."}
+          ]
+        },
+        {
+          "id": 2,
+          "nom": "CONFIRMÉ",
+          "questions": [
+            {"q": "Comment les versions de Minecraft sont-elles numérotées depuis 2026 ?", "r": ["1.22, 1.23...", "Par année : 26.1, 26.2...", "Par saison", "Elles n'ont plus de numéro"], "ok": 1, "explication": "Versionnage calendaire : l'année, puis le numéro du drop. Java et Bedrock partagent enfin le même préfixe."},
+            {"q": "Comment fabrique-t-on un pissenlit doré ?", "r": ["8 pépites d'or et 1 pissenlit", "8 lingots d'or et 1 pissenlit", "4 pépites d'or et 1 pissenlit", "1 bloc d'or et 1 pissenlit"], "ok": 0, "explication": "La recette se débloque après avoir fait se reproduire son premier mob."},
+            {"q": "Avec quoi peut-on désormais fabriquer une étiquette de nom ?", "r": ["Du cuir et de l'encre", "Du papier et une pépite de métal", "Du papier et de l'encre", "On ne peut toujours pas"], "ok": 1, "explication": "Fini la pêche et les donjons : papier plus n'importe quelle pépite de métal."},
+            {"q": "Comment fige-t-on le son de la trompette ?", "r": ["En cirant le bloc de cuivre", "En le mettant sous l'eau", "En l'entourant de pierre", "C'est impossible"], "ok": 0, "explication": "La cire bloque l'oxydation, donc le son ne change plus."},
+            {"q": "Comment s'appelle le deuxième drop de 2026 ?", "r": ["Tiny Takeover", "Chaos Cubed", "Deep Descent", "Sulfur Rising"], "ok": 1, "explication": "Chaos Cubed, révélé au Minecraft Live de mars 2026."},
+            {"q": "Quel nouveau biome arrive avec Chaos Cubed ?", "r": ["Les grottes de cristal", "Les grottes de soufre", "Les grottes gelées", "Les grottes de sel"], "ok": 1, "explication": "Les grottes de soufre, avec leurs mares toxiques et leur lumière trompeuse."},
+            {"q": "Quels nouveaux ensembles de blocs arrivent avec Chaos Cubed ?", "r": ["Le cinabre et le soufre", "Le quartz et l'ambre", "Le sel et le gypse", "Le mica et le talc"], "ok": 0, "explication": "Deux ensembles complets, cinabre et soufre."},
+            {"q": "Quelle grande différence de redstone existe entre Java et Bedrock ?", "r": ["Il n'y en a aucune", "La quasi-connectivité n'existe pas sur Bedrock", "Bedrock n'a pas de pistons", "Bedrock n'a pas de répéteurs"], "ok": 1, "explication": "Beaucoup de machines Java ne marchent pas sur Bedrock à cause de ça."},
+            {"q": "Sur quelle édition peut-on installer des mods Forge ou Fabric ?", "r": ["Bedrock", "Java", "Les deux", "Aucune"], "ok": 1, "explication": "Java uniquement. Bedrock passe par les add-ons du Marketplace."},
+            {"q": "Quel nouveau jeu a été annoncé au Minecraft Live de mars 2026 ?", "r": ["Minecraft Legends 2", "Minecraft Dungeons II", "Minecraft Story Mode 3", "Minecraft Racing"], "ok": 1, "explication": "Minecraft Dungeons II, un nouvel action-RPG."},
+            {"q": "Comment s'appelle l'abonnement qui donne accès à des contenus du Marketplace ?", "r": ["Le Realms Plus", "Le Marketplace Pass", "Le Creator Pass", "Le Mojang Premium"], "ok": 1, "explication": "Souvent plus rentable que d'acheter les packs un par un."},
+            {"q": "Quel drop de 2025 a enfin rendu le cuivre vraiment utile ?", "r": ["Spring to Life", "Chase the Skies", "The Copper Age", "Mounts of Mayhem"], "ok": 2, "explication": "Outils, armes, armure, coffres, lanternes, et le golem de cuivre."}
+          ]
+        },
+        {
+          "id": 3,
+          "nom": "EXPERT",
+          "questions": [
+            {"q": "Quel numéro de version Bedrock correspond au drop 26.3 de Java ?", "r": ["26.3", "26.30", "26.50", "1.22"], "ok": 2, "explication": "Bedrock utilise souvent un mineur différent. Toujours comparer par nom de drop."},
+            {"q": "Quel était le numéro Java de Mounts of Mayhem ?", "r": ["1.21.9", "1.21.11", "1.22", "26.1"], "ok": 1, "explication": "Java 1.21.11 et Bedrock 1.21.130, sortis le 9 décembre 2025."},
+            {"q": "Comment fabrique-t-on une lance ?", "r": ["2 bâtons et 1 lingot en diagonale", "3 bâtons et 1 lingot", "1 bâton et 2 lingots", "2 bâtons et 2 lingots"], "ok": 0, "explication": "Même recette que la pelle, mais posée en diagonale."},
+            {"q": "Quelles sont les deux attaques de la lance ?", "r": ["Le lancer et le blocage", "La charge et l'estoc", "Le balayage et le coup haut", "L'estoc et la parade"], "ok": 1, "explication": "La charge fait d'autant plus mal qu'on se déplace vite. Idéal à cheval."},
+            {"q": "Qu'est-ce qui augmente les dégâts d'une charge à la lance ?", "r": ["Le niveau d'expérience", "La vitesse de déplacement", "La durabilité restante", "L'heure du jour"], "ok": 1, "explication": "Plus on va vite en chargeant, plus l'impact est violent. D'où la joute à cheval."},
+            {"q": "Où trouve-t-on l'armure de nautile ?", "r": ["On la fabrique", "Dans les coffres des structures océaniques", "Chez les villageois", "Sur les noyés"], "ok": 1, "explication": "Elle ne se craft pas. Cuivre, fer, or et diamant se trouvent en coffre."},
+            {"q": "Comment obtient-on l'armure de cheval en netherite ?", "r": ["On la fabrique avec 6 lingots", "En améliorant celle en diamant à la table de forge", "Dans les coffres du Nether", "Chez le forgeron"], "ok": 1, "explication": "Modèle de forge netherite plus un lingot, sur l'armure en diamant."},
+            {"q": "Quel add-on promotionnel est sorti en janvier 2026 pour Mounts of Mayhem ?", "r": ["Dungeon Descent", "Stable Master", "Deep Ride", "Mayhem Arena"], "ok": 0, "explication": "Il ajoutait des donjons, des charmes et des blocs d'écurie."},
+            {"q": "Que fait le cube de soufre quand il absorbe du bois ?", "r": ["Il prend feu", "Il rebondit comme une balle", "Il grandit", "Il devient invisible"], "ok": 1, "explication": "Chaque matériau avalé change son comportement. Le bois le rend bondissant."},
+            {"q": "Combien de couleurs d'escaliers de béton ont été ajoutées ?", "r": ["8", "12", "16", "24"], "ok": 2, "explication": "Les 16 couleurs, en escaliers et en dalles."},
+            {"q": "Quel objet a été ajouté dans les camps abandonnés en 2026 ?", "r": ["Des cartes d'explorateur", "Des totems", "Des disques de musique", "Des selles"], "ok": 0, "explication": "De nouvelles cartes d'explorateur, pour relancer l'exploration."},
+            {"q": "Dans quel drop le happy ghast est-il arrivé ?", "r": ["Spring to Life", "Chase the Skies", "The Copper Age", "Tiny Takeover"], "ok": 1, "explication": "Chase the Skies, en juin 2025, avec aussi les Vibrant Visuals."}
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Quiz Minecraft 2026",
+  "short_name": "Quiz Minecraft",
+  "description": "3 quiz thematiques x 3 niveaux, 108 questions a jour. Lever de soleil sur les Sanguinaires, mini-jeux flash et score partageable.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#140A26",
+  "theme_color": "#140A26",
+  "categories": ["games", "education", "entertainment"],
+  "icons": [
+    { "src": "./assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./assets/icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "./assets/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

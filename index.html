@@ -118,6 +118,16 @@
   <!-- ============================ HOME ============================ -->
   <section class="screen screen-home" id="screen-home">
     <div class="home-tools">
+      <button type="button" class="tool-btn" id="btnCollection" aria-label="Ma collection" title="Collection">
+        <svg viewBox="0 0 16 16" width="22" height="22" shape-rendering="crispEdges" aria-hidden="true">
+          <rect x="2" y="5" width="12" height="8" fill="#8B5A2B"></rect>
+          <rect x="2" y="5" width="12" height="2" fill="#B37C46"></rect>
+          <rect x="2" y="11" width="12" height="2" fill="#5C3A1B"></rect>
+          <rect x="7" y="7" width="2" height="3" fill="#FFC145"></rect>
+          <rect x="2" y="3" width="12" height="2" fill="#6E4522"></rect>
+        </svg>
+        <span class="tool-count" id="collCount">0</span>
+      </button>
       <button type="button" class="tool-btn" id="btnSound" aria-pressed="true" aria-label="Couper le son" title="Son">
         <svg viewBox="0 0 16 16" width="22" height="22" shape-rendering="crispEdges" aria-hidden="true">
           <rect x="2" y="6" width="3" height="4" fill="#FFE9A8"></rect>
@@ -352,6 +362,11 @@
         <p class="result-msg" id="resultMsg"></p>
       </div>
 
+      <div class="neuf" id="neuf" hidden>
+        <p class="neuf-titre">NOUVEAU DANS TA VITRINE</p>
+        <div class="neuf-liste" id="neufListe"></div>
+      </div>
+
       <div class="recap" id="recap"></div>
 
       <div class="result-actions">
@@ -402,6 +417,18 @@
         <button type="button" class="btn-continue" id="btnCancelBack">ON CONTINUE</button>
         <button type="button" class="btn-stop" id="btnDoBack">STOP</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ============================ LA VITRINE ============================ -->
+  <div class="overlay overlay-vitrine" id="overlayVitrine" hidden>
+    <div class="vitrine-panel" role="dialog" aria-modal="true" aria-labelledby="vitrineTitre">
+      <div class="vitrine-tete">
+        <p class="vitrine-titre" id="vitrineTitre">MA VITRINE</p>
+        <p class="vitrine-compte" id="vitrineCompte"></p>
+      </div>
+      <div class="vitrine-corps" id="vitrineCorps"></div>
+      <button type="button" class="btn-continue btn-vitrine-close" id="btnVitrineClose">FERMER</button>
     </div>
   </div>
 

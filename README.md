@@ -72,6 +72,7 @@ assets/css/app.css          tout le style (palette, animations, responsive)
 assets/js/app.js            logique de jeu (etat + rendu DOM)
 assets/js/quiz-data.js      les 108 questions (window.QUIZ_DATA)
 assets/js/quiz-gameplay.js  couche gameplay : quelle epreuve pour quelle question
+assets/js/quiz-flash.js     les mini-jeux d'interlude (registre extensible)
 assets/fonts/               Press Start 2P auto-hebergee (+ licence OFL)
 assets/icons/               icones pixel de l'application
 design/                     maquettes Claude Design d'origine (reference)
@@ -103,13 +104,21 @@ Le mode est choisi automatiquement, question par question, dans
 
 | Mode | Ce que fait le joueur | Questions concernees |
 |---|---|---|
-| **atelier** | il pose les ingredients dans une grille 3x3 : la reponse est l'objet fabrique | 8 |
+| **scene** | quatre creatures dans le noir ou quatre objets dans un coffre, sans etiquette : il faut reconnaitre | 16 |
 | **forge** | il compose une valeur avec des briques (+100, +10, +1...) sans voir la cible | 16 |
+| **atelier** | il pose les ingredients dans une grille 3x3 : la reponse est l'objet fabrique | 8 |
 | **profondeur** | il descend a la bonne couche dans une coupe verticale du monde | 4 |
-| **blocs** | QCM a 4 blocs a toucher | 80 |
+| **blocs** | QCM a 4 blocs a toucher | 64 |
+
+**44 questions sur 108 (41 %)** se jouent autrement qu'en QCM.
+Par quiz : Survie 27/36, Mobs 11/36, Bedrock 6/36.
 
 Trois regles de loyaute, verifiees par les tests :
 
+- la scene n'est utilisee que si les quatre reponses se dessinent **de facon
+  differente** : si deux d'entre elles donneraient la meme image (cheval
+  squelette / cheval zombie / mule), la question reste un QCM, sinon on
+  demanderait de distinguer deux dessins identiques ;
 - l'atelier n'est utilise que si la recette compte **au moins deux ingredients**
   a poser : un seul objet a choisir resterait un QCM deguise ;
 - la grille fait **toujours 3x3**, pour que le nombre de cases ne trahisse
@@ -120,6 +129,27 @@ Trois regles de loyaute, verifiees par les tests :
 La couche gameplay est **verifiee au chargement** contre le texte de la bonne
 reponse : si une reponse change dans `quiz-data.js` sans que la fiche suive, la
 question retombe en mode blocs au lieu de proposer une epreuve fausse.
+
+### Les Flash
+
+Onze mini-jeux d'interlude, **trois par partie**, jamais deux fois le meme dans
+la meme partie. Ils ne touchent jamais au score de connaissance : etre savant et
+etre rapide, ce n'est pas la meme chose.
+
+Casse la forme · le chunk qui fond · le creeper qui gonfle · ne regarde pas
+l'Enderman · la peche · la lave qui monte · le coffre memoire · la ruee du
+minage · l'esquive du squelette · ghast pong · le MLG au seau.
+
+Ils vivent dans `assets/js/quiz-flash.js`, chacun autonome : pour en ajouter un,
+il suffit d'une fiche avec `build`, `tick` et une duree. L'API recue donne
+`win()`, `lose()`, les bruitages et les dessins.
+
+### La vitrine
+
+Chaque bonne reponse debloque la creature ou l'objet dont il vient d'etre
+question. La collection (66 cases) se garde sur le telephone d'une partie a
+l'autre, et l'ecran de score annonce les nouveautes. Bouton en haut a droite de
+l'accueil.
 
 ### Directeur de partie et rattrapage
 

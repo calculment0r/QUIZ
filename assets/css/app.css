@@ -941,6 +941,67 @@ button { font: inherit; color: inherit; border: 0; background: none; }
 .btn-replay { color: #0C2B08; background: #4CD137; box-shadow: inset 5px 5px 0 0 #8BE07C, inset -5px -5px 0 0 #2E8B26, 0 6px 0 0 #1B5A16; }
 .btn-share:active, .btn-replay:active { transform: translateY(5px); }
 
+/* ============================== LA VITRINE ==============================
+   Chaque bonne reponse debloque un objet ou une creature. La collection se
+   garde sur le telephone, d'une partie a l'autre : ce sont les cases vides
+   qui donnent envie de rejouer. */
+.tool-btn { position: relative; }
+.tool-count {
+  position: absolute; right: -4px; bottom: -4px; min-width: 20px; padding: 2px 3px;
+  font-family: var(--pix); font-size: 8px; line-height: 1.4; text-align: center;
+  color: #2B2B2B; background: #FFC145;
+}
+
+.overlay-vitrine { z-index: 22; }
+.vitrine-panel {
+  width: 100%; max-width: 520px; margin: auto;
+  display: flex; flex-direction: column; gap: 12px; min-height: 0;
+  max-height: 100%; padding: 16px;
+  background-color: #2A1B4A;
+  box-shadow: inset 6px 6px 0 0 #45306E, inset -6px -6px 0 0 #150C2B, 0 14px 0 0 rgba(0, 0, 0, .45);
+  animation: panelIn 380ms cubic-bezier(.34, 1.5, .64, 1) both;
+}
+.vitrine-tete { flex: none; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.vitrine-titre { font-family: var(--pix); font-size: 13px; line-height: 1.5; color: #FFC145; }
+.vitrine-compte { font-family: var(--pix); font-size: 9px; color: #B8A6D9; }
+
+.vitrine-corps {
+  flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.vitrine-lot-titre { font-family: var(--pix); font-size: 8px; line-height: 1.7; color: #B8A6D9; }
+.vitrine-grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(58px, 1fr)); gap: 6px; }
+.vit {
+  aspect-ratio: 1; display: grid; place-items: center; padding: 4px;
+  background: rgba(12, 7, 20, .55);
+  box-shadow: inset 3px 3px 0 0 rgba(0, 0, 0, .5), inset -3px -3px 0 0 rgba(255, 255, 255, .06);
+}
+.vit svg { width: 74%; height: 74%; }
+.vit.is-locked svg { filter: brightness(0) invert(.18); }
+.vit.is-new { background: rgba(255, 193, 69, .22); box-shadow: inset 0 0 0 3px #FFC145; }
+
+/* le bandeau des nouveautes, sur l'ecran de score */
+.neuf {
+  flex: none; margin-top: 10px; padding: 10px 12px;
+  background-color: rgba(255, 193, 69, .14);
+  box-shadow: inset 3px 3px 0 0 rgba(255, 233, 168, .25), inset -3px -3px 0 0 rgba(0, 0, 0, .35);
+}
+.neuf-titre { font-family: var(--pix); font-size: 8px; line-height: 1.7; color: #FFC145; }
+.neuf-liste { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.neuf-liste span {
+  width: 40px; height: 40px; display: grid; place-items: center;
+  background: rgba(12, 7, 20, .5); box-shadow: inset 2px 2px 0 0 rgba(0, 0, 0, .5);
+  animation: popIn 320ms cubic-bezier(.34, 1.6, .64, 1) both;
+}
+.neuf-liste span svg { width: 76%; height: 76%; }
+
+@media (max-height: 620px) {
+  .vitrine-grille { grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); }
+  .neuf { padding: 7px 10px; }
+  .neuf-liste span { width: 34px; height: 34px; }
+}
+
 /* ------------------------------ 13. DIALOGUES ------------------------------ */
 .confirm-panel {
   width: 100%; max-width: 360px; padding: 18px; text-align: center;
@@ -964,6 +1025,9 @@ button { font: inherit; color: inherit; border: 0; background: none; }
 .install-steps li { margin-bottom: 8px; }
 .install-steps b { color: #FFE9A8; }
 .btn-install-close { width: 100%; }
+/* .btn-continue porte un flex:1 pour les dialogues en ligne : dans la vitrine,
+   qui est une colonne, il avalerait toute la hauteur restante */
+.btn-vitrine-close { flex: none; width: 100%; }
 
 /* ------------------------------ 14. RESPONSIVE ------------------------------ */
 

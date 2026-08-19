@@ -503,6 +503,9 @@
     miniBricks: $('miniBricks'), miniTarget: $('miniTarget'), miniStat: $('miniStat'),
     miniGrid: $('miniGrid'), miniMelt: $('miniMelt'), meltPips: $('meltPips'),
     btnStab: $('btnStab'), btnMiniNext: $('btnMiniNext'),
+    btnCollection: $('btnCollection'), collCount: $('collCount'),
+    overlayVitrine: $('overlayVitrine'), vitrineCorps: $('vitrineCorps'),
+    vitrineCompte: $('vitrineCompte'), neuf: $('neuf'), neufListe: $('neufListe'),
     overlayConfirm: $('overlayConfirm'), overlayInstall: $('overlayInstall'),
     installSteps: $('installSteps'),
     live: $('live')
@@ -714,6 +717,7 @@
     S.openRecap = null; S.combo = 0; S.bestCombo = 0; S.chaos = 0; S.bonus = 0;
     S.usedOk = []; S.usedKo = []; S.copied = false;
     S.echo = null; S.inEcho = false; S.echoQ = null;
+    S.gains = [];
     /* trois interludes par partie, repartis et jamais colles */
     S.flashAt = [2 + Math.floor(Math.random() * 2),
                  5 + Math.floor(Math.random() * 2),
@@ -809,6 +813,8 @@
     }
 
     if (q.m === 'blocks' && !rm) startFallWindow();
+
+    if (ok) vitrineAjoute(q);
 
     S.results = S.results.concat([ok]);
     S.combo = ok ? S.combo + 1 : 0;
@@ -1094,6 +1100,7 @@
 
     /* --- accueil --- */
     el.edition.textContent = 'éd. 2026 · à jour ' + (S.data ? S.data.aJour : '26.3') + ' · BUILD ' + BUILD;
+    majCompteur();
     el.btnSound.setAttribute('aria-pressed', S.sound ? 'true' : 'false');
     el.btnSound.setAttribute('aria-label', S.sound ? 'Couper le son' : 'Remettre le son');
 
@@ -1221,6 +1228,18 @@
       el.statChaos.textContent = (S.chaos || 0) + '/2';
       el.resultMsg.textContent = rank.m;
       el.btnShare.textContent = S.copied ? 'COPIÉ !' : 'PARTAGER';
+      var gains = S.gains || [];
+      el.neuf.hidden = !gains.length;
+      if (gains.length) {
+        el.neufListe.textContent = '';
+        gains.forEach(function (cle, i) {
+          var sp = document.createElement('span');
+          sp.title = nomDe(cle);
+          sp.style.animationDelay = Math.min(600, i * 70) + 'ms';
+          sp.innerHTML = dessinDe(cle);
+          el.neufListe.appendChild(sp);
+        });
+      }
       buildRecap();
     }
 
@@ -1565,6 +1584,95 @@
     el.btnMiniNext.textContent = m.won ? 'BONUS ENCAISSÉ ›' : 'ON CONTINUE ›';
   }
 
+  /* ===================== LA VITRINE =====================
+     Une bonne reponse debloque l'objet ou la creature dont il vient d'etre
+     question. La collection reste sur le telephone : ce sont les cases encore
+     noires qui donnent envie de relancer une partie. */
+  var VIT_KEY = 'mcq2026-vitrine';
+
+  function vitrineLue() {
+    try { return JSON.parse(localStorage.getItem(VIT_KEY) || '[]'); } catch (e) { return []; }
+  }
+
+  function vitrineEcrite(liste) {
+    try { localStorage.setItem(VIT_KEY, JSON.stringify(liste)); } catch (e) {}
+  }
+
+  /* ce que la question fait gagner : le resultat d'un craft, la creature ou
+     l'objet reconnu, sinon l'objet cite par la bonne reponse */
+  function gainDe(q) {
+    if (!q) return null;
+    if (q.m === 'craft') {
+      var cs = craftSpec(q);
+      if (cs && cs.result && cs.result.art) return 'item:' + cs.result.art;
+    }
+    var sp = sceneSpec(q);
+    if (sp) { var a = sp.arts[q.ok]; return a.kind + ':' + a.id; }
+    var trouve = sceneArt(q.r[q.ok]);
+    return trouve ? trouve.kind + ':' + trouve.id : null;
+  }
+
+  function vitrineAjoute(q) {
+    var g = gainDe(q);
+    if (!g) return;
+    var liste = vitrineLue();
+    if (liste.indexOf(g) >= 0) return;
+    liste.push(g);
+    vitrineEcrite(liste);
+    S.gains = (S.gains || []).concat([g]);
+  }
+
+  function dessinDe(cle) {
+    var parts = cle.split(':');
+    return parts[0] === 'mob' ? mobSvg(parts[1], 40) : itemSvg(parts[1], 40);
+  }
+
+  function nomDe(cle) {
+    var parts = cle.split(':');
+    if (parts[0] === 'mob') return parts[1];
+    return itemName(parts[1]);
+  }
+
+  function ouvrirVitrine() {
+    var possede = vitrineLue();
+    var lots = [
+      ['CRÉATURES', Object.keys(MOB_ART).map(function (k) { return 'mob:' + k; })],
+      ['OBJETS ET BLOCS', Object.keys((window.QUIZ_GAMEPLAY && window.QUIZ_GAMEPLAY.items) || {})
+        .map(function (k) { return 'item:' + k; })]
+    ];
+    el.vitrineCorps.textContent = '';
+    var total = 0, eus = 0;
+    lots.forEach(function (lot) {
+      var t = document.createElement('p');
+      t.className = 'vitrine-lot-titre';
+      var grille = document.createElement('div');
+      grille.className = 'vitrine-grille';
+      lot[1].forEach(function (cle) {
+        total++;
+        var ok = possede.indexOf(cle) >= 0;
+        if (ok) eus++;
+        var c = document.createElement('span');
+        c.className = 'vit' + (ok ? '' : ' is-locked') + ((S.gains || []).indexOf(cle) >= 0 ? ' is-new' : '');
+        c.title = ok ? nomDe(cle) : '?';
+        c.setAttribute('aria-label', ok ? nomDe(cle) : 'pas encore trouvé');
+        c.innerHTML = dessinDe(cle);
+        grille.appendChild(c);
+      });
+      t.textContent = lot[0] + ' — ' + lot[1].filter(function (c) { return possede.indexOf(c) >= 0; }).length +
+        ' / ' + lot[1].length;
+      el.vitrineCorps.appendChild(t);
+      el.vitrineCorps.appendChild(grille);
+    });
+    el.vitrineCompte.textContent = eus + ' / ' + total;
+    el.overlayVitrine.hidden = false;
+  }
+
+  function majCompteur() {
+    var n = vitrineLue().length;
+    el.collCount.textContent = String(n);
+    el.btnCollection.setAttribute('aria-label', 'Ma collection, ' + n + ' trouvés');
+  }
+
   /* ------------------------------ evenements ------------------------------ */
   el.btnPlay.addEventListener('click', start);
   el.btnSound.addEventListener('click', function () {
@@ -1611,6 +1719,8 @@
     snd('crack');
     render();
   });
+  el.btnCollection.addEventListener('click', function () { snd('sel'); ouvrirVitrine(); });
+  $('btnVitrineClose').addEventListener('click', function () { el.overlayVitrine.hidden = true; });
   el.btnStab.addEventListener('click', tapStab);
   el.btnMiniNext.addEventListener('click', miniOut);
 

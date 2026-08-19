@@ -798,6 +798,7 @@
     snd('sel');
     S.confirmBack = false;
     clearMini();
+    paint('#4E2AA8');            /* la barre du navigateur revient au ciel des plaines */
     transitionMonde('plaine', function () { S.screen = 'quizzes'; render(); });
     if (rm) render();
   }

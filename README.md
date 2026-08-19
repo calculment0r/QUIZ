@@ -11,15 +11,15 @@ Adresse une fois GitHub Pages actif : **https://calculment0r.github.io/QUIZ/**
 ## 1. Mettre en ligne (GitHub Pages)
 
 Le depot contient le workflow `.github/workflows/deploy-pages.yml` : chaque push
-publie le site, et le workflow **active Pages lui-meme** au premier passage
-(`enablement: true`). En principe il n'y a donc rien a cocher.
-
-Si le deploiement echoue malgre tout (droits du depot, Pages desactive par une
-regle d'organisation), le reglage manuel prend dix secondes :
+publie le site. **Une action est necessaire la premiere fois**, parce que le
+jeton d'Actions n'a pas le droit de creer le site Pages
+(`Resource not accessible by integration`) :
 
 1. Depot > **Settings** > **Pages**
 2. *Build and deployment* > **Source** : choisir **GitHub Actions**
 3. Onglet **Actions** > `Deploy to GitHub Pages` > **Run workflow**
+
+Ensuite, chaque push publie tout seul.
 
 Le workflow se declenche sur `main` et sur la branche de developpement
 `claude/game-responsive-app-install-asybmz`, plus manuellement.

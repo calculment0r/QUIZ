@@ -35,6 +35,13 @@ jobs:
         with:
           enablement: true
 
+      # Le jeton d'Actions ne peut pas toujours creer le site Pages lui-meme
+      # ("Resource not accessible by integration") : dans ce cas on dit quoi faire.
+      - name: Que faire si Pages n'est pas encore active
+        if: failure()
+        run: |
+          echo "::error title=Pages a activer une fois::Settings > Pages > Build and deployment > Source = GitHub Actions, puis relancer ce workflow (Actions > Deploy to GitHub Pages > Run workflow)."
+
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:

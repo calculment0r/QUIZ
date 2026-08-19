@@ -784,6 +784,18 @@
 
   /* ------------------------------ rendu ------------------------------ */
   var lastQSig = '';
+  var lastLocked = false;
+
+  /* sur un petit ecran l'explication tombe sous la ligne de flottaison :
+     on l'amene a l'ecran au moment ou elle apparait */
+  function revealExplanation() {
+    if (!el.expl || el.expl.hidden) return;
+    try {
+      el.expl.scrollIntoView({ block: 'nearest', behavior: rm ? 'auto' : 'smooth' });
+    } catch (e) {
+      el.expl.scrollIntoView(false);
+    }
+  }
 
   function render() {
     app.dataset.screen = S.screen;
@@ -945,6 +957,9 @@
     renderMini();
     el.overlayConfirm.hidden = !S.confirmBack;
     el.live.textContent = S.live || '';
+
+    if (S.screen === 'q' && S.locked && !lastLocked) setTimeout(revealExplanation, 340);
+    lastLocked = S.screen === 'q' && S.locked;
   }
 
   function buildAnswers(q) {

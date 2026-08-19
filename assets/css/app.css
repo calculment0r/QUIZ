@@ -616,6 +616,12 @@ button { font: inherit; color: inherit; border: 0; background: none; }
 }
 .track span.is-repaired { box-shadow: inset 0 0 0 3px #4FD9D0; }
 
+/* dans l'atelier et la forge, l'explication est en bas : le bandeau d'effet se
+   pose sur l'aire de jeu, jamais sur la correction (regle du handoff : une
+   animation ne doit jamais masquer l'explication) */
+.q-stage[data-mode="craft"] .fx-label,
+.q-stage[data-mode="forge"] .fx-label { top: 34%; bottom: auto; }
+
 /* ------------------------------ 11. MINI-JEUX ------------------------------ */
 .overlay {
   position: absolute; inset: 0; z-index: 14;
@@ -881,6 +887,13 @@ button { font: inherit; color: inherit; border: 0; background: none; }
   .q-stage[data-mode="forge"] .expl { grid-area: 3 / 1; margin-top: 0; min-height: 0; overflow-y: auto; }
   .q-stage[data-mode="craft"] .craft,
   .q-stage[data-mode="forge"] .forge { grid-area: 1 / 2 / 4 / 3; }
+  /* en paysage l'explication occupe la colonne de gauche : le bandeau d'effet
+     reste au-dessus de l'aire de jeu, a droite */
+  .q-stage[data-mode="craft"] .fx-label,
+  .q-stage[data-mode="forge"] .fx-label {
+    left: 52%; right: 10px; top: 42%; bottom: auto;
+    font-size: clamp(14px, 3vw, 22px); padding: 8px;
+  }
   .craft-grid { gap: 4px; padding: 5px; max-width: 150px; }
   .craft-out { display: none; padding: 6px 8px; }
   .craft-out.is-done { display: flex; }

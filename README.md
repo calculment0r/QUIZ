@@ -142,20 +142,35 @@ quiz + ce niveau (garde sur le telephone). La partie ne part qu'au bouton.
 Le mode est choisi automatiquement, question par question, dans
 `assets/js/quiz-gameplay.js` :
 
-| Mode | Ce que fait le joueur | Questions concernees |
+| Mode | Ce que fait le joueur | Questions |
 |---|---|---|
-| **scene** | quatre creatures dans le noir ou quatre objets dans un coffre, sans etiquette : il faut reconnaitre | 24 |
-| **forge** | il compose une valeur avec des briques (+100, +10, +1...) sans voir la cible | 16 |
+| **scene** | quatre creatures dans le noir ou quatre objets dans un coffre, sans etiquette : il faut reconnaitre | 23 |
+| **forge** | il compose une valeur avec des briques (+100, +10, +1...) sans voir la cible | 14 |
 | **theatre** | le sujet sur scene, la condition affichee : il parie, puis tire le levier — rien ne se passe avant | 9 |
 | **atelier** | il pose les ingredients dans une grille 3x3 : la reponse est l'objet fabrique | 8 |
 | **carte** | quatre paysages sans nom : il reconnait le lieu, plante son epingle, confirme | 7 |
 | **machine** | entree, station, sortie : la sortie est dessinee, le procede est a trouver | 5 |
 | **rail** | une gare vide, quatre wagons : il accroche le bon et fait partir le train | 5 |
-| **profondeur** | il descend a la bonne couche dans une coupe verticale du monde | 4 |
-| **blocs** | QCM a 4 blocs a toucher | 30 |
+| **ascenseur** | il descend la cabine au bon palier et ecrase le frein | 4 |
+| **casier** | une mission, une pioche, quatre livres : il equipe, puis lance la mission | 2 |
+| **studio** | il glisse un socle sous le bloc de note et appuie sur JOUER — le son vient apres | 2 |
+| **portail** | il bâtit le cadre d'obsidienne le plus econome, puis l'allume | 1 |
+| **redstone** | il regle jusqu'ou le signal porte, puis envoie l'impulsion | 1 |
+| **apprivoisement** | une bete, quatre objets au sol sans nom : il lui tend le bon | 1 |
+| **blocs** | QCM a 4 blocs a toucher | 26 |
 
-**78 questions sur 108 (72 %)** se jouent autrement qu'en QCM.
-Par quiz : Survie 32/36, Mobs 29/36, Bedrock 17/36.
+**82 questions sur 108 (76 %)** se jouent autrement qu'en QCM.
+Par quiz : Survie 34/36, Mobs 30/36, Bedrock 18/36.
+
+Les moteurs marques **prioritaires** dans le registre sont interroges *avant*
+les moteurs cables, parce qu'ils racontent mieux la meme question : batir un
+portail vaut mieux que composer le nombre 10, tendre une carotte a un cochon
+vaut mieux que reconnaitre une carotte.
+
+Deux moteurs sont dits **a etat libre** (`libre: true`) : le portail et la
+redstone. Ils ne designent pas une reponse parmi quatre, ils construisent —
+des blocs poses, une longueur de fil — et rangent ce qu'ils construisent dans
+un bloc-notes (`mem`) que le jeu leur garde d'un rendu a l'autre.
 
 ### Ajouter un moteur sans toucher a app.js
 

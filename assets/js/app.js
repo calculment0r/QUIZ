@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var BUILD = '10';
+  var BUILD = '11';
 
   /* ------------------------- tables d'effets (verbatim) ------------------------- */
   var FXOK = [
@@ -489,7 +489,11 @@
        carotte ordinaire et deux reponses se dessineraient pareil */
     [/pomme dor[ée]e/i, 'pomme-doree'], [/carotte dor[ée]e/i, 'carotte-doree'],
     [/bl[ée] dor[ée]/i, 'ble-dore'], [/pissenlit dor[ée]/i, 'pissenlit-dore'],
-    [/pomme/i, 'pomme'], [/carotte/i, 'carotte'], [/\bbl[ée]\b/i, 'ble'],
+    [/pomme/i, 'pomme'], [/carotte/i, 'carotte'],
+    /* piege : \b est calcule sur l'ASCII, donc il n'y a pas de frontiere de mot
+       apres un « é ». \bbl[ée]\b ne reconnaissait pas « blé ». On borne par un
+       « pas de lettre apres » a la place. */
+    [/\bbl[ée](?![a-zA-Z])/i, 'ble'],
     [/graine/i, 'graines'], [/\bpain\b/i, 'pain'], [/steak|viande|b[œe]uf/i, 'steak'],
     [/\bos\b/i, 'os'], [/livre/i, 'livre-enchante'], [/potion/i, 'potion'],
     [/cartes? d.explorateur|\bcartes?\b/i, 'carte'], [/fl[èe]che/i, 'fleche'],
@@ -539,9 +543,16 @@
      quiz-moteurs.js. On leur demande, question par question, si l'une sait la
      jouer. Le registre passe en DERNIER : il ne prend que ce qui, sans lui,
      resterait un QCM — aucune epreuve existante ne peut lui etre volee. */
-  function moteurSpec(q) {
+  function moteurSpec(q, seulement) {
     var reg = window.QUIZ_MOTEURS || [];
     for (var i = 0; i < reg.length; i++) {
+      /* seulement === true : les moteurs prioritaires, demandes AVANT les
+         moteurs cables, parce qu'ils racontent mieux la meme question (batir
+         le portail plutot que composer un nombre) ;
+         seulement === false : les autres, demandes en dernier ;
+         undefined : n'importe lequel, l'ordre du tableau tranche. */
+      if (seulement === true && !reg[i].prio) continue;
+      if (seulement === false && reg[i].prio) continue;
       var sp = null;
       try { sp = reg[i].detecte(q); } catch (e) { sp = null; }
       if (sp) return { def: reg[i], spec: sp };
@@ -552,10 +563,11 @@
   function routeOf(q) {
     var low = q.q.toLowerCase();
     if (/hauteur|jusqu.o[ùu]|niveau de lumi|creuser|profondeur/.test(low)) return 'slider';
+    if (moteurSpec(q, true)) return 'moteur';        /* les moteurs prioritaires */
     if (craftSpec(q)) return 'craft';
     if (forgeSpec(q)) return 'forge';
     if (sceneSpec(q)) return 'scene';
-    if (moteurSpec(q)) return 'moteur';
+    if (moteurSpec(q, false)) return 'moteur';       /* puis tous les autres */
     return 'blocks';
   }
 
@@ -822,7 +834,7 @@
     }
     if (mode === 'craft') return 'CONSTRUIS LA RECETTE';
     if (mode === 'forge') return 'COMPOSE LA BONNE VALEUR';
-    if (mode === 'slider') return /lumi/.test(q.q.toLowerCase()) ? 'RÈGLE LE BON NIVEAU' : 'DESCENDS À LA BONNE HAUTEUR';
+    if (mode === 'slider') return /lumi/.test(q.q.toLowerCase()) ? 'RÈGLE LE BON NIVEAU' : 'DESCENDS LA CABINE AU BON PALIER';
     return 'TOUCHE LE BON BLOC';
   }
 
@@ -837,7 +849,10 @@
     if (!q) return;
     if (q.m === 'moteur') {
       var ms = moteurSpec(q);
-      if (ms) S.moteur = { def: ms.def, spec: ms.spec };
+      /* mem : le bloc-notes du moteur. Les moteurs "libre" y rangent ce que
+         le joueur construit (des blocs poses, une longueur de fil) au lieu de
+         designer une reponse parmi quatre. */
+      if (ms) S.moteur = { def: ms.def, spec: ms.spec, mem: {} };
       else q.m = 'blocks';
       return;
     }
@@ -1262,9 +1277,17 @@
       if (!S.forge || S.forge.total === 0) return;
       ok = S.forge.total === S.forge.target;
     } else if (q.m === 'moteur') {
-      if (S.sel === null && !timeout) return;
-      ok = !timeout && S.sel === q.ok;
-      q.pick = S.sel;
+      var md = S.moteur;
+      if (md && md.def.libre) {
+        var pret = false;
+        try { pret = md.def.pret(md.mem, md.spec); } catch (e) { pret = false; }
+        if (!pret && !timeout) return;
+        try { ok = !timeout && md.def.juste(md.mem, md.spec, q); } catch (e) { ok = false; }
+      } else {
+        if (S.sel === null && !timeout) return;
+        ok = !timeout && S.sel === q.ok;
+        q.pick = S.sel;
+      }
     } else {
       var pick = (forced === undefined || forced === null) ? S.sel : forced;
       if (pick === null && !timeout) return;
@@ -1749,15 +1772,19 @@
         else { el.btnCta.textContent = 'VALIDER LA VALEUR'; el.btnCta.classList.add('is-ready'); }
       } else if (mode === 'moteur' && S.moteur) {
         var lbl = 'VALIDER';
-        try { lbl = S.moteur.def.cta(S.moteur.spec, { sel: S.sel, locked: S.locked }); } catch (e) {}
+        var etatCta = { sel: S.sel, locked: S.locked, mem: S.moteur.mem };
+        try { lbl = S.moteur.def.cta(S.moteur.spec, etatCta); } catch (e) {}
         el.btnCta.textContent = lbl;
-        if (S.sel !== null) el.btnCta.classList.add('is-ready');
+        var armable = S.moteur.def.libre
+          ? (function () { try { return S.moteur.def.pret(S.moteur.mem, S.moteur.spec); } catch (e) { return false; } })()
+          : S.sel !== null;
+        if (armable) el.btnCta.classList.add('is-ready');
       } else if (mode === 'scene') {
         var sps = sceneSpec(q);
         el.btnCta.textContent = (sps && sps.creatures) ? 'TOUCHE LA CRÉATURE' : "TOUCHE L'OBJET";
       } else if (mode === 'slider') {
-        if (S.sel === null) el.btnCta.textContent = 'PLACE LE CURSEUR';
-        else { el.btnCta.textContent = 'VALIDER'; el.btnCta.classList.add('is-ready'); }
+        if (S.sel === null) el.btnCta.textContent = 'APPELLE LA CABINE';
+        else { el.btnCta.textContent = 'FREINER ICI'; el.btnCta.classList.add('is-ready'); }
       } else if (S.inEcho) {
         el.btnCta.textContent = 'CHOISIS TA RÉPONSE';
       } else {
@@ -1873,9 +1900,29 @@
     });
   }
 
+  /* L'ASCENSEUR DE MINE — la coupe de profondeur devient une cabine.
+     Le moteur ne change pas (quatre paliers, une reponse), la mise en scene si :
+     un cable, une cabine qui descend au palier vise, et un gros frein rouge en
+     bas d'ecran. Petit chantier, gros effet : c'etait deja le moteur qui
+     racontait le moins de choses. */
   function buildBands(q) {
     el.depth.textContent = '';
     if (!q) return;
+
+    var cable = document.createElement('span');
+    cable.className = 'cable';
+    el.depth.appendChild(cable);
+
+    var cabine = document.createElement('span');
+    cabine.className = 'cabine';
+    if (S.sel !== null) {
+      cabine.classList.add('is-posee');
+      /* la cabine se cale sur le palier choisi : quatre paliers, quatre crans */
+      cabine.style.top = (S.sel * 25 + 12.5) + '%';
+    }
+    if (S.locked) cabine.classList.add(S.wasOk ? 'is-juste' : 'is-faux');
+    el.depth.appendChild(cabine);
+
     q.r.forEach(function (txt, i) {
       var isOk = i === q.ok;
       var mine = S.sel === i;
@@ -2018,9 +2065,11 @@
     el.moteur.classList.toggle('is-locked', S.locked);
     var api = {
       item: itemSvg, mob: mobSvg, rm: rm, snd: snd,
-      choisir: function (i) { select(i); }
+      choisir: function (i) { select(i); },
+      /* le moteur a change son bloc-notes : on redessine sans rien valider */
+      change: function () { lastQSig = ''; render(); }
     };
-    try { m.def.build(el.moteur, q, m.spec, { sel: S.sel, locked: S.locked, ok: S.wasOk }, api); }
+    try { m.def.build(el.moteur, q, m.spec, { sel: S.sel, locked: S.locked, ok: S.wasOk, mem: m.mem }, api); }
     catch (e) { q.m = 'blocks'; buildAnswers(q); }
   }
 

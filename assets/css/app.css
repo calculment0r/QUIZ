@@ -716,6 +716,29 @@ button { font: inherit; color: inherit; border: 0; background: none; }
   animation: popIn 420ms cubic-bezier(.34, 1.7, .64, 1) both;
 }
 
+/* --- l'ascenseur de mine : la cabine et son cable --- */
+.depth { position: relative; }
+.cable {
+  position: absolute; left: 18px; top: 0; bottom: 0; width: 4px; display: block;
+  background: repeating-linear-gradient(180deg, #6A6A7A 0 5px, #3A3A4A 5px 10px);
+  z-index: 1; pointer-events: none;
+}
+.cabine {
+  position: absolute; left: 6px; top: -40px; width: 28px; height: 30px; margin-top: -15px;
+  display: block; z-index: 2; pointer-events: none; opacity: 0;
+  background: #C4C4C4;
+  box-shadow: inset 4px 4px 0 0 #E8E8E8, inset -4px -4px 0 0 #8F8F8F;
+  transition: top 380ms cubic-bezier(.34, 1.2, .64, 1), opacity 200ms linear;
+}
+.cabine::after {
+  content: ''; position: absolute; left: 6px; top: 8px; width: 16px; height: 12px; display: block;
+  background: #241640; box-shadow: inset 2px 2px 0 0 rgba(255, 255, 255, .18);
+}
+.cabine.is-posee { opacity: 1; }
+.cabine.is-juste { background: var(--ok); box-shadow: inset 4px 4px 0 0 var(--ok-hi), inset -4px -4px 0 0 var(--ok-lo); }
+.cabine.is-faux { background: var(--ko); box-shadow: inset 4px 4px 0 0 #FF8A8A, inset -4px -4px 0 0 #B42A2A; animation: shakeHard 380ms steps(1) both; }
+.band { position: relative; z-index: 3; }
+
 /* ------------------ 10 septies. LE SAC A INDICES ------------------
    Trois torches par partie. En bruler une eteint une mauvaise reponse et
    remet le combo a zero — jamais un point deja gagne. */
@@ -940,6 +963,144 @@ button { font: inherit; color: inherit; border: 0; background: none; }
 .wagon.is-ok { background: var(--ok-lo); box-shadow: inset 4px 4px 0 0 var(--ok-hi), inset -4px -4px 0 0 #1C5A17; }
 .wagon.is-ko { background: #8E2419; box-shadow: inset 4px 4px 0 0 #E06A5F, inset -4px -4px 0 0 #5A1810; }
 .wagon.is-dim { filter: brightness(.55) saturate(.5); }
+
+/* --- le portail du Nether : on batit le cadre, on compte, on allume --- */
+.portail-cadre {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px;
+  width: 100%; max-width: 216px; margin: 0 auto; padding: 6px;
+  background: rgba(12, 7, 20, .5); box-shadow: inset 3px 3px 0 0 rgba(0, 0, 0, .5);
+}
+.port-case {
+  aspect-ratio: 1; min-height: 44px; cursor: pointer;
+  background: rgba(69, 48, 110, .35);
+  box-shadow: inset 2px 2px 0 0 rgba(255, 255, 255, .06);
+}
+.port-case:active { transform: scale(.94); }
+.port-case.is-pose {
+  background: #2A1B3A;
+  box-shadow: inset 4px 4px 0 0 #4A3560, inset -4px -4px 0 0 #150C20;
+}
+.portail-cadre.est-allume { box-shadow: inset 0 0 0 4px var(--ok); }
+.portail-cadre.est-allume .port-case:not(.is-pose) { background: rgba(143, 99, 196, .5); animation: rose 1200ms linear infinite; }
+.portail-cadre.est-rate { box-shadow: inset 0 0 0 4px var(--ko); }
+
+/* --- le chirurgien redstone : jusqu'ou le signal porte-t-il ? --- */
+.red-ligne {
+  display: flex; align-items: center; gap: 6px; padding: 10px;
+  background: #1A1226; box-shadow: inset 3px 3px 0 0 rgba(0, 0, 0, .5);
+}
+.red-source { flex: none; width: 20px; height: 26px; display: block; background: #C4362B; box-shadow: inset 3px 3px 0 0 #E06A5F; }
+.red-fil { flex: 1; min-width: 0; display: flex; gap: 2px; }
+.red-bloc { flex: 1; min-width: 0; height: 26px; padding: 0; cursor: pointer; background: #4A2A2A; }
+.red-bloc.is-vif { background: #FF4B4B; box-shadow: 0 0 6px rgba(255, 75, 75, .8); }
+.red-bloc.is-vrai { background: #4CD137; box-shadow: none; }
+.red-lampe { flex: none; width: 24px; height: 26px; display: block; background: #4A4A3A; box-shadow: inset 3px 3px 0 0 #6A6A5A; }
+.red-lampe.is-on { background: #FFC145; box-shadow: inset 3px 3px 0 0 #FFE9A8, 0 0 14px rgba(255, 193, 69, .9); }
+.red-ligne.est-eteint .red-lampe { background: #3A2A2A; }
+.red-reglage { display: flex; align-items: center; gap: 8px; }
+.red-pas {
+  flex: none; width: 64px; min-height: 52px; cursor: pointer;
+  font-family: var(--pix); font-size: 18px; color: #2B2B2B; background: #FFC145;
+  box-shadow: inset 4px 4px 0 0 #FFE9A8, inset -4px -4px 0 0 #C99416, 0 5px 0 0 #8F6A0E;
+}
+.red-pas:active { transform: translateY(4px); }
+.red-nb {
+  flex: 1; text-align: center;
+  font-family: var(--pix); font-size: clamp(11px, 3.2vw, 15px); line-height: 1.4; color: var(--halo);
+}
+
+/* --- le studio du bloc de note --- */
+.studio-pupitre {
+  position: relative; height: 118px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 6px;
+  background: linear-gradient(180deg, #2A1B4A 0%, #1A1226 100%);
+  box-shadow: inset 4px 4px 0 0 #45306E, inset -4px -4px 0 0 #150C2B;
+}
+.studio-note {
+  width: 48px; height: 34px; display: block; background: #8B5A2B;
+  box-shadow: inset 4px 4px 0 0 #B37C46, inset -4px -4px 0 0 #5C3A1B;
+}
+.studio-socle {
+  min-width: 60%; min-height: 30px; display: flex; align-items: center; justify-content: center;
+  padding: 5px 10px; text-align: center;
+  font-size: 13px; line-height: 1.3; color: var(--ui-mute);
+  background: rgba(12, 7, 20, .55); box-shadow: inset 3px 3px 0 0 rgba(0, 0, 0, .5);
+}
+.studio-socle.is-plein { color: #2B2B2B; background: #C6613A; box-shadow: inset 3px 3px 0 0 #E08850, inset -3px -3px 0 0 #9E4A2A; }
+.studio-ondes {
+  position: absolute; top: 8px; right: 12px; opacity: 0;
+  font-family: var(--pix); font-size: 13px; color: var(--sg-gold);
+}
+.studio-pupitre.est-juste .studio-ondes { opacity: 1; animation: fxUp 900ms ease-out both; }
+.studio-pupitre.est-faux { animation: shakeHard 380ms steps(1) both; }
+
+/* --- le casier de mission --- */
+.casier-ordre {
+  display: flex; align-items: center; gap: 8px; padding: 8px 10px;
+  background: var(--sg-gold);
+}
+.casier-tag { flex: none; font-family: var(--pix); font-size: 7px; line-height: 1.6; color: #8F6A0E; }
+.casier-mot { font-family: var(--pix); font-size: 8px; line-height: 1.7; color: #2B2B2B; }
+.casier-perso {
+  display: flex; align-items: center; gap: 10px; padding: 10px;
+  background: #241640; box-shadow: inset 4px 4px 0 0 #45306E, inset -4px -4px 0 0 #150C2B;
+}
+.casier-outil { flex: none; line-height: 0; }
+.casier-fente {
+  flex: 1; min-width: 0; min-height: 40px; display: flex; align-items: center; justify-content: center;
+  padding: 6px 8px; text-align: center;
+  font-family: var(--pix); font-size: 8px; line-height: 1.6; color: var(--ui-mute);
+  background: rgba(12, 7, 20, .5); box-shadow: inset 3px 3px 0 0 rgba(0, 0, 0, .5);
+}
+.casier-fente.is-plein { color: #E0C8FF; background: rgba(107, 63, 160, .55); box-shadow: inset 0 0 0 3px #8F63C4; }
+.casier-perso.est-reussi { box-shadow: inset 0 0 0 4px var(--ok); }
+.casier-perso.est-reussi .casier-outil { animation: growStay 620ms steps(5) both; }
+.casier-perso.est-rate { box-shadow: inset 0 0 0 4px var(--ko); animation: shakeHard 380ms steps(1) both; }
+.livres { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.livre {
+  display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 8px;
+  cursor: pointer; text-align: left; background: #2A1B4A;
+  box-shadow: inset 4px 4px 0 0 #45306E, inset -4px -4px 0 0 #150C2B, 0 5px 0 0 #0C0714;
+}
+.livre:active { transform: translateY(4px); }
+.livre-art { flex: none; line-height: 0; }
+.livre-nom { font-family: var(--pix); font-size: 8px; line-height: 1.6; color: #FFFFFF; }
+.livre.is-mise { background: #45306E; box-shadow: inset 0 0 0 4px var(--sg-gold); }
+.livre.is-ok { background: var(--ok-lo); box-shadow: inset 4px 4px 0 0 var(--ok-hi), inset -4px -4px 0 0 #1C5A17; }
+.livre.is-ko { background: #8E2419; box-shadow: inset 4px 4px 0 0 #E06A5F, inset -4px -4px 0 0 #5A1810; }
+.livre.is-dim { filter: brightness(.55) saturate(.5); }
+
+/* --- l'apprivoisement --- */
+.appri-pre {
+  position: relative; height: 122px; display: flex; align-items: center; justify-content: center; gap: 18px;
+  background: linear-gradient(180deg, #5B8FD9 0%, #9CC4F0 58%, #4CD137 58%, #2E8B26 100%);
+  box-shadow: inset 4px 4px 0 0 rgba(255, 255, 255, .12), inset -4px -4px 0 0 rgba(0, 0, 0, .45);
+}
+.appri-bete { line-height: 0; animation: breathe 2.2s steps(4) infinite alternate; }
+.appri-main {
+  width: 46px; height: 46px; display: grid; place-items: center;
+  background: rgba(12, 7, 20, .35); box-shadow: inset 3px 3px 0 0 rgba(0, 0, 0, .4);
+}
+.appri-main.is-plein { background: rgba(255, 233, 168, .45); box-shadow: inset 0 0 0 3px var(--sg-gold); }
+.appri-coeurs {
+  position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+  font-family: var(--pix); font-size: 14px; color: #FF4B4B;
+  animation: fxUp 1100ms ease-out both;
+}
+.appri-pre.est-fache { animation: shakeHard 380ms steps(1) both; }
+.appri-sol { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.appri-objet {
+  min-height: 62px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  cursor: pointer; background: #2A1B4A;
+  box-shadow: inset 4px 4px 0 0 #45306E, inset -4px -4px 0 0 #150C2B, 0 5px 0 0 #0C0714;
+}
+.appri-objet:active { transform: translateY(4px); }
+.appri-art { line-height: 0; }
+.appri-nom { font-family: var(--pix); font-size: 6px; line-height: 1.5; color: #FFFFFF; text-align: center; }
+.appri-objet.is-mise { background: #45306E; box-shadow: inset 0 0 0 4px var(--sg-gold); }
+.appri-objet.is-ok { background: var(--ok-lo); box-shadow: inset 4px 4px 0 0 var(--ok-hi), inset -4px -4px 0 0 #1C5A17; }
+.appri-objet.is-ko { background: #8E2419; box-shadow: inset 4px 4px 0 0 #E06A5F, inset -4px -4px 0 0 #5A1810; }
+.appri-objet.is-dim { filter: brightness(.55) saturate(.5); }
 
 /* ------------------ 10 bis. MOTEUR ATELIER (grille de craft) ------------------ */
 /* Il pose lui-meme les ingredients : la reponse n'existe pas avant qu'il la
@@ -1255,6 +1416,13 @@ button { font: inherit; color: inherit; border: 0; background: none; }
   .btn-duel { min-height: 46px; }
   .pari, .procede, .wagon { min-height: 48px; font-size: 13px; }
   .machine-banc { padding: 6px; }
+  .studio-pupitre { height: 84px; }
+  .appri-pre { height: 86px; }
+  .appri-objet { min-height: 50px; }
+  .port-case { min-height: 34px; }
+  .portail-cadre { max-width: 172px; }
+  .red-pas { min-height: 46px; width: 56px; }
+  .livre { min-height: 48px; }
   .mach-case { padding: 5px 3px; }
 }
 

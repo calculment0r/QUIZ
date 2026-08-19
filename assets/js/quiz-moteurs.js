@@ -490,6 +490,359 @@
     }
   };
 
-  window.QUIZ_MOTEURS = [carte, theatre, machine, rail];
+
+  /* ===========================================================================
+     LES MOTEURS PRIORITAIRES
+     ---------------------------------------------------------------------------
+     Ceux-la sont demandes AVANT les moteurs cables : ils racontent mieux la
+     meme question. Batir un portail vaut mieux que composer le nombre 10 ;
+     tendre une carotte a un cochon vaut mieux que reconnaitre une carotte.
+     =========================================================================== */
+
+  function entier(txt) {
+    var m = /^\s*(\d{1,4})\s*$/.exec(String(txt));
+    return m ? parseInt(m[1], 10) : null;
+  }
+  function tousEntiers(q) {
+    var v = q.r.map(entier), vus = {};
+    for (var i = 0; i < v.length; i++) {
+      if (v[i] === null) return null;
+      if (vus[v[i]]) return null;
+      vus[v[i]] = 1;
+    }
+    return v;
+  }
+
+  /* --------------------------------------------------------------------------
+     LE PORTAIL DU NETHER — on batit le cadre, on compte, on allume
+     -------------------------------------------------------------------------- */
+  var PORT_L = 4, PORT_H = 5;            /* la taille d'un vrai cadre */
+
+  var portail = {
+    id: 'portail', prio: true, libre: true,
+
+    detecte: function (q) {
+      if (!/portail/i.test(q.q) || !/obsidienne/i.test(q.q)) return null;
+      var v = tousEntiers(q);
+      if (!v) return null;
+      var but = v[q.ok];
+      if (but < 2 || but > PORT_L * PORT_H) return null;
+      return { but: but };
+    },
+
+    consigne: function () { return 'BÂTIS LE CADRE LE PLUS ÉCONOME'; },
+    cta: function (spec, etat) {
+      var n = (etat.mem.poses || []).length;
+      return n === 0 ? 'POSE DE L’OBSIDIENNE' : 'ALLUMER LE PORTAIL (' + n + ')';
+    },
+    pret: function (mem) { return (mem.poses || []).length >= 2; },
+    juste: function (mem, spec) { return mem.poses.length === spec.but; },
+
+    build: function (zone, q, spec, etat, api) {
+      var mem = etat.mem;
+      if (!mem.poses) mem.poses = [];
+      var cadre = el('div', 'portail-cadre');
+      if (etat.locked) cadre.classList.add(etat.ok ? 'est-allume' : 'est-rate');
+
+      for (var i = 0; i < PORT_L * PORT_H; i++) {
+        (function (idx) {
+          var c = document.createElement('button');
+          c.type = 'button';
+          c.className = 'port-case';
+          if (mem.poses.indexOf(idx) >= 0) c.classList.add('is-pose');
+          c.setAttribute('aria-label', 'case ' + (idx + 1));
+          if (!etat.locked) {
+            c.addEventListener('click', function () {
+              var k = mem.poses.indexOf(idx);
+              if (k >= 0) mem.poses.splice(k, 1); else mem.poses.push(idx);
+              api.snd(k >= 0 ? 'sel' : 'crack');
+              api.change();
+            });
+          }
+          cadre.appendChild(c);
+        })(i);
+      }
+      zone.appendChild(cadre);
+      zone.appendChild(el('p', 'moteur-aide', etat.locked
+        ? 'Il en fallait ' + spec.but + '.'
+        : 'Blocs posés : ' + mem.poses.length + ' — les coins ne servent à rien.'));
+    }
+  };
+
+  /* --------------------------------------------------------------------------
+     LE CHIRURGIEN REDSTONE — jusqu'ou le signal porte-t-il ?
+     -------------------------------------------------------------------------- */
+  var RED_MAX = 20;
+
+  var redstone = {
+    id: 'redstone', prio: true, libre: true,
+
+    detecte: function (q) {
+      if (!/redstone/i.test(q.q) || !/propage|porte|blocs/i.test(q.q)) return null;
+      var v = tousEntiers(q);
+      if (!v) return null;
+      var but = v[q.ok];
+      if (but < 1 || but > RED_MAX) return null;
+      return { but: but };
+    },
+
+    consigne: function () { return 'DIS JUSQU’OÙ LE SIGNAL PORTE'; },
+    cta: function (spec, etat) {
+      return etat.mem.n ? 'ENVOYER L’IMPULSION (' + etat.mem.n + ')' : 'TOUCHE LE DERNIER BLOC';
+    },
+    pret: function (mem) { return !!mem.n; },
+    juste: function (mem, spec) { return mem.n === spec.but; },
+
+    build: function (zone, q, spec, etat, api) {
+      var mem = etat.mem;
+      var ligne = el('div', 'red-ligne');
+      if (etat.locked) ligne.classList.add(etat.ok ? 'est-allume' : 'est-eteint');
+      ligne.appendChild(el('span', 'red-source'));
+      var fil = el('div', 'red-fil');
+      for (var i = 0; i < RED_MAX; i++) {
+        (function (idx) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'red-bloc';
+          if (mem.n && idx < mem.n) b.classList.add('is-vif');
+          if (etat.locked && idx < spec.but) b.classList.add('is-vrai');
+          b.setAttribute('aria-label', 'bloc ' + (idx + 1));
+          if (!etat.locked) {
+            b.addEventListener('click', function () {
+              mem.n = idx + 1;
+              api.snd('sel');
+              api.change();
+            });
+          }
+          fil.appendChild(b);
+        })(i);
+      }
+      ligne.appendChild(fil);
+      var lampe = el('span', 'red-lampe');
+      if (etat.locked && etat.ok) lampe.classList.add('is-on');
+      ligne.appendChild(lampe);
+      zone.appendChild(ligne);
+
+      if (!etat.locked) {
+        var reglage = el('div', 'red-reglage');
+        var moins = document.createElement('button');
+        moins.type = 'button'; moins.className = 'red-pas'; moins.textContent = '−';
+        moins.setAttribute('aria-label', 'un bloc de moins');
+        moins.addEventListener('click', function () {
+          mem.n = Math.max(1, (mem.n || 1) - 1); api.snd('sel'); api.change();
+        });
+        var plus = document.createElement('button');
+        plus.type = 'button'; plus.className = 'red-pas'; plus.textContent = '+';
+        plus.setAttribute('aria-label', 'un bloc de plus');
+        plus.addEventListener('click', function () {
+          mem.n = Math.min(RED_MAX, (mem.n || 0) + 1); api.snd('sel'); api.change();
+        });
+        reglage.appendChild(moins);
+        reglage.appendChild(el('span', 'red-nb', mem.n ? String(mem.n) + ' BLOCS' : '— BLOCS'));
+        reglage.appendChild(plus);
+        zone.appendChild(reglage);
+      }
+
+      zone.appendChild(el('p', 'moteur-aide', etat.locked
+        ? 'Le signal porte sur ' + spec.but + ' blocs.'
+        : 'Règle la longueur, puis envoie l’impulsion.'));
+    }
+  };
+
+  /* --------------------------------------------------------------------------
+     LE STUDIO DU BLOC DE NOTE — on glisse un socle, on appuie sur JOUER
+     -------------------------------------------------------------------------- */
+  var studio = {
+    id: 'studio', prio: true, confirme: true,
+
+    detecte: function (q) {
+      if (!/bloc de note|instrument/i.test(q.q)) return null;
+      if (!courtes(q, 34)) return null;
+      return { instrument: /instrument/i.test(q.q) };
+    },
+
+    consigne: function (spec) { return spec.instrument ? 'CHOISIS L’INSTRUMENT' : 'GLISSE LE BON SOCLE'; },
+    cta: function (spec, etat) { return etat.sel === null ? 'CHOISIS' : 'APPUYER SUR JOUER'; },
+
+    build: function (zone, q, spec, etat, api) {
+      var pupitre = el('div', 'studio-pupitre');
+      if (etat.locked) pupitre.classList.add(etat.ok ? 'est-juste' : 'est-faux');
+      pupitre.appendChild(el('span', 'studio-note'));
+      var socle = el('span', 'studio-socle');
+      socle.textContent = etat.sel === null ? '—' : q.r[etat.sel];
+      if (etat.sel !== null) socle.classList.add('is-plein');
+      pupitre.appendChild(socle);
+      var ondes = el('span', 'studio-ondes');
+      ondes.textContent = '♪ ♪ ♪';
+      pupitre.appendChild(ondes);
+      zone.appendChild(pupitre);
+
+      var choix = el('div', 'procedes');
+      q.r.forEach(function (txt, i) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'procede';
+        b.dataset.rep = i;
+        b.textContent = txt;
+        if (etat.sel === i) b.classList.add('is-mise');
+        if (etat.locked) {
+          if (i === q.ok) b.classList.add('is-ok');
+          else if (etat.sel === i) b.classList.add('is-ko');
+          else b.classList.add('is-dim');
+        } else {
+          b.addEventListener('click', function () { api.choisir(i); });
+        }
+        choix.appendChild(b);
+      });
+      zone.appendChild(choix);
+      zone.appendChild(el('p', 'moteur-aide', etat.locked
+        ? 'Le son arrive après le choix, jamais avant.'
+        : 'Rien ne sonne tant qu’on n’a pas appuyé.'));
+    }
+  };
+
+  /* --------------------------------------------------------------------------
+     LE CASIER DE MISSION — on equipe, on lance, on regarde
+     -------------------------------------------------------------------------- */
+  var ENCHANTS = ['fortune', 'toucher de soie', 'efficacite', 'solidite', 'reparation',
+    'chute amortie', 'protection', 'tranchant', 'aqua-affinity', 'infinite', 'flamme',
+    'punch', 'filons', 'butin', 'aubaine'];
+  function sansAccent(t) {
+    return String(t).toLowerCase()
+      .replace(/[àâä]/g, 'a').replace(/[éèêë]/g, 'e').replace(/[îï]/g, 'i')
+      .replace(/[ôö]/g, 'o').replace(/[ûüù]/g, 'u').replace(/ç/g, 'c')
+      .replace(/^(le |la |les |l['’]|d['’]|un |une )/, '').trim();
+  }
+
+  var casier = {
+    id: 'casier', prio: true, confirme: true,
+
+    detecte: function (q) {
+      if (!/enchantement/i.test(q.q)) return null;
+      for (var i = 0; i < q.r.length; i++) {
+        if (ENCHANTS.indexOf(sansAccent(q.r[i])) < 0) return null;
+      }
+      /* la mission se lit dans la question : sans verbe d'action, il n'y a
+         pas de mission a lancer, seulement une definition a reciter */
+      var m = /r[ée]cup[ée]rer[^?]*|casser[^?]*|incompatible[^?]*|r[ée]parer[^?]*|prot[ée]ger[^?]*/i.exec(q.q);
+      return { mission: m ? m[0].trim().toUpperCase() : 'RÉUSSIS LA MISSION' };
+    },
+
+    consigne: function () { return 'ÉQUIPE-TOI, PUIS LANCE LA MISSION'; },
+    cta: function (spec, etat) { return etat.sel === null ? 'CHOISIS UN LIVRE' : 'LANCER LA MISSION'; },
+
+    build: function (zone, q, spec, etat, api) {
+      var ordre = el('div', 'casier-ordre');
+      ordre.appendChild(el('span', 'casier-tag', 'MISSION'));
+      ordre.appendChild(el('span', 'casier-mot', spec.mission));
+      zone.appendChild(ordre);
+
+      var perso = el('div', 'casier-perso');
+      if (etat.locked) perso.classList.add(etat.ok ? 'est-reussi' : 'est-rate');
+      var outil = el('span', 'casier-outil');
+      outil.innerHTML = api.item('pioche', 40);
+      perso.appendChild(outil);
+      var fente = el('span', 'casier-fente');
+      fente.textContent = etat.sel === null ? 'FENTE VIDE' : q.r[etat.sel];
+      if (etat.sel !== null) fente.classList.add('is-plein');
+      perso.appendChild(fente);
+      zone.appendChild(perso);
+
+      var livres = el('div', 'livres');
+      q.r.forEach(function (txt, i) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'livre';
+        b.dataset.rep = i;
+        var art = el('span', 'livre-art');
+        art.innerHTML = api.item('livre-enchante', 26);
+        b.appendChild(art);
+        b.appendChild(el('span', 'livre-nom', txt));
+        if (etat.sel === i) b.classList.add('is-mise');
+        if (etat.locked) {
+          if (i === q.ok) b.classList.add('is-ok');
+          else if (etat.sel === i) b.classList.add('is-ko');
+          else b.classList.add('is-dim');
+        } else {
+          b.addEventListener('click', function () { api.choisir(i); });
+        }
+        livres.appendChild(b);
+      });
+      zone.appendChild(livres);
+      zone.appendChild(el('p', 'moteur-aide', etat.locked
+        ? 'La mission dit tout, l’étiquette du livre ne suffit pas.'
+        : 'Un seul livre part avec toi.'));
+    }
+  };
+
+  /* --------------------------------------------------------------------------
+     L'APPRIVOISEMENT — on tend l'objet, la bete decide
+     -------------------------------------------------------------------------- */
+  var apprivoise = {
+    id: 'apprivoise', prio: true, confirme: true,
+
+    detecte: function (q) {
+      if (!/attire|apprivois|nourri|donne|attrape/i.test(q.q)) return null;
+      var A = window.QUIZ_ART;
+      if (!A || !A.trouve) return null;
+      var bete = A.trouve(q.q);
+      if (!bete || bete.kind !== 'mob') return null;      /* pas de bete, pas de scene */
+      var vus = {};
+      for (var i = 0; i < q.r.length; i++) {
+        var o = A.trouve(q.r[i]);
+        if (!o || o.kind !== 'item') return null;         /* les reponses doivent etre des objets */
+        if (vus[o.id]) return null;
+        vus[o.id] = 1;
+      }
+      return { bete: bete, objets: q.r.map(function (t) { return A.trouve(t); }) };
+    },
+
+    consigne: function () { return 'TENDS-LUI LE BON OBJET'; },
+    cta: function (spec, etat) { return etat.sel === null ? 'PRENDS UN OBJET' : 'LUI TENDRE'; },
+
+    build: function (zone, q, spec, etat, api) {
+      var pre = el('div', 'appri-pre');
+      if (etat.locked) pre.classList.add(etat.ok ? 'est-amie' : 'est-fache');
+      var bete = el('span', 'appri-bete');
+      bete.innerHTML = api.mob(spec.bete.id, 58);
+      pre.appendChild(bete);
+      var main = el('span', 'appri-main');
+      if (etat.sel !== null) {
+        main.classList.add('is-plein');
+        main.innerHTML = api.item(spec.objets[etat.sel].id, 34);
+      }
+      pre.appendChild(main);
+      if (etat.locked && etat.ok) pre.appendChild(el('span', 'appri-coeurs', '♥ ♥ ♥'));
+      zone.appendChild(pre);
+
+      var sol = el('div', 'appri-sol');
+      q.r.forEach(function (txt, i) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'appri-objet';
+        b.dataset.rep = i;
+        b.setAttribute('aria-label', etat.locked ? txt : 'objet ' + (i + 1));
+        var art = el('span', 'appri-art');
+        art.innerHTML = api.item(spec.objets[i].id, 36);
+        b.appendChild(art);
+        if (etat.locked) b.appendChild(el('span', 'appri-nom', txt));
+        if (etat.sel === i) b.classList.add('is-mise');
+        if (etat.locked) {
+          if (i === q.ok) b.classList.add('is-ok');
+          else if (etat.sel === i) b.classList.add('is-ko');
+          else b.classList.add('is-dim');
+        } else {
+          b.addEventListener('click', function () { api.choisir(i); });
+        }
+        sol.appendChild(b);
+      });
+      zone.appendChild(sol);
+      zone.appendChild(el('p', 'moteur-aide', etat.locked
+        ? 'Une bête ne lit pas les étiquettes.'
+        : 'Quatre objets au sol, aucun nom.'));
+    }
+  };
+
+  window.QUIZ_MOTEURS = [portail, redstone, studio, casier, apprivoise, carte, theatre, machine, rail];
   window.QUIZ_LIEUX = { art: vignette, table: LIEUX };
 })();

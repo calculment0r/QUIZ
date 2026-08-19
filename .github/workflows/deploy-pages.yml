@@ -28,8 +28,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # enablement: true active GitHub Pages (source = GitHub Actions) au premier
+      # passage, il n'y a donc rien a cocher a la main dans les reglages du depot.
       - name: Configure Pages
         uses: actions/configure-pages@v5
+        with:
+          enablement: true
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3

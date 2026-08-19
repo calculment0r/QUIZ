@@ -93,9 +93,22 @@ docs/                       handoff, direction de jeu, questions source,
 - **Le rendu** : `assets/css/app.css`. Regles de la maison : aucun
   `border-radius`, biseaux nets en `box-shadow`, mouvements en `steps()`,
   `Press Start 2P` reserve aux titres et aux boutons.
-- **Apres une mise en ligne** : incrementer `CACHE` dans `sw.js`
-  (`mcq2026-v1` → `mcq2026-v2`) pour que les telephones deja installes
-  recuperent la nouvelle version.
+- **Apres une mise en ligne** : incrementer `CACHE` dans `sw.js` et le numero
+  `BUILD` dans `app.js` (affiche en bas de l'accueil : c'est lui qui dit quelle
+  version tourne vraiment sur un telephone).
+
+### Mises a jour : pourquoi le code passe par le reseau d'abord
+
+Le service worker servait **tout** depuis son cache. La navigation, elle, allait
+au reseau : on se retrouvait donc avec le nouveau `index.html` et l'ancien
+`app.js`, c'est-a-dire des boutons presents mais morts. Depuis, `js`, `css` et
+le manifeste passent **par le reseau d'abord**, avec trois secondes de patience
+avant de retomber sur le cache — le hors ligne marche toujours, mais une version
+melangee n'est plus possible. Polices et icones restent en cache d'abord :
+elles ne changent jamais et ce sont les plus lourdes.
+
+En prime, quand une nouvelle version prend la main, la page se recharge toute
+seule une fois — sauf en pleine partie, ou elle attend le retour a l'accueil.
 
 ### Les quatre facons de repondre
 

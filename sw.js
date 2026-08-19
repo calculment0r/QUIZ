@@ -6,7 +6,7 @@
    navigation.
    Pense-bete : bumper CACHE a chaque mise en ligne pour forcer le rafraichissement.
    ============================================================================= */
-var CACHE = 'mcq2026-v5';
+var CACHE = 'mcq2026-v6';
 
 /* chemins relatifs au scope : marche a la racine comme dans un sous-dossier
    GitHub Pages (ex. /QUIZ/) sans rien reconfigurer */
@@ -51,12 +51,46 @@ self.addEventListener('activate', function (e) {
   );
 });
 
+/* Le code de l'appli (js, css, manifeste) passe par le reseau d'abord.
+   Servi depuis le cache, il donnait des versions melangees : le nouveau HTML
+   avec l'ancien JS, donc des boutons qui ne repondent plus. Le cache reste le
+   filet de securite hors ligne, avec trois secondes de patience. */
+var CODE = /\.(?:js|css)$|manifest\.webmanifest$/;
+
+function reseauDabord(req) {
+  return new Promise(function (resolve) {
+    var rendu = false;
+    function rendreCache() {
+      caches.match(req).then(function (hit) {
+        if (hit && !rendu) { rendu = true; resolve(hit); }
+      });
+    }
+    var minuteur = setTimeout(rendreCache, 3000);
+    fetch(req).then(function (res) {
+      clearTimeout(minuteur);
+      if (res && res.ok) {
+        var copie = res.clone();
+        caches.open(CACHE).then(function (c) { c.put(req, copie); });
+      }
+      if (!rendu) { rendu = true; resolve(res); }
+    }).catch(function () {
+      clearTimeout(minuteur);
+      caches.match(req).then(function (hit) {
+        if (!rendu) { rendu = true; resolve(hit || Response.error()); }
+      });
+    });
+  });
+}
+
 self.addEventListener('fetch', function (e) {
   var req = e.request;
   if (req.method !== 'GET') return;
 
   var url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
+
+  /* le code de l'appli : toujours la derniere version si le reseau repond */
+  if (CODE.test(url.pathname)) { e.respondWith(reseauDabord(req)); return; }
 
   /* navigation : on sert la coquille du jeu, meme sans reseau */
   if (req.mode === 'navigate') {

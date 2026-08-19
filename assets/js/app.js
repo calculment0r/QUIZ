@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var BUILD = '1.0.0';
+  var BUILD = '6';
 
   /* ------------------------- tables d'effets (verbatim) ------------------------- */
   var FXOK = [
@@ -747,6 +747,8 @@
   }
 
   function toHome() {
+    /* une nouvelle version attendait la fin de la partie */
+    if (S.rechargeEnAttente) { location.reload(); return; }
     paint('#140A26');
     S.screen = 'home'; S.phase = 'dusk';
     S.sel = null; S.locked = false; S.fx = null; S.questions = []; S.confirmBack = false;
@@ -1955,10 +1957,24 @@
   }
   updateInstallBtn();
 
-  /* service worker : le jeu reste jouable hors ligne une fois installe */
+  /* service worker : le jeu reste jouable hors ligne une fois installe.
+     Quand une nouvelle version prend la main, on recharge une fois tout seul :
+     sans cela l'ecran garde l'ancien code jusqu'au chargement suivant, et on
+     se retrouve avec des boutons qui ne repondent plus. */
   if ('serviceWorker' in navigator) {
+    var avaitControleur = !!navigator.serviceWorker.controller;
+    var dejaRecharge = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!avaitControleur || dejaRecharge) return;
+      dejaRecharge = true;
+      /* jamais en pleine partie : on attend le retour a l'accueil */
+      if (S.screen === 'home') location.reload();
+      else S.rechargeEnAttente = true;
+    });
     window.addEventListener('load', function () {
-      navigator.serviceWorker.register('./sw.js').catch(function () {});
+      navigator.serviceWorker.register('./sw.js').then(function (reg) {
+        if (reg && reg.update) { try { reg.update(); } catch (e) {} }
+      }).catch(function () {});
     });
   }
 

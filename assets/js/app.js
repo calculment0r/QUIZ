@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var BUILD = '9';
+  var BUILD = '10';
 
   /* ------------------------- tables d'effets (verbatim) ------------------------- */
   var FXOK = [
@@ -605,6 +605,9 @@
     results: [], fx: null,
     mini: null, bonus: 0, combo: 0, bestCombo: 0, chaos: 0,
     usedOk: [], usedKo: [],
+    torches: 3, brule: [],        /* le sac a indices */
+    duel: null,                   /* deux joueurs sur un seul telephone */
+    bossVie: 3, bossFait: false,  /* les trois dernieres epreuves */
     confirmBack: false, openRecap: null, copied: false,
     sound: true, musique: true,
     craft: null, forge: null, moteur: null,   /* etat des moteurs jouables */
@@ -625,7 +628,10 @@
     briefIco: $('briefIco'), briefMonde: $('briefMonde'), briefQuiz: $('briefQuiz'),
     briefNiveau: $('briefNiveau'), briefNb: $('briefNb'), briefFlash: $('briefFlash'),
     briefBest: $('briefBest'), briefMot: $('briefMot'), btnGo: $('btnGo'),
-    hudLabel: $('hudLabel'), combo: $('combo'), track: $('track'), counter: $('counter'),
+    btnDuel: $('btnDuel'), duelTxt: $('duelTxt'),
+    boss: $('boss'), bossArt: $('bossArt'), bossVie: $('bossVie'),
+    hudLabel: $('hudLabel'), combo: $('combo'),
+    torche: $('torche'), torcheN: $('torcheN'), track: $('track'), counter: $('counter'),
     playfield: $('playfield'), consigne: $('consigne'), qText: $('qText'),
     depth: $('depth'), answers: $('answers'), expl: $('expl'),
     scene: $('scene'), moteur: $('moteur'),
@@ -649,6 +655,9 @@
     btnStab: $('btnStab'), btnMiniNext: $('btnMiniNext'),
     btnMusique: $('btnMusique'),
     btnCollection: $('btnCollection'), collCount: $('collCount'),
+    btnJournal: $('btnJournal'), journalCount: $('journalCount'),
+    overlayJournal: $('overlayJournal'), journalCorps: $('journalCorps'),
+    journalCompte: $('journalCompte'), village: $('village'),
     overlayVitrine: $('overlayVitrine'), vitrineCorps: $('vitrineCorps'),
     vitrineCompte: $('vitrineCompte'), neuf: $('neuf'), neufListe: $('neufListe'),
     overlayConfirm: $('overlayConfirm'), overlayInstall: $('overlayInstall'),
@@ -1032,6 +1041,9 @@
     S.sel = null; S.locked = false; S.wasOk = null; S.results = []; S.fx = null;
     S.openRecap = null; S.combo = 0; S.bestCombo = 0; S.chaos = 0; S.bonus = 0;
     S.usedOk = []; S.usedKo = []; S.copied = false;
+    S.torches = 3; S.brule = [];
+    S.bossVie = BOSS_N; S.bossFait = false;
+    if (S.duel) S.duel = { tour: 0, score: [0, 0] };
     S.echo = null; S.inEcho = false; S.echoQ = null;
     S.gains = [];
     /* trois interludes par partie, repartis et jamais colles */
@@ -1060,6 +1072,140 @@
     if (q && q.m === 'slider') { render(); return; }
     if (q && q.m === 'moteur' && S.moteur && S.moteur.def.confirme) { render(); return; }
     validate(false, i);
+  }
+
+  /* ===================== LE BOSS DE FIN =====================
+     Les trois dernieres epreuves ne sont pas trois questions de plus : c'est un
+     boss avec trois points de vie. Chaque bonne reponse lui en enleve un. On ne
+     rallonge pas la partie, on lui donne une fin. */
+  var BOSS_N = 3;
+  function estBoss() {
+    return S.screen === 'q' && !S.inEcho && S.questions.length >= BOSS_N &&
+           S.qi >= S.questions.length - BOSS_N;
+  }
+  function bossDe(qz) {
+    return qz === 1 ? 'wither' : qz === 2 ? 'dragon' : 'warden';
+  }
+
+  /* ===================== LE DUEL A DEUX =====================
+     Un seul telephone, deux joueurs. Il change de main a chaque epreuve. Les
+     douze epreuves font six chacun, et le perdant choisit le quiz suivant. */
+  function joueurCourant() { return S.duel ? S.duel.tour : 0; }
+  function nomJoueur(i) { return 'JOUEUR ' + (i + 1); }
+
+  /* ===================== LE JOURNAL DES DECOUVERTES =====================
+     Les 108 explications sont deja ecrites : le journal les range et les rend
+     lisibles hors partie. Ce qu'on a rate remonte en haut de page — c'est la
+     seule chose qu'un cahier de revision doit savoir faire. */
+  var JOU_KEY = 'mcq2026-journal';
+  function lisJournal() {
+    try { return JSON.parse(localStorage.getItem(JOU_KEY) || '{}') || {}; } catch (e) { return {}; }
+  }
+  function noteJournal(q, ok) {
+    if (!q) return;
+    var j = lisJournal();
+    /* une reponse juste efface un ancien echec, l'inverse n'est pas vrai :
+       le journal raconte ou on en est, pas ou on en etait */
+    if (ok || j[q.q] !== 'ok') j[q.q] = ok ? 'ok' : 'ko';
+    try { localStorage.setItem(JOU_KEY, JSON.stringify(j)); } catch (e) {}
+  }
+
+  function ouvrirJournal() {
+    var j = lisJournal();
+    var d = S.data;
+    el.journalCorps.textContent = '';
+    if (!d) { el.overlayJournal.hidden = false; return; }
+    var vus = 0, total = 0;
+
+    d.quiz.forEach(function (quiz) {
+      var lignes = [];
+      quiz.niveaux.forEach(function (nv) {
+        nv.questions.forEach(function (q) {
+          total++;
+          var et = j[q.q] || null;
+          if (et) vus++;
+          lignes.push({ q: q, et: et, niveau: nv.nom });
+        });
+      });
+      /* les ratees d'abord, puis celles jamais vues, puis les acquises */
+      var rang = { ko: 0, null: 1, ok: 2 };
+      lignes.sort(function (a, b) { return rang[a.et] - rang[b.et]; });
+
+      var sec = document.createElement('section');
+      sec.className = 'jou-quiz';
+      var h = document.createElement('p');
+      h.className = 'jou-quiz-titre';
+      h.textContent = quiz.titre;
+      sec.appendChild(h);
+
+      lignes.forEach(function (L) {
+        var art = document.createElement('article');
+        art.className = 'jou-ligne' + (L.et ? ' est-' + L.et : ' est-neuf');
+        var chip = document.createElement('span');
+        chip.className = 'jou-chip';
+        chip.textContent = L.et === 'ok' ? 'SUE' : L.et === 'ko' ? 'RATÉE' : 'À VOIR';
+        var txt = document.createElement('div');
+        txt.className = 'jou-txt';
+        var qq = document.createElement('p');
+        qq.className = 'jou-q';
+        qq.textContent = L.q.q;
+        var rr = document.createElement('p');
+        rr.className = 'jou-r';
+        rr.textContent = L.q.r[L.q.ok];
+        var ee = document.createElement('p');
+        ee.className = 'jou-e';
+        ee.textContent = L.q.explication || '';
+        txt.appendChild(qq); txt.appendChild(rr); txt.appendChild(ee);
+        art.appendChild(chip); art.appendChild(txt);
+        sec.appendChild(art);
+      });
+      el.journalCorps.appendChild(sec);
+    });
+
+    var rates = 0;
+    Object.keys(j).forEach(function (k) { if (j[k] === 'ko') rates++; });
+    el.journalCompte.textContent = vus + ' / ' + total + ' VUES · ' + rates + ' À REVOIR';
+    el.overlayJournal.hidden = false;
+  }
+
+  /* ===================== LE VILLAGE QUI POUSSE =====================
+     Un batiment de plus a chaque partie terminee, jusqu'a dix. Purement
+     decoratif : c'est ce qui donne envie de revenir demain. */
+  var VIL_KEY = 'mcq2026-parties';
+  function lisParties() {
+    try { return parseInt(localStorage.getItem(VIL_KEY) || '0', 10) || 0; } catch (e) { return 0; }
+  }
+  function ajoutePartie() {
+    var n = lisParties() + 1;
+    try { localStorage.setItem(VIL_KEY, String(n)); } catch (e) {}
+    return n;
+  }
+  function majVillage() {
+    app.dataset.village = String(Math.min(10, lisParties()));
+  }
+
+  /* ===================== LE SAC A INDICES =====================
+     Trois torches par partie. En bruler une eteint une mauvaise reponse.
+     Le prix : le combo en cours retombe a zero. Jamais un point deja gagne —
+     demander de l'aide n'est pas tricher, c'est juste moins glorieux.
+     On ne descend jamais sous deux choix : sinon la torche donnerait la
+     reponse, et ce ne serait plus un indice mais une reponse. */
+  function brulerTorche() {
+    if (S.screen !== 'q' || S.locked || S.inEcho || (S.torches || 0) <= 0) return;
+    var q = curQ();
+    if (!q) return;
+    var libres = [];
+    for (var i = 0; i < q.r.length; i++) {
+      if (i !== q.ok && S.brule.indexOf(i) < 0) libres.push(i);
+    }
+    if (libres.length <= 1) return;
+    S.brule = S.brule.concat([libres[Math.floor(Math.random() * libres.length)]]);
+    S.torches--;
+    S.combo = 0;
+    S.live = 'Une mauvaise réponse s’éteint';
+    snd('crack');
+    lastQSig = '';                     /* la zone doit se reconstruire */
+    render();
   }
 
   /* label prefere pour la question en cours : d'abord le moteur, puis le sujet */
@@ -1131,6 +1277,11 @@
     S.locked = true;
     S.wasOk = ok;
     S.fx = makeFx(ok, q);
+    noteJournal(q, ok);
+    if (!S.inEcho) {
+      if (S.duel) S.duel.score[S.duel.tour] += ok ? 1 : 0;
+      if (estBoss() && ok) S.bossVie = Math.max(0, S.bossVie - 1);
+    }
 
     if (S.inEcho) {
       /* le rattrapage ne touche pas au score des douze epreuves */
@@ -1199,6 +1350,7 @@
       S.screen = 'result'; S.copied = false; S.openRecap = null;
       S.locked = false; S.fx = null;
       ecrisBest(S.results.filter(Boolean).length);
+      ajoutePartie();
       snd('win'); render();
       return;
     }
@@ -1208,7 +1360,9 @@
   /* reprend la partie sur l'epreuve demandee (sortie de rattrapage) */
   function gotoQuestion(nq) {
     stopFallWindow();
+    if (S.duel) S.duel.tour = 1 - S.duel.tour;
     S.qi = nq; S.sel = null; S.locked = false; S.wasOk = null; S.fx = null; S.live = '';
+    S.brule = [];
     clearMini();
     setupEngines(S.questions[nq]);
     render();
@@ -1229,11 +1383,14 @@
       stopFallWindow();
       S.screen = 'result'; S.copied = false; S.openRecap = null;
       ecrisBest(S.results.filter(Boolean).length);
+      ajoutePartie();
       snd('win'); render();
       return;
     }
     stopFallWindow();
+    if (S.duel) S.duel.tour = 1 - S.duel.tour;
     S.qi = nq; S.sel = null; S.locked = false; S.wasOk = null; S.fx = null; S.live = '';
+    S.brule = [];
     clearMini();
     setupEngines(S.questions[nq]);
     render();
@@ -1453,6 +1610,8 @@
     /* --- accueil --- */
     el.edition.textContent = 'éd. 2026 · à jour ' + (S.data ? S.data.aJour : '26.3') + ' · BUILD ' + BUILD;
     majCompteur();
+    majVillage();
+    el.journalCount.textContent = String(Object.keys(lisJournal()).length);
     el.btnMusique.setAttribute('aria-pressed', S.musique ? 'true' : 'false');
     el.btnMusique.setAttribute('aria-label', S.musique ? 'Couper la musique' : 'Remettre la musique');
     el.btnSound.setAttribute('aria-pressed', S.sound ? 'true' : 'false');
@@ -1479,11 +1638,30 @@
       var best = lisBest();
       el.briefBest.textContent = best >= 0 ? best + ' / ' + S.questions.length : 'AUCUN';
       el.briefMot.textContent = mo.mot;
+      el.btnDuel.setAttribute('aria-pressed', S.duel ? 'true' : 'false');
+      el.duelTxt.textContent = S.duel ? 'À DEUX — TOUR PAR TOUR' : 'JOUER À DEUX';
     }
 
     /* --- question --- */
     if (S.screen === 'q') {
-      el.hudLabel.textContent = quizName() + ' · ' + levelName();
+      el.hudLabel.textContent = S.duel
+        ? nomJoueur(joueurCourant()) + ' · ' + S.duel.score[0] + ' - ' + S.duel.score[1]
+        : quizName() + ' · ' + levelName();
+      app.dataset.joueur = S.duel ? String(joueurCourant() + 1) : '0';
+
+      /* le boss : les trois dernieres epreuves, trois points de vie */
+      var boss = estBoss();
+      el.boss.hidden = !boss;
+      if (boss) {
+        if (el.bossArt.dataset.qz !== String(S.qz)) {
+          el.bossArt.dataset.qz = String(S.qz);
+          el.bossArt.innerHTML = mobSvg(bossDe(S.qz), 34);
+        }
+        var coeurs = '';
+        for (var bv = 0; bv < BOSS_N; bv++) coeurs += bv < S.bossVie ? '■' : '□';
+        el.bossVie.textContent = coeurs;
+        el.boss.classList.toggle('is-mort', S.bossVie === 0);
+      }
       el.echoBadge.hidden = !S.inEcho;
       el.combo.hidden = S.inEcho || (S.combo || 0) < 2;
       el.combo.textContent = 'COMBO x' + (S.combo || 0);
@@ -1536,6 +1714,18 @@
           else { buildAnswers(q); el.depth.textContent = ''; }
         }
       }
+
+      /* les reponses brulees par une torche : eteintes tant qu'on n'a pas
+         valide, puis rendues a l'affichage normal pour la correction */
+      var reps = el.playfield.querySelectorAll('[data-rep]');
+      for (var ri = 0; ri < reps.length; ri++) {
+        var eteint = !S.locked && S.brule.indexOf(parseInt(reps[ri].dataset.rep, 10)) >= 0;
+        reps[ri].classList.toggle('is-brule', eteint);
+        if (reps[ri].tagName === 'BUTTON') reps[ri].disabled = eteint;
+      }
+      el.torche.hidden = S.inEcho;
+      el.torche.disabled = S.locked || (S.torches || 0) <= 0;
+      el.torcheN.textContent = String(S.torches || 0);
 
       if (S.locked && q) {
         el.expl.hidden = false;
@@ -1605,7 +1795,14 @@
       el.statScore.textContent = score + '/' + totalQ;
       el.statCombo.textContent = 'x' + (S.bestCombo || 0);
       el.statChaos.textContent = (S.chaos || 0) + '/2';
-      el.resultMsg.textContent = rank.m;
+      el.resultMsg.textContent = S.duel
+        ? (S.duel.score[0] === S.duel.score[1]
+            ? 'Égalité parfaite. Il va falloir rejouer.'
+            : nomJoueur(S.duel.score[0] > S.duel.score[1] ? 0 : 1) + ' gagne. Le perdant choisit le prochain quiz.')
+        : (S.bossVie === 0 ? 'Boss vaincu. ' : '') + rank.m;
+      el.resultSub.textContent = S.duel
+        ? 'DUEL · ' + S.duel.score[0] + ' — ' + S.duel.score[1]
+        : quizName() + ' · ' + levelName() + (S.bossVie === 0 ? ' · BOSS VAINCU' : '');
       el.btnShare.textContent = S.copied ? 'COPIÉ !' : 'PARTAGER';
       var gains = S.gains || [];
       el.neuf.hidden = !gains.length;
@@ -1643,6 +1840,7 @@
       var b = document.createElement('button');
       b.type = 'button';
       b.className = 'ans';
+      b.dataset.rep = i;
       b.setAttribute('aria-label', txt);
 
       if (!S.locked) {
@@ -1684,6 +1882,7 @@
       var b = document.createElement('button');
       b.type = 'button';
       b.className = 'band';
+      b.dataset.rep = i;
       b.setAttribute('aria-label', txt);
       var mark = '';
       if (!S.locked) { if (mine) b.classList.add('is-sel'); }
@@ -1839,6 +2038,7 @@
       var b = document.createElement('button');
       b.type = 'button';
       b.className = 'crea';
+      b.dataset.rep = i;
       b.setAttribute('aria-label', S.locked ? txt : 'créature ' + (i + 1));
       if (S.locked) {
         if (isOk) b.classList.add('is-ok');
@@ -2104,12 +2304,18 @@
   }
 
   $('btnQuit').addEventListener('click', function () { S.confirmBack = true; render(); });
+  el.torche.addEventListener('click', brulerTorche);
   $('btnCancelBack').addEventListener('click', function () { S.confirmBack = false; render(); });
   $('btnDoBack').addEventListener('click', function () {
     S.screen = 'levels'; S.confirmBack = false; S.locked = false; S.sel = null; S.fx = null;
     clearMini(); render();
   });
   el.btnGo.addEventListener('click', lancePartie);
+  el.btnDuel.addEventListener('click', function () {
+    S.duel = S.duel ? null : { tour: 0, score: [0, 0] };
+    snd('sel');
+    render();
+  });
   el.btnCta.addEventListener('click', function () { if (S.locked) next(); else validate(false); });
   el.btnShare.addEventListener('click', share);
   el.btnReplay.addEventListener('click', function () {
@@ -2129,6 +2335,8 @@
     render();
   });
   el.btnCollection.addEventListener('click', function () { snd('sel'); ouvrirVitrine(); });
+  el.btnJournal.addEventListener('click', function () { snd('sel'); ouvrirJournal(); });
+  $('btnJournalClose').addEventListener('click', function () { el.overlayJournal.hidden = true; });
   $('btnVitrineClose').addEventListener('click', function () { el.overlayVitrine.hidden = true; });
   el.btnStab.addEventListener('click', tapStab);
   el.btnMiniNext.addEventListener('click', miniOut);

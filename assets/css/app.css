@@ -295,6 +295,45 @@ button { font: inherit; color: inherit; border: 0; background: none; }
 }
 .piliers { position: absolute; left: 0; right: 0; top: 30%; height: 36%; opacity: .85; }
 
+/* --------------------- 5 quater. LE VILLAGE QUI POUSSE ---------------------
+   Un batiment de plus a chaque partie terminee, pose sur les iles du
+   crepuscule — donc visible a l'accueil, la ou on le regarde. Silhouettes
+   sombres et fenetres allumees : le village se lit sans rien expliquer. */
+.village { position: absolute; left: 0; right: 0; top: 50%; height: 16%; pointer-events: none; }
+.maison {
+  position: absolute; bottom: 0; display: none;
+  background: #1A1024; box-shadow: inset -2px -2px 0 0 #0C0714;
+  animation: floatIn 520ms steps(5) both;
+}
+.maison::before {
+  content: ''; position: absolute; left: -3px; right: -3px; top: -6px; height: 6px; display: block;
+  background: #0C0714;
+}
+.maison::after {
+  content: ''; position: absolute; left: 28%; bottom: 22%; width: 36%; height: 34%; display: block;
+  background: #FFC145; box-shadow: 0 0 7px rgba(255, 193, 69, .8);
+}
+.m1  { left: 8%;  width: 22px; height: 19px; }
+.m2  { left: 18%; width: 18px; height: 15px; }
+.m3  { left: 27%; width: 25px; height: 22px; }
+.m4  { left: 38%; width: 17px; height: 14px; }
+.m5  { left: 46%; width: 23px; height: 20px; }
+.m6  { left: 56%; width: 19px; height: 16px; }
+.m7  { left: 65%; width: 24px; height: 21px; }
+.m8  { left: 75%; width: 18px; height: 15px; }
+.m9  { left: 83%; width: 21px; height: 18px; }
+.m10 { left: 91%; width: 16px; height: 13px; }
+.app[data-phase="dusk"][data-village="1"]  .maison:nth-child(-n+1),
+.app[data-phase="dusk"][data-village="2"]  .maison:nth-child(-n+2),
+.app[data-phase="dusk"][data-village="3"]  .maison:nth-child(-n+3),
+.app[data-phase="dusk"][data-village="4"]  .maison:nth-child(-n+4),
+.app[data-phase="dusk"][data-village="5"]  .maison:nth-child(-n+5),
+.app[data-phase="dusk"][data-village="6"]  .maison:nth-child(-n+6),
+.app[data-phase="dusk"][data-village="7"]  .maison:nth-child(-n+7),
+.app[data-phase="dusk"][data-village="8"]  .maison:nth-child(-n+8),
+.app[data-phase="dusk"][data-village="9"]  .maison:nth-child(-n+9),
+.app[data-phase="dusk"][data-village="10"] .maison { display: block; }
+
 /* --------------------- 5 ter. LE RIDEAU DE MONDE ---------------------
    Meme grammaire que l'intro : un mur de terrain monte en marches d'escalier,
    le paysage change derriere, le mur redescend. Aucun fondu : ce jeu est en
@@ -454,14 +493,16 @@ button { font: inherit; color: inherit; border: 0; background: none; }
    Entre le choix du niveau et la premiere question. Avant, la partie demarrait
    sans prevenir : on n'avait pas le temps de se preparer, ni de voir dans quel
    monde on tombait. Un ecran, un bouton, et le decor du monde derriere. */
+/* Le bouton de depart ne doit jamais tomber sous la ligne de flottaison : la
+   carte d'annonce defile toute seule si l'ecran est court, le bouton reste. */
 .brief-wrap {
   width: 100%; max-width: 520px; margin: auto;
   display: flex; flex-direction: column; gap: 12px;
-  max-height: 100%; overflow-y: auto; overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch; padding: 2px;
+  height: 100%; overflow: hidden; padding: 2px;
   animation: panelIn 420ms cubic-bezier(.34, 1.4, .64, 1) both;
 }
 .brief-carte {
+  min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
   padding: 18px 16px; text-align: center;
   background: rgba(42, 27, 74, .92);
   box-shadow: inset 6px 6px 0 0 #45306E, inset -6px -6px 0 0 #150C2B, 0 10px 0 0 rgba(12, 7, 20, .55);
@@ -495,6 +536,39 @@ button { font: inherit; color: inherit; border: 0; background: none; }
   animation: growStay 700ms 260ms steps(6) both;
 }
 .btn-go:active { transform: translateY(6px); box-shadow: inset 6px 6px 0 0 #8BE07C, inset -6px -6px 0 0 #2E8B26; }
+
+/* ------------------ 9 ter. LE DUEL ET LE BOSS ------------------ */
+.btn-duel {
+  width: 100%; min-height: 56px; flex: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  font-family: var(--pix); font-size: clamp(9px, 2.8vw, 12px); line-height: 1.5;
+  color: #FFFFFF; background: #2A1B4A;
+  box-shadow: inset 4px 4px 0 0 #45306E, inset -4px -4px 0 0 #150C2B, 0 6px 0 0 #0C0714;
+}
+.btn-duel:active { transform: translateY(4px); }
+.btn-duel[aria-pressed="true"] {
+  color: #143206; background: var(--cyan);
+  box-shadow: inset 4px 4px 0 0 #ADF5F0, inset -4px -4px 0 0 #2E9E97, 0 6px 0 0 #1F736E;
+}
+.duel-ico { flex: none; line-height: 0; }
+
+/* le tour de qui : un liseré de couleur en haut de l'ecran de question */
+.app[data-joueur="1"] .q-stage { box-shadow: inset 0 5px 0 0 var(--ok); }
+.app[data-joueur="2"] .q-stage { box-shadow: inset 0 5px 0 0 var(--cyan); }
+
+.boss {
+  display: flex; align-items: center; gap: 10px; margin-top: 6px; padding: 7px 10px;
+  background: rgba(196, 54, 43, .28);
+  box-shadow: inset 3px 3px 0 0 rgba(255, 255, 255, .12), inset -3px -3px 0 0 rgba(0, 0, 0, .5);
+  animation: floatIn 320ms steps(4) both;
+}
+.boss-art { flex: none; line-height: 0; animation: breathe 1.6s steps(3) infinite alternate; }
+.boss-txt { display: flex; flex-direction: column; gap: 4px; }
+.boss-nom { font-family: var(--pix); font-size: 9px; line-height: 1.5; color: var(--ko); }
+.boss-vie { font-family: var(--pix); font-size: 13px; line-height: 1; letter-spacing: 3px; color: var(--sg-gold); }
+.boss.is-mort { background: rgba(76, 209, 55, .24); }
+.boss.is-mort .boss-nom { color: var(--ok); }
+.boss.is-mort .boss-art { filter: grayscale(1) brightness(.6); animation: none; }
 
 /* ------------------------------ 10. QUESTION ------------------------------ */
 .screen-q { padding-left: max(10px, var(--safe-l)); padding-right: max(10px, var(--safe-r)); }
@@ -642,6 +716,30 @@ button { font: inherit; color: inherit; border: 0; background: none; }
   animation: popIn 420ms cubic-bezier(.34, 1.7, .64, 1) both;
 }
 
+/* ------------------ 10 septies. LE SAC A INDICES ------------------
+   Trois torches par partie. En bruler une eteint une mauvaise reponse et
+   remet le combo a zero — jamais un point deja gagne. */
+.torche {
+  flex: none; display: flex; align-items: center; gap: 5px;
+  min-height: 34px; padding: 0 9px; cursor: pointer;
+  background: rgba(20, 10, 38, .7);
+  box-shadow: inset 3px 3px 0 0 #45306E, inset -3px -3px 0 0 #150C2B;
+}
+.torche:active { transform: translateY(3px); }
+.torche[disabled] { opacity: .38; cursor: default; }
+.torche-n { font-family: var(--pix); font-size: 10px; line-height: 1; color: var(--sg-gold); }
+
+/* une reponse eteinte : elle reste a sa place, mais elle est hors-jeu */
+.is-brule {
+  filter: grayscale(1) brightness(.4);
+  opacity: .45; pointer-events: none;
+  position: relative;
+}
+.is-brule::after {
+  content: ''; position: absolute; left: 8%; right: 8%; top: 50%; height: 4px;
+  background: #FF4B4B; transform: translateY(-2px);
+}
+
 /* ------------------ 10 quinquies. MOTEUR SCENE (la grotte) ------------------
    Quatre creatures dans le noir, en 2x2 pour tenir dans un pouce d'ecran.
    Aucun nom avant la reponse : c'est la silhouette qu'il faut reconnaitre. */
@@ -687,7 +785,10 @@ button { font: inherit; color: inherit; border: 0; background: none; }
 .crea.is-dim { opacity: .4; }
 .scene.is-locked .crea { pointer-events: none; }
 
-@media (max-height: 620px) { .crea { min-height: 88px; } .crea-art svg { width: 56px; height: 56px; } }
+@media (max-height: 620px) {
+  .crea { min-height: 88px; }
+  .crea-art svg { width: 56px; height: 56px; }
+}
 @media (orientation: landscape) and (max-height: 560px) {
   .scene { grid-template-columns: repeat(4, 1fr); }
   .crea { min-height: 76px; }
@@ -1149,6 +1250,9 @@ button { font: inherit; color: inherit; border: 0; background: none; }
   .terr-vue { height: 58px; }
   .moteur { margin-top: 8px; gap: 6px; }
   .theatre-scene { height: 84px; }
+  .boss { margin-top: 3px; padding: 4px 8px; }
+  .boss-art svg { width: 24px; height: 24px; }
+  .btn-duel { min-height: 46px; }
   .pari, .procede, .wagon { min-height: 48px; font-size: 13px; }
   .machine-banc { padding: 6px; }
   .mach-case { padding: 5px 3px; }
@@ -1351,6 +1455,43 @@ button { font: inherit; color: inherit; border: 0; background: none; }
   .neuf-liste span { width: 34px; height: 34px; }
 }
 
+/* ------------------------------ 12 bis. LE JOURNAL ------------------------------
+   Les 108 explications, rangees. Ce qu'on a rate remonte en haut : c'est la
+   seule chose qu'un cahier de revision doit savoir faire. */
+.journal-panel {
+  width: 100%; max-width: 620px; margin: auto;
+  display: flex; flex-direction: column; gap: 12px; max-height: 100%;
+  padding: 16px; background: #2A1B4A;
+  box-shadow: inset 6px 6px 0 0 #45306E, inset -6px -6px 0 0 #150C2B, 0 16px 0 0 rgba(0, 0, 0, .45);
+  animation: panelIn 380ms cubic-bezier(.34, 1.5, .64, 1) both;
+}
+.journal-tete { display: flex; flex-direction: column; gap: 6px; }
+.journal-titre { font-family: var(--pix); font-size: clamp(12px, 3.4vw, 16px); line-height: 1.5; color: var(--sg-gold); }
+.journal-compte { font-family: var(--pix); font-size: 8px; line-height: 1.7; color: var(--ui-mute); }
+.journal-corps {
+  min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  display: flex; flex-direction: column; gap: 16px; padding-right: 2px;
+}
+.jou-quiz { display: flex; flex-direction: column; gap: 6px; }
+.jou-quiz-titre { font-family: var(--pix); font-size: 9px; line-height: 1.7; color: var(--cyan); }
+.jou-ligne {
+  display: flex; gap: 10px; padding: 10px;
+  background: rgba(12, 7, 20, .45); box-shadow: inset 3px 3px 0 0 rgba(0, 0, 0, .45);
+}
+.jou-ligne.est-ko { box-shadow: inset 4px 0 0 0 var(--ko), inset 3px 3px 0 0 rgba(0, 0, 0, .45); }
+.jou-ligne.est-ok { box-shadow: inset 4px 0 0 0 var(--ok), inset 3px 3px 0 0 rgba(0, 0, 0, .45); }
+.jou-ligne.est-neuf { opacity: .62; }
+.jou-chip {
+  flex: none; align-self: flex-start; padding: 5px 6px;
+  font-family: var(--pix); font-size: 7px; line-height: 1.6; color: #140A26; background: var(--ui-mute);
+}
+.est-ko .jou-chip { background: var(--ko); color: #2B0B0B; }
+.est-ok .jou-chip { background: var(--ok); color: #143206; }
+.jou-txt { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.jou-q { font-size: 15px; line-height: 1.35; color: #FFFFFF; }
+.jou-r { font-family: var(--pix); font-size: 8px; line-height: 1.7; color: var(--sg-gold); }
+.jou-e { font-size: 13px; line-height: 1.4; color: var(--ui-mute); text-wrap: pretty; }
+
 /* ------------------------------ 13. DIALOGUES ------------------------------ */
 .confirm-panel {
   width: 100%; max-width: 360px; padding: 18px; text-align: center;
@@ -1397,6 +1538,16 @@ button { font: inherit; color: inherit; border: 0; background: none; }
 
 /* peu de hauteur disponible : on comprime le chrome, jamais l'aire de jeu */
 @media (max-height: 620px) {
+  /* ecran court : on compacte l'annonce pour que le bouton de depart reste
+     au-dessus de la ligne de flottaison, sans avoir a faire defiler */
+  .brief-wrap { gap: 8px; }
+  .brief-carte { padding: 12px; }
+  .brief-ico svg { width: 44px; height: 44px; }
+  .brief-lignes { margin-top: 10px; gap: 4px; }
+  .brief-ligne { min-height: 32px; }
+  .brief-mot { margin-top: 10px; font-size: 14px; }
+  .btn-go { min-height: 60px; }
+  .btn-duel { min-height: 48px; }
   .screen-home { padding-bottom: 8%; }
   .home-title { margin-bottom: 18px; }
   .btn-play { height: 64px; }

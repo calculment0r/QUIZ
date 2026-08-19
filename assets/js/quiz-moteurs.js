@@ -170,6 +170,7 @@
         var b = document.createElement('button');
         b.type = 'button';
         b.className = 'terr';
+        b.dataset.rep = i;
         b.setAttribute('aria-label', etat.locked ? q.r[i] : 'territoire ' + (i + 1));
         if (etat.sel === i) b.classList.add('is-pique');
         if (etat.locked) {
@@ -290,6 +291,7 @@
         var b = document.createElement('button');
         b.type = 'button';
         b.className = 'pari';
+        b.dataset.rep = i;
         b.textContent = txt;
         if (etat.sel === i) b.classList.add('is-mise');
         if (etat.locked) {
@@ -361,6 +363,7 @@
         var b = document.createElement('button');
         b.type = 'button';
         b.className = 'procede';
+        b.dataset.rep = i;
         b.textContent = txt;
         if (etat.sel === i) b.classList.add('is-mise');
         if (etat.locked) {
@@ -465,6 +468,7 @@
         var b = document.createElement('button');
         b.type = 'button';
         b.className = 'wagon';
+        b.dataset.rep = i;
         var vign = el('span', 'wagon-art');
         vign.innerHTML = art[0] === 'mob' ? api.mob(art[1], 30) : api.item(art[1], 30);
         b.appendChild(vign);

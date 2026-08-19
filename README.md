@@ -259,6 +259,43 @@ percussions ayant ete rabaissees en compensation — la grosse caisse culmine a
 0.068, donc en dessous du moindre bruitage. La musique s'entend, sans jamais
 couvrir ce qui compte.
 
+### Le sac a indices
+
+Trois torches par partie, un bouton dans le bandeau. En bruler une **eteint une
+mauvaise reponse** — dans n'importe quel moteur, parce que chaque choix porte
+son index (`data-rep`) et qu'une seule passe generique les eteint. Le prix : le
+combo en cours retombe a zero. Jamais un point deja gagne : demander de l'aide
+n'est pas tricher, c'est juste moins glorieux. On ne descend jamais sous deux
+choix, sinon la torche donnerait la reponse au lieu d'un indice.
+
+### Le journal des decouvertes
+
+Les 108 explications sont deja ecrites : le journal les range et les rend
+lisibles hors partie, bouton en haut a droite de l'accueil. Chaque fiche porte
+son etat — **RATÉE**, **SUE**, **À VOIR** — et les ratees remontent en haut de
+page, ce qui est la seule chose qu'un cahier de revision doit savoir faire. Une
+bonne reponse efface un ancien echec ; l'inverse n'est pas vrai.
+
+### Le boss de fin
+
+Les **trois dernieres epreuves** ne sont pas trois questions de plus : c'est un
+boss a trois points de vie (le Warden, le Wither ou le Dragon selon le monde).
+Chaque bonne reponse lui en enleve un. La partie ne s'allonge pas, elle gagne
+une fin.
+
+### Le duel a deux
+
+Un bouton sur l'annonce du defi. Un seul telephone, deux joueurs : il change de
+main a chaque epreuve, un lisere de couleur en haut de l'ecran dit a qui c'est,
+les deux scores montent cote a cote dans le bandeau, et le perdant choisit le
+quiz suivant.
+
+### Le village qui pousse
+
+Un batiment de plus sur les iles de l'accueil a chaque partie terminee, jusqu'a
+dix. Silhouettes sombres et fenetres allumees, garde sur le telephone. Purement
+decoratif — et c'est exactement le but.
+
 ### La vitrine
 
 Chaque bonne reponse debloque la creature ou l'objet dont il vient d'etre

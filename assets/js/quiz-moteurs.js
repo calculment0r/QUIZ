@@ -194,6 +194,298 @@
     }
   };
 
-  window.QUIZ_MOTEURS = [carte];
+
+  /* ===========================================================================
+     LE THEATRE DE L'ORAGE
+     ---------------------------------------------------------------------------
+     Une scene, le sujet de la question dessine dessus, et la condition affichee
+     en clair : la foudre, le regard, la glace. Quatre paris, un levier. La
+     condition ne s'applique JAMAIS avant le pari — sinon il n'y aurait plus
+     rien a deviner, il suffirait de regarder.
+     =========================================================================== */
+
+  /* petites icones de condition, dessinees sur une grille de 8 par 8 */
+  var COND_ART = {
+    foudre: [[3, 0, 2, 3, '#FFC145'], [2, 3, 3, 2, '#FFE9A8'], [4, 5, 2, 3, '#FFC145']],
+    oeil:   [[1, 3, 6, 2, '#FFFFFF'], [3, 2, 2, 4, '#4FD9D0'], [3, 3, 2, 2, '#0C0714']],
+    glace:  [[1, 1, 6, 6, '#ADF5F0'], [2, 2, 4, 4, '#E8F4FF'], [3, 3, 2, 2, '#3EC4BC']],
+    bois:   [[2, 1, 4, 6, '#8B5A2B'], [3, 2, 2, 4, '#B37C46'], [1, 3, 6, 1, '#5C3A1B']],
+    epee:   [[4, 0, 2, 5, '#C4C4C4'], [2, 5, 6, 1, '#8F8F8F'], [3, 6, 2, 2, '#8B5A2B']],
+    poison: [[1, 4, 6, 3, '#4CD137'], [2, 2, 2, 2, '#8BE07C'], [5, 1, 2, 2, '#8BE07C']],
+    enchant:[[1, 1, 6, 6, '#6B3FA0'], [2, 2, 4, 4, '#E0C8FF'], [3, 3, 2, 2, '#8F63C4']],
+    main:   [[2, 2, 4, 5, '#C8A882'], [1, 3, 1, 3, '#C8A882'], [6, 3, 1, 3, '#C8A882']]
+  };
+
+  var CONDITIONS = [
+    [/foudre|orage/i, 'foudre', 'FRAPPÉ PAR LA FOUDRE'],
+    [/dans les yeux|le regarde/i, 'oeil', 'ON LE REGARDE DANS LES YEUX'],
+    [/glace/i, 'glace', 'IL ABSORBE DE LA GLACE'],
+    [/\bbois\b/i, 'bois', 'IL ABSORBE DU BOIS'],
+    [/tue|l[âa]che/i, 'epee', 'ON LE MET HORS-JEU'],
+    [/toxique|mare/i, 'poison', 'ON MARCHE DEDANS'],
+    [/enchantement/i, 'enchant', 'ON S’EN SERT'],
+    [/sert|travail/i, 'main', 'IL FAIT SON TRAVAIL']
+  ];
+
+  function iconeSvg(id, taille) {
+    var d = COND_ART[id] || COND_ART.main, out = '';
+    for (var i = 0; i < d.length; i++) {
+      out += '<rect x="' + d[i][0] + '" y="' + d[i][1] + '" width="' + d[i][2] +
+             '" height="' + d[i][3] + '" fill="' + d[i][4] + '"></rect>';
+    }
+    return '<svg viewBox="0 0 8 8" width="' + taille + '" height="' + taille +
+      '" shape-rendering="crispEdges" aria-hidden="true">' + out + '</svg>';
+  }
+
+  /* dessine le sujet d'une question : la creature ou l'objet dont on parle */
+  function sujetSvg(txt, taille, secours) {
+    var A = window.QUIZ_ART;
+    var t = A && A.trouve ? A.trouve(txt) : null;
+    if (!t && secours) t = secours;
+    if (!t) return '';
+    return t.kind === 'mob' ? A.mob(t.id, taille) : A.item(t.id, taille);
+  }
+
+  function courtes(q, max) {
+    for (var i = 0; i < q.r.length; i++) if (String(q.r[i]).length > max) return false;
+    return true;
+  }
+
+  var theatre = {
+    id: 'theatre',
+    confirme: true,
+
+    detecte: function (q) {
+      if (!/que se passe-t-il|que fait|en quoi se transforme|[àa] quoi sert|que l[âa]che|quel effet/i.test(q.q)) return null;
+      if (!courtes(q, 62)) return null;
+      var cond = null;
+      for (var i = 0; i < CONDITIONS.length && !cond; i++) {
+        if (CONDITIONS[i][0].test(q.q)) cond = { icone: CONDITIONS[i][1], mot: CONDITIONS[i][2] };
+      }
+      if (!cond) return null;
+      return { cond: cond };
+    },
+
+    consigne: function () { return 'PARIE, PUIS TIRE LE LEVIER'; },
+    cta: function (spec, etat) { return etat.sel === null ? 'POSE TON PARI' : 'TIRER LE LEVIER'; },
+
+    build: function (zone, q, spec, etat, api) {
+      var scene = el('div', 'theatre-scene');
+      if (etat.locked) scene.classList.add(etat.ok ? 'is-joue-ok' : 'is-joue-ko');
+
+      var acteur = el('span', 'theatre-acteur');
+      acteur.innerHTML = sujetSvg(q.q, 56, { id: 'livre-enchante', kind: 'item' });
+      scene.appendChild(acteur);
+
+      var badge = el('div', 'theatre-cond');
+      var ic = el('span', 'theatre-ic');
+      ic.innerHTML = iconeSvg(spec.cond.icone, 26);
+      badge.appendChild(ic);
+      badge.appendChild(el('span', 'theatre-mot', spec.cond.mot));
+      scene.appendChild(badge);
+      zone.appendChild(scene);
+
+      var paris = el('div', 'paris');
+      q.r.forEach(function (txt, i) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'pari';
+        b.textContent = txt;
+        if (etat.sel === i) b.classList.add('is-mise');
+        if (etat.locked) {
+          if (i === q.ok) b.classList.add('is-ok');
+          else if (etat.sel === i) b.classList.add('is-ko');
+          else b.classList.add('is-dim');
+        } else {
+          b.addEventListener('click', function () { api.choisir(i); });
+        }
+        paris.appendChild(b);
+      });
+      zone.appendChild(paris);
+      zone.appendChild(el('p', 'moteur-aide', etat.locked
+        ? 'Le levier ne ment pas.'
+        : 'Rien ne se passe tant que le levier n’est pas tiré.'));
+    }
+  };
+
+  /* ===========================================================================
+     LA MACHINE
+     ---------------------------------------------------------------------------
+     Entree, station, sortie. La sortie est dessinee — c'est ce qu'on veut
+     obtenir — mais la station reste vide : c'est le procede qu'il faut trouver.
+     On charge, on met en marche, la machine tourne.
+     =========================================================================== */
+  var machine = {
+    id: 'machine',
+    confirme: true,
+
+    detecte: function (q) {
+      if (!/comment obtient-on|comment attrape-t-on|comment fige-t-on|comment fabrique-t-on|comment am[ée]liore/i.test(q.q)) return null;
+      if (!courtes(q, 62)) return null;
+      return { sortie: q.q };
+    },
+
+    consigne: function () { return 'CHARGE LE BON PROCÉDÉ'; },
+    cta: function (spec, etat) { return etat.sel === null ? 'CHOISIS UN PROCÉDÉ' : 'METTRE EN MARCHE'; },
+
+    build: function (zone, q, spec, etat, api) {
+      var banc = el('div', 'machine-banc');
+      if (etat.locked) banc.classList.add(etat.ok ? 'is-tourne-ok' : 'is-tourne-ko');
+
+      var entree = el('div', 'mach-case mach-entree');
+      entree.appendChild(el('span', 'mach-tag', 'ENTRÉE'));
+      entree.appendChild(el('span', 'mach-vide', '?'));
+      banc.appendChild(entree);
+
+      banc.appendChild(el('span', 'mach-fleche', '›'));
+
+      var station = el('div', 'mach-case mach-station');
+      station.appendChild(el('span', 'mach-tag', 'PROCÉDÉ'));
+      station.appendChild(el('span', 'mach-proc', etat.sel === null ? '—' : q.r[etat.sel]));
+      if (etat.sel !== null) station.classList.add('is-chargee');
+      banc.appendChild(station);
+
+      banc.appendChild(el('span', 'mach-fleche', '›'));
+
+      var sortie = el('div', 'mach-case mach-sortie');
+      sortie.appendChild(el('span', 'mach-tag', 'SORTIE'));
+      var art = el('span', 'mach-art');
+      var dessin = sujetSvg(q.q, 42, null);
+      if (dessin) art.innerHTML = dessin; else art.textContent = '★';
+      sortie.appendChild(art);
+      banc.appendChild(sortie);
+      zone.appendChild(banc);
+
+      var choix = el('div', 'procedes');
+      q.r.forEach(function (txt, i) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'procede';
+        b.textContent = txt;
+        if (etat.sel === i) b.classList.add('is-mise');
+        if (etat.locked) {
+          if (i === q.ok) b.classList.add('is-ok');
+          else if (etat.sel === i) b.classList.add('is-ko');
+          else b.classList.add('is-dim');
+        } else {
+          b.addEventListener('click', function () { api.choisir(i); });
+        }
+        choix.appendChild(b);
+      });
+      zone.appendChild(choix);
+      zone.appendChild(el('p', 'moteur-aide', etat.locked
+        ? 'La machine ne fabrique que ce qu’on lui a demandé.'
+        : 'La sortie est visible, le procédé non.'));
+    }
+  };
+
+  /* ===========================================================================
+     LE RAIL DU TEMPS
+     ---------------------------------------------------------------------------
+     Une gare vide, quatre wagons en attente. On accroche le bon, on fait partir
+     le train. Le wagon qui n'a rien a faire la deraille — dans un tas de laine,
+     personne ne se fait mal.
+     =========================================================================== */
+  var DROPS = {
+    'spring to life':   ['item', 'pissenlit'],
+    'chase the skies':  ['mob',  'happyghast'],
+    'the copper age':   ['item', 'cuivre'],
+    'mounts of mayhem': ['mob',  'cheval'],
+    'tiny takeover':    ['mob',  'cochon'],
+    'chaos cubed':      ['mob',  'cubesoufre'],
+    'deep descent':     ['item', 'pioche'],
+    'sulfur rising':    ['item', 'charbon'],
+    'dungeon descent':  ['item', 'torche'],
+    'stable master':    ['item', 'selle'],
+    'deep ride':        ['item', 'boussole'],
+    'mayhem arena':     ['item', 'enclume']
+  };
+
+  function dropDe(txt) {
+    var k = String(txt).toLowerCase().replace(/^(le |la |les |l['’])/, '').trim();
+    return DROPS[k] ? k : null;
+  }
+
+  var rail = {
+    id: 'rail',
+    confirme: true,
+
+    detecte: function (q) {
+      var cles = q.r.map(dropDe), vus = {};
+      for (var i = 0; i < cles.length; i++) {
+        if (!cles[i]) return null;
+        if (vus[cles[i]]) return null;
+        vus[cles[i]] = 1;
+      }
+      /* le quai porte le repere de la question : une date, un rang, ou a
+         defaut le sujet dessine — sans repere, il n'y aurait pas de gare */
+      var an = (/(\d{4})/.exec(q.q) || [])[1] || '';
+      var rang = /premier/i.test(q.q) ? '1ER' : /deuxi[èe]me/i.test(q.q) ? '2E' : /troisi[èe]me/i.test(q.q) ? '3E' : '';
+      /* le sujet dessine ne sert que de repli : quand la question donne une
+         date, c'est elle le repere, et un dessin en plus n'apprend rien */
+      var sujet = (an || rang) ? null
+        : (window.QUIZ_ART && window.QUIZ_ART.trouve ? window.QUIZ_ART.trouve(q.q) : null);
+      if (!an && !rang && !sujet) return null;
+      var quai = rang ? rang + ' DROP' : (an ? 'LE DROP' : 'LA GARE DE');
+      if (an) quai += ' DE ' + an;
+      return { cles: cles, quai: quai, sujet: sujet };
+    },
+
+    consigne: function () { return 'ACCROCHE LE BON WAGON'; },
+    cta: function (spec, etat) { return etat.sel === null ? 'CHOISIS UN WAGON' : 'FAIRE PARTIR LE TRAIN'; },
+
+    build: function (zone, q, spec, etat, api) {
+      var voie = el('div', 'rail-voie');
+      if (etat.locked) voie.classList.add(etat.ok ? 'is-part' : 'is-deraille');
+      var pancarte = el('div', 'rail-quai');
+      if (spec.sujet) {
+        var vs = el('span', 'rail-sujet');
+        vs.innerHTML = spec.sujet.kind === 'mob' ? api.mob(spec.sujet.id, 22) : api.item(spec.sujet.id, 22);
+        pancarte.appendChild(vs);
+      }
+      pancarte.appendChild(el('span', 'rail-quai-txt', spec.quai));
+      voie.appendChild(pancarte);
+      var conv = el('div', 'rail-convoi');
+      conv.appendChild(el('span', 'rail-loco'));
+      var attele = el('span', 'rail-attele');
+      if (etat.sel !== null) {
+        attele.classList.add('is-plein');
+        attele.textContent = q.r[etat.sel];
+      } else {
+        attele.textContent = '—';
+      }
+      conv.appendChild(attele);
+      voie.appendChild(conv);
+      voie.appendChild(el('span', 'rail-traverses'));
+      zone.appendChild(voie);
+
+      var quai = el('div', 'wagons');
+      q.r.forEach(function (txt, i) {
+        var art = DROPS[spec.cles[i]];
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'wagon';
+        var vign = el('span', 'wagon-art');
+        vign.innerHTML = art[0] === 'mob' ? api.mob(art[1], 30) : api.item(art[1], 30);
+        b.appendChild(vign);
+        b.appendChild(el('span', 'wagon-nom', txt));
+        if (etat.sel === i) b.classList.add('is-mise');
+        if (etat.locked) {
+          if (i === q.ok) b.classList.add('is-ok');
+          else if (etat.sel === i) b.classList.add('is-ko');
+          else b.classList.add('is-dim');
+        } else {
+          b.addEventListener('click', function () { api.choisir(i); });
+        }
+        quai.appendChild(b);
+      });
+      zone.appendChild(quai);
+      zone.appendChild(el('p', 'moteur-aide', etat.locked
+        ? 'Un wagon qui n’a rien à faire là déraille.'
+        : 'Le train ne part qu’une fois le wagon accroché.'));
+    }
+  };
+
+  window.QUIZ_MOTEURS = [carte, theatre, machine, rail];
   window.QUIZ_LIEUX = { art: vignette, table: LIEUX };
 })();

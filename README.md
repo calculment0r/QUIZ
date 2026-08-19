@@ -146,13 +146,16 @@ Le mode est choisi automatiquement, question par question, dans
 |---|---|---|
 | **scene** | quatre creatures dans le noir ou quatre objets dans un coffre, sans etiquette : il faut reconnaitre | 24 |
 | **forge** | il compose une valeur avec des briques (+100, +10, +1...) sans voir la cible | 16 |
+| **theatre** | le sujet sur scene, la condition affichee : il parie, puis tire le levier — rien ne se passe avant | 9 |
 | **atelier** | il pose les ingredients dans une grille 3x3 : la reponse est l'objet fabrique | 8 |
 | **carte** | quatre paysages sans nom : il reconnait le lieu, plante son epingle, confirme | 7 |
+| **machine** | entree, station, sortie : la sortie est dessinee, le procede est a trouver | 5 |
+| **rail** | une gare vide, quatre wagons : il accroche le bon et fait partir le train | 5 |
 | **profondeur** | il descend a la bonne couche dans une coupe verticale du monde | 4 |
-| **blocs** | QCM a 4 blocs a toucher | 49 |
+| **blocs** | QCM a 4 blocs a toucher | 30 |
 
-**59 questions sur 108 (55 %)** se jouent autrement qu'en QCM.
-Par quiz : Survie 29/36, Mobs 21/36, Bedrock 9/36.
+**78 questions sur 108 (72 %)** se jouent autrement qu'en QCM.
+Par quiz : Survie 32/36, Mobs 29/36, Bedrock 17/36.
 
 ### Ajouter un moteur sans toucher a app.js
 

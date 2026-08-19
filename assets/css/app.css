@@ -738,6 +738,108 @@ button { font: inherit; color: inherit; border: 0; background: none; }
 .terr.is-ko .terr-nom  { background: #8E2419; }
 .terr.is-dim { filter: brightness(.5) saturate(.6); }
 
+/* --- le theatre de l'orage : une scene, une condition, quatre paris --- */
+.theatre-scene {
+  position: relative; height: 128px; display: grid; place-items: center;
+  background: linear-gradient(180deg, #1E1236 0%, #3D1B4E 100%);
+  box-shadow: inset 4px 4px 0 0 rgba(255, 255, 255, .1), inset -4px -4px 0 0 rgba(0, 0, 0, .5);
+}
+.theatre-acteur { line-height: 0; }
+.theatre-scene.is-joue-ok .theatre-acteur { animation: growStay 620ms steps(5) both; }
+.theatre-scene.is-joue-ko .theatre-acteur { animation: tiltKo 620ms ease-in-out both; }
+.theatre-cond {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  display: flex; align-items: center; gap: 8px; padding: 7px 10px;
+  background: rgba(12, 7, 20, .82);
+}
+.theatre-ic { flex: none; line-height: 0; }
+.theatre-mot { font-family: var(--pix); font-size: 8px; line-height: 1.7; color: var(--halo); }
+
+.paris { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pari, .procede {
+  min-height: 56px; padding: 8px 10px; cursor: pointer; text-align: left;
+  font-size: 14px; line-height: 1.35; color: #FFFFFF;
+  background: #2A1B4A;
+  box-shadow: inset 4px 4px 0 0 #45306E, inset -4px -4px 0 0 #150C2B, 0 5px 0 0 #0C0714;
+}
+.pari:active, .procede:active { transform: translateY(4px); }
+.pari.is-mise, .procede.is-mise { background: #45306E; box-shadow: inset 0 0 0 4px var(--sg-gold); }
+.pari.is-ok, .procede.is-ok { background: var(--ok-lo); box-shadow: inset 4px 4px 0 0 var(--ok-hi), inset -4px -4px 0 0 #1C5A17; }
+.pari.is-ko, .procede.is-ko { background: #8E2419; box-shadow: inset 4px 4px 0 0 #E06A5F, inset -4px -4px 0 0 #5A1810; }
+.pari.is-dim, .procede.is-dim { filter: brightness(.55) saturate(.5); }
+
+/* --- la machine : entree, procede, sortie --- */
+.machine-banc {
+  display: flex; align-items: stretch; gap: 4px; padding: 10px;
+  background: #241640;
+  box-shadow: inset 4px 4px 0 0 #45306E, inset -4px -4px 0 0 #150C2B;
+}
+.mach-case {
+  flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 8px 4px; background: rgba(12, 7, 20, .5);
+  box-shadow: inset 3px 3px 0 0 rgba(0, 0, 0, .5);
+}
+.mach-tag { font-family: var(--pix); font-size: 7px; line-height: 1.6; color: var(--ui-mute); }
+.mach-vide { font-family: var(--pix); font-size: 20px; line-height: 1.4; color: #45306E; }
+.mach-art { line-height: 0; font-size: 26px; color: var(--sg-gold); }
+.mach-proc {
+  font-size: 12px; line-height: 1.3; color: #FFFFFF; text-align: center;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.mach-station.is-chargee { box-shadow: inset 0 0 0 3px var(--sg-gold); }
+.mach-fleche {
+  flex: none; align-self: center;
+  font-family: var(--pix); font-size: 16px; color: var(--sg-gold);
+}
+.machine-banc.is-tourne-ok .mach-art { animation: growStay 620ms steps(5) both; }
+.machine-banc.is-tourne-ko { animation: shakeHard 420ms steps(1) both; }
+.procedes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+/* --- le rail du temps --- */
+.rail-voie {
+  position: relative; padding: 10px 10px 16px;
+  background: linear-gradient(180deg, #2A1B4A 0%, #1E1236 100%);
+  box-shadow: inset 4px 4px 0 0 #45306E, inset -4px -4px 0 0 #150C2B;
+}
+.rail-quai {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-bottom: 8px; padding: 5px 8px; background: var(--sg-gold);
+}
+.rail-sujet { flex: none; line-height: 0; }
+.rail-quai-txt { font-family: var(--pix); font-size: 8px; line-height: 1.7; color: #2B2B2B; }
+.rail-convoi { display: flex; align-items: center; gap: 6px; }
+.rail-loco {
+  flex: none; width: 46px; height: 34px; display: block; background: #4A4A5A;
+  box-shadow: inset 4px 4px 0 0 #6A6A7A, inset -4px -4px 0 0 #2A2A33;
+}
+.rail-attele {
+  flex: 1; min-width: 0; min-height: 34px; display: flex; align-items: center; justify-content: center;
+  padding: 4px 8px; text-align: center;
+  font-family: var(--pix); font-size: 8px; line-height: 1.6; color: var(--ui-mute);
+  background: rgba(12, 7, 20, .5); box-shadow: inset 3px 3px 0 0 rgba(0, 0, 0, .5);
+}
+.rail-attele.is-plein { color: #2B2B2B; background: #C9962F; box-shadow: inset 3px 3px 0 0 #F2CE7B, inset -3px -3px 0 0 #A87C22; }
+.rail-traverses {
+  position: absolute; left: 10px; right: 10px; bottom: 6px; height: 6px; display: block;
+  background: repeating-linear-gradient(90deg, #6E4522 0 6px, transparent 6px 14px);
+}
+.rail-voie.is-part .rail-convoi { animation: fxSide 900ms ease-in both; }
+.rail-voie.is-deraille .rail-convoi { animation: rollKo 700ms ease-in-out both; }
+
+.wagons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.wagon {
+  display: flex; align-items: center; gap: 8px; min-height: 56px; padding: 8px;
+  cursor: pointer; text-align: left; background: #2A1B4A;
+  box-shadow: inset 4px 4px 0 0 #45306E, inset -4px -4px 0 0 #150C2B, 0 5px 0 0 #0C0714;
+}
+.wagon:active { transform: translateY(4px); }
+.wagon-art { flex: none; line-height: 0; }
+.wagon-nom { font-family: var(--pix); font-size: 8px; line-height: 1.6; color: #FFFFFF; }
+.wagon.is-mise { background: #45306E; box-shadow: inset 0 0 0 4px var(--sg-gold); }
+.wagon.is-ok { background: var(--ok-lo); box-shadow: inset 4px 4px 0 0 var(--ok-hi), inset -4px -4px 0 0 #1C5A17; }
+.wagon.is-ko { background: #8E2419; box-shadow: inset 4px 4px 0 0 #E06A5F, inset -4px -4px 0 0 #5A1810; }
+.wagon.is-dim { filter: brightness(.55) saturate(.5); }
+
 /* ------------------ 10 bis. MOTEUR ATELIER (grille de craft) ------------------ */
 /* Il pose lui-meme les ingredients : la reponse n'existe pas avant qu'il la
    construise. La grille fait toujours 3x3 pour ne jamais trahir la quantite. */
@@ -1046,6 +1148,10 @@ button { font: inherit; color: inherit; border: 0; background: none; }
   .mini-zone { gap: 6px; margin-top: 8px; }
   .terr-vue { height: 58px; }
   .moteur { margin-top: 8px; gap: 6px; }
+  .theatre-scene { height: 84px; }
+  .pari, .procede, .wagon { min-height: 48px; font-size: 13px; }
+  .machine-banc { padding: 6px; }
+  .mach-case { padding: 5px 3px; }
 }
 
 /* --- la lave qui monte : le rouge d'alerte quand la marge fond --- */

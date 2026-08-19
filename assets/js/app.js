@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var BUILD = '8';
+  var BUILD = '9';
 
   /* ------------------------- tables d'effets (verbatim) ------------------------- */
   var FXOK = [
@@ -361,7 +361,14 @@
 
   /* les deux banques de dessins, exposees : les mini-jeux du registre s'en
      servent via leur API, et les tests peuvent les appeler directement */
-  window.QUIZ_ART = { item: itemSvg, mob: mobSvg };
+  window.QUIZ_ART = {
+    item: itemSvg, mob: mobSvg,
+    /* trouve(texte) -> { id, kind } : le lexique complet des creatures et des
+       objets, ouvert aux moteurs du registre pour qu'ils sachent dessiner le
+       sujet d'une question sans reecrire une table a eux */
+    trouve: function (txt) { return sceneArt(txt); },
+    nom: function (id) { return itemName(id); }
+  };
 
   /* ===================== ROUTAGE DES EPREUVES =====================
      La couche gameplay est verifiee contre le texte de la bonne reponse : si la

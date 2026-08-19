@@ -613,11 +613,14 @@
 
     if (S.inEcho) {
       /* le rattrapage ne touche pas au score des douze epreuves */
+      if (q.m === 'blocks' && !rm) startFallWindow();
       S.echo.ok = ok;
       S.live = ok ? 'Rattrapage réussi' : 'Toujours incorrect';
       render();
       return;
     }
+
+    if (q.m === 'blocks' && !rm) startFallWindow();
 
     S.results = S.results.concat([ok]);
     S.combo = ok ? S.combo + 1 : 0;
@@ -637,6 +640,7 @@
      QCM, elle revient en duel entre sa reponse et la bonne : c'est un autre
      geste, pas la meme question reposee a l'identique. */
   function startEcho(resumeIndex) {
+    stopFallWindow();
     var src = S.echo.q;
     var eq;
     if (src.m === 'blocks') {
@@ -679,6 +683,7 @@
 
   /* reprend la partie sur l'epreuve demandee (sortie de rattrapage) */
   function gotoQuestion(nq) {
+    stopFallWindow();
     S.qi = nq; S.sel = null; S.locked = false; S.wasOk = null; S.fx = null; S.live = '';
     clearMini();
     setupEngines(S.questions[nq]);
@@ -697,10 +702,12 @@
       return;
     }
     if (nq >= S.questions.length) {
+      stopFallWindow();
       S.screen = 'result'; S.copied = false; S.openRecap = null;
       snd('win'); render();
       return;
     }
+    stopFallWindow();
     S.qi = nq; S.sel = null; S.locked = false; S.wasOk = null; S.fx = null; S.live = '';
     clearMini();
     setupEngines(S.questions[nq]);
@@ -785,6 +792,24 @@
   /* ------------------------------ rendu ------------------------------ */
   var lastQSig = '';
   var lastLocked = false;
+  var fallTimer = null;
+
+  /* la chute des mauvaises reponses dure au plus 900ms + 330ms de decalage */
+  function startFallWindow() {
+    clearTimeout(fallTimer);
+    S.falling = true;
+    fallTimer = setTimeout(function () {
+      S.falling = false;
+      render();
+      revealExplanation();
+    }, 1300);
+  }
+
+  function stopFallWindow() {
+    clearTimeout(fallTimer);
+    fallTimer = null;
+    S.falling = false;
+  }
 
   /* sur un petit ecran l'explication tombe sous la ligne de flottaison :
      on l'amene a l'ecran au moment ou elle apparait */
@@ -872,6 +897,8 @@
       el.consigne.textContent = q ? consigneFor(q, mode) : '';
       el.qText.textContent = q ? q.q : '';
 
+      el.playfield.classList.toggle('is-falling', !!S.falling);
+
       /* une seule aire de jeu visible a la fois */
       el.depth.hidden = mode !== 'slider';
       el.craft.hidden = mode !== 'craft';
@@ -958,7 +985,7 @@
     el.overlayConfirm.hidden = !S.confirmBack;
     el.live.textContent = S.live || '';
 
-    if (S.screen === 'q' && S.locked && !lastLocked) setTimeout(revealExplanation, 340);
+    if (S.screen === 'q' && S.locked && !lastLocked && !S.falling) setTimeout(revealExplanation, 340);
     lastLocked = S.screen === 'q' && S.locked;
   }
 
@@ -985,8 +1012,16 @@
       } else {
         b.classList.add('is-gone');
         if (mine) b.classList.add('is-ko');
-        if (rm) b.style.opacity = '.25';
-        else b.style.animation = 'fallOut 900ms cubic-bezier(.4,0,.8,1) ' + (i * 70 + 120) + 'ms both';
+        if (rm) {
+          b.style.opacity = '.25';
+        } else {
+          b.style.animation = 'fallOut 900ms cubic-bezier(.4,0,.8,1) ' + (i * 70 + 120) + 'ms both';
+          b.addEventListener('animationend', function () {
+            b.style.animation = 'none';
+            b.style.transform = 'none';
+            b.style.opacity = '0';
+          }, { once: true });
+        }
       }
 
       var mark = '';

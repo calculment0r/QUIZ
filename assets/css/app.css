@@ -407,6 +407,12 @@ button { font: inherit; color: inherit; border: 0; background: none; }
   overflow-y: auto; overflow-x: hidden;
   overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
 }
+/* Les mauvaises reponses tombent en translateY(115vh) : tant qu'elles tombent,
+   elles agrandiraient la zone de defilement de l'aire de jeu et on pourrait
+   scroller derriere elles. Pendant la chute, l'aire de jeu ne defile pas ;
+   ensuite la transformation est neutralisee (voir buildAnswers). */
+.playfield.is-falling { overflow: hidden; }
+
 .playfield-inner { width: 100%; margin: auto 0; }
 
 .consigne {

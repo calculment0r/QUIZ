@@ -693,6 +693,140 @@ button { font: inherit; color: inherit; border: 0; background: none; }
 }
 .btn-mini-next:active { transform: translateY(5px); }
 
+/* =========================== LES FLASH (registre) ===========================
+   Une zone unique, remplie par le jeu du moment. Contrainte : tout tient dans
+   260 px de haut pour qu'un telephone n'ait jamais a faire defiler pendant un
+   compte a rebours. */
+.mini-zone { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.mini-zone.is-done { pointer-events: none; opacity: .9; }
+
+.fz-scene {
+  position: relative; height: 158px; overflow: hidden;
+  background-color: #140A26;
+  box-shadow: inset 4px 4px 0 0 rgba(255, 255, 255, .1), inset -4px -4px 0 0 rgba(0, 0, 0, .5);
+}
+.fz-scene-nether { background: linear-gradient(180deg, #4A1414 0%, #7A2B1E 60%, #C43B22 100%); }
+.fz-scene-end    { background: linear-gradient(180deg, #120C22 0%, #241640 100%); }
+.fz-scene-eau    { background: linear-gradient(180deg, #2A5C90 0%, #1E3A6E 100%); }
+.fz-scene-lave   { background: linear-gradient(180deg, #241640 0%, #3D1B4E 100%); }
+.fz-scene-duel   { background: linear-gradient(180deg, #1E1236 0%, #2A2A33 100%); }
+.fz-scene-ciel   { background: linear-gradient(180deg, #7A3FD0 0%, #B98AE0 70%, #4CD137 100%); }
+
+.fz-mob {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  line-height: 0; transition: filter 120ms steps(2);
+}
+.fz-mob-sm   { top: 32%; }
+.fz-mob-haut { top: 22%; }
+.fz-mob.is-armed { filter: brightness(2.4) saturate(.2) drop-shadow(0 0 18px #FFFFFF); }
+
+.fz-btn {
+  width: 100%; min-height: 66px; cursor: pointer;
+  font-family: var(--pix); font-size: clamp(12px, 3.4vw, 16px); line-height: 1.4;
+  color: #2B2B2B; background: #FFC145;
+  box-shadow: inset 5px 5px 0 0 #FFE9A8, inset -5px -5px 0 0 #C99416, 0 6px 0 0 #8F6A0E;
+}
+.fz-btn:active { transform: translateY(5px); }
+.fz-btn.is-armed { background: #4FD9D0; box-shadow: inset 5px 5px 0 0 #ADF5F0, inset -5px -5px 0 0 #2E9E97, 0 6px 0 0 #1F736E; }
+
+.fz-hint {
+  margin: 0; text-align: center;
+  font-family: var(--pix); font-size: 9px; line-height: 1.7; color: #FFE9A8;
+}
+
+.fz-duo, .fz-trio { display: grid; gap: 8px; }
+.fz-duo  { grid-template-columns: 1fr 1fr; }
+.fz-trio { grid-template-columns: repeat(3, 1fr); }
+.fz-trio .fz-btn, .fz-duo .fz-btn { font-size: clamp(10px, 2.8vw, 13px); min-height: 58px; }
+
+/* --- ne regarde pas l'Enderman --- */
+.fz-trap { cursor: not-allowed; }
+.fz-lure {
+  position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%);
+  min-height: 44px; padding: 0 16px; cursor: pointer;
+  font-family: var(--pix); font-size: 10px; color: #2B0B0B; background: #FF4B4B;
+  box-shadow: inset 3px 3px 0 0 #FF8A8A, inset -3px -3px 0 0 #B42A2A;
+  animation: wobble 900ms ease-in-out infinite;
+}
+
+/* --- la peche --- */
+.fz-bouchon {
+  position: absolute; left: 50%; top: 46%; width: 18px; height: 18px; margin-left: -9px;
+  background: #FF4B4B; box-shadow: inset 3px 3px 0 0 #FFFFFF;
+  transition: top 90ms steps(2);
+}
+.fz-bouchon.is-down { top: 66%; background: #C4362B; }
+.fz-onde {
+  position: absolute; left: 50%; top: 58%; width: 92px; height: 5px; margin-left: -46px;
+  background: rgba(255, 255, 255, .35); animation: glint 2.4s steps(4) infinite;
+}
+
+/* --- la lave qui monte --- */
+.fz-lave {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 0;
+  background: linear-gradient(180deg, #FFC145 0%, #F2712C 40%, #C43B22 100%);
+  box-shadow: 0 -4px 0 rgba(255, 233, 168, .6);
+}
+.fz-tour { position: absolute; left: 50%; bottom: 0; width: 34px; margin-left: -17px; background: #8B8B8B; box-shadow: inset 3px 0 0 #ABABAB, inset -3px 0 0 #6A6A6A; }
+.fz-perso { position: absolute; left: 50%; width: 26px; height: 30px; margin-left: -13px; background: #4FD9D0; box-shadow: inset 3px 3px 0 0 #ADF5F0, inset -3px -3px 0 0 #2E9E97; }
+
+/* --- le coffre memoire --- */
+.fz-coffre {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 12px;
+  background: #6A4A22; box-shadow: inset 5px 5px 0 0 #8B6631, inset -5px -5px 0 0 #4A330F;
+}
+.fz-coffre.is-shut { filter: brightness(.55); }
+.fz-slot { aspect-ratio: 1; display: grid; place-items: center; background: rgba(12, 7, 20, .5); box-shadow: inset 3px 3px 0 0 rgba(0, 0, 0, .5); }
+.fz-slot.is-gone { visibility: hidden; }
+.fz-dock { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.fz-pick {
+  min-height: 62px; display: grid; place-items: center; cursor: pointer;
+  background: #2A1B4A;
+  box-shadow: inset 4px 4px 0 0 #45306E, inset -4px -4px 0 0 #150C2B, 0 5px 0 0 #0C0714;
+}
+.fz-pick:active { transform: translateY(4px); }
+
+/* --- la ruee du minage --- */
+.fz-mur { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.fz-pierre {
+  aspect-ratio: 1; min-height: 46px; cursor: pointer;
+  background: #8B8B8B;
+  box-shadow: inset 4px 4px 0 0 #ABABAB, inset -4px -4px 0 0 #6A6A6A;
+  background-image: repeating-linear-gradient(0deg, rgba(0, 0, 0, .14) 0 2px, transparent 2px 12px);
+}
+.fz-pierre:active { transform: scale(.94); }
+.fz-pierre.is-broken { background: rgba(12, 7, 20, .5); background-image: none; box-shadow: inset 3px 3px 0 0 rgba(0, 0, 0, .5); pointer-events: none; }
+
+/* --- l'esquive du squelette --- */
+.fz-viseur { position: absolute; top: 0; bottom: 0; width: 34%; opacity: 0; background: rgba(255, 75, 75, .45); }
+.fz-viseur.fz-g { left: 0; }
+.fz-viseur.fz-d { right: 0; }
+.fz-viseur.is-on { opacity: 1; box-shadow: inset 0 0 0 4px #FF4B4B; }
+
+/* --- ghast pong --- */
+.fz-bande { position: absolute; left: 0; right: 0; top: 62%; height: 20%; background: rgba(255, 233, 168, .22); box-shadow: inset 0 3px 0 rgba(255, 233, 168, .6), inset 0 -3px 0 rgba(255, 233, 168, .6); }
+.fz-boule { position: absolute; left: 50%; width: 24px; height: 24px; margin-left: -12px; background: #FFC145; box-shadow: inset 3px 3px 0 0 #FFE9A8, 0 0 18px #F2712C; }
+.fz-boule.is-hot { background: #FFFFFF; box-shadow: inset 3px 3px 0 0 #FFE9A8, 0 0 26px #FFFFFF; }
+
+/* --- le MLG au seau --- */
+.fz-steve { position: absolute; width: 26px; height: 34px; margin-left: 0; background: #4FA9E8; box-shadow: inset 3px 3px 0 0 #ADF5F0, inset -3px -3px 0 0 #2A5C90; transition: left 120ms steps(2); }
+.fz-ombre { position: absolute; bottom: 6px; width: 26px; height: 10px; background: rgba(12, 7, 20, .55); transition: left 120ms steps(2); }
+.fz-ombre.is-fixed { background: rgba(12, 7, 20, .85); box-shadow: 0 0 0 3px #FFC145; }
+.fz-eau { position: absolute; bottom: 6px; width: 26px; height: 22px; background: #3A7BBF; box-shadow: inset 3px 3px 0 0 #6BA3DB; }
+
+/* ecrans courts : on comprime la scene, jamais les boutons */
+@media (max-height: 620px) {
+  .fz-scene { height: 118px; }
+  .fz-btn { min-height: 56px; }
+  .fz-pierre { min-height: 38px; }
+  .fz-pick { min-height: 52px; }
+}
+@media (orientation: landscape) and (max-height: 560px) {
+  .fz-scene { height: 96px; }
+  .fz-btn { min-height: 50px; }
+  .mini-zone { gap: 6px; margin-top: 8px; }
+}
+
 /* ------------------------------ 12. RESULTAT ------------------------------ */
 .screen-result { padding-top: calc(var(--sp) + var(--safe-t)); padding-bottom: calc(var(--sp) + var(--safe-b)); }
 .result-wrap {

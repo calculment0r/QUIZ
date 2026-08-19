@@ -6,7 +6,7 @@
    navigation.
    Pense-bete : bumper CACHE a chaque mise en ligne pour forcer le rafraichissement.
    ============================================================================= */
-var CACHE = 'mcq2026-v2';
+var CACHE = 'mcq2026-v3';
 
 /* chemins relatifs au scope : marche a la racine comme dans un sous-dossier
    GitHub Pages (ex. /QUIZ/) sans rien reconfigurer */
@@ -18,6 +18,7 @@ var ASSETS = [
   './assets/js/app.js',
   './assets/js/quiz-data.js',
   './assets/js/quiz-gameplay.js',
+  './assets/js/quiz-flash.js',
   './assets/fonts/press-start-2p-latin.woff2',
   './assets/fonts/press-start-2p-latin-ext.woff2',
   './assets/icons/icon-192.png',

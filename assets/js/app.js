@@ -169,6 +169,58 @@
     return it ? it[4] : id;
   }
 
+
+  /* ===================== MOBS EN PIXELS =====================
+     Une tete de 8x8 par creature : c'est la silhouette et les couleurs qui la
+     rendent reconnaissable, pas le detail. '.' = rien du tout. */
+  var MOB_ART = {
+    creeper:   { p: ['..o...o.', '.xx..xx.', '.xx..xx.', '...xx...', '..xxxx..', '..xxxx..', '..x..x..', '.o....o.'],
+                 c: { '.': '#4CD137', o: '#2E8B26', x: '#0C2B08' } },
+    enderman:  { p: ['xxxxxxxx', 'xxxxxxxx', 'xxxxxxxx', 'xPPxxPPx', 'xPPxxPPx', 'xxxxxxxx', 'xxxxxxxx', 'xxxxxxxx'],
+                 c: { x: '#16151E', P: '#E0A6FF' } },
+    squelette: { p: ['.wwwwww.', 'wwwwwwww', 'wxxwwxxw', 'wxxwwxxw', 'wwwwwwww', 'wxwxwxww', 'wwwwwwww', '.wwwwww.'],
+                 c: { w: '#E8E8E8', x: '#2A2A33', '.': null } },
+    ghast:     { p: ['wwwwwwww', 'wxxwwxxw', 'wxxwwxxw', 'wwwwwwww', 'wwxxxxww', 'wwwwwwww', 'w.w.w.w.', '.w...w..'],
+                 c: { w: '#E8E8E8', x: '#1A1A22', '.': null } },
+    zombie:    { p: ['.gggggg.', 'gggggggg', 'gxxggxxg', 'gxxggxxg', 'gggggggg', 'gxxxxxxg', 'gggggggg', '.gggggg.'],
+                 c: { g: '#4A7A3A', x: '#1B2A18', '.': null } },
+    araignee:  { p: ['x......x', '.x....x.', 'xxxxxxxx', 'xrrxxrrx', 'xxxxxxxx', '.x.xx.x.', 'x......x', '........'],
+                 c: { x: '#2A2028', r: '#FF4B4B', '.': null } },
+    blaze:     { p: ['.y.y.y.y', 'yyyyyyyy', 'yxxyyxxy', 'yyyyyyyy', 'yyyyyyyy', '.y.y.y.y', 'o.o.o.o.', '........'],
+                 c: { y: '#FFC145', x: '#6E4522', o: '#F2712C', '.': null } },
+    warden:    { p: ['.tttttt.', 'tttttttt', 'ttccttcc', 'tttttttt', 'ttccccttt', 'tttttttt', 't.tttt.t', '.t.tt.t.'],
+                 c: { t: '#1B3A3A', c: '#4FD9D0', '.': null } },
+    allay:     { p: ['..bb....', '.bbbb...', '.bwwb...', '.bbbb...', 'w.bb.w..', '..bb....', '...b....', '........'],
+                 c: { b: '#4FA9E8', w: '#CFE8FF', '.': null } },
+    axolotl:   { p: ['.pp..pp.', 'pppppppp', 'pxppppxp', 'pppppppp', '.pppppp.', '..pppp..', '...pp...', '........'],
+                 c: { p: '#F5A9C8', x: '#2A1B2A', '.': null } },
+    loup:      { p: ['w..ww..w', 'ww.ww.ww', 'wwwwwwww', 'wxwwwwxw', 'wwwwwwww', 'wwgggwww', 'wwwwwwww', '.wwwwww.'],
+                 c: { w: '#E0E0E0', x: '#2A2A33', g: '#9A9A9A', '.': null } },
+    cochon:    { p: ['.pppppp.', 'pppppppp', 'pxppppxp', 'pppppppp', 'ppnnnnpp', 'ppnnnnpp', 'pppppppp', '.pppppp.'],
+                 c: { p: '#F0A0A0', x: '#2A1B2A', n: '#D07070', '.': null } },
+    villageois:{ p: ['.ssssss.', 'ssssssss', 'sxssssxs', 'ssnnnnss', 'ssnnnnss', 'ssssssss', 'sbbbbbbs', '.ssssss.'],
+                 c: { s: '#C8A882', x: '#2A2A33', n: '#A88060', b: '#6B4A2A', '.': null } }
+  };
+
+  function mobSvg(id, size) {
+    var art = MOB_ART[id] || MOB_ART.creeper;
+    var out = '';
+    for (var y = 0; y < art.p.length; y++) {
+      var row = art.p[y];
+      for (var x = 0; x < row.length; x++) {
+        var col = art.c[row[x]];
+        if (!col) continue;
+        out += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' + col + '"></rect>';
+      }
+    }
+    return '<svg viewBox="0 0 8 8" width="' + size + '" height="' + size +
+      '" shape-rendering="crispEdges" aria-hidden="true">' + out + '</svg>';
+  }
+
+  /* les deux banques de dessins, exposees : les mini-jeux du registre s'en
+     servent via leur API, et les tests peuvent les appeler directement */
+  window.QUIZ_ART = { item: itemSvg, mob: mobSvg };
+
   /* ===================== ROUTAGE DES EPREUVES =====================
      La couche gameplay est verifiee contre le texte de la bonne reponse : si la
      banque change sans que la fiche suive, la question repasse en mode BLOCS
@@ -293,7 +345,7 @@
   };
 
   var rm = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  var ac = null, miniTimer = null;
+  var ac = null, miniTimer = null, flashTick = null;
 
   /* ------------------------------- DOM ------------------------------- */
   function $(id) { return document.getElementById(id); }
@@ -320,6 +372,7 @@
     btnShare: $('btnShare'), btnReplay: $('btnReplay'),
     overlayMini: $('overlayMini'), miniPanel: $('miniPanel'), miniBadge: $('miniBadge'),
     miniTime: $('miniTime'), miniTitle: $('miniTitle'), miniSub: $('miniSub'),
+    miniZone: $('miniZone'),
     miniBricks: $('miniBricks'), miniTarget: $('miniTarget'), miniStat: $('miniStat'),
     miniGrid: $('miniGrid'), miniMelt: $('miniMelt'), meltPips: $('meltPips'),
     btnStab: $('btnStab'), btnMiniNext: $('btnMiniNext'),
@@ -530,7 +583,11 @@
     S.openRecap = null; S.combo = 0; S.bestCombo = 0; S.chaos = 0; S.bonus = 0;
     S.usedOk = []; S.usedKo = []; S.copied = false;
     S.echo = null; S.inEcho = false; S.echoQ = null;
-    S.flashAt = [2 + Math.floor(Math.random() * 2), 7 + Math.floor(Math.random() * 2)];
+    /* trois interludes par partie, repartis et jamais colles */
+    S.flashAt = [2 + Math.floor(Math.random() * 2),
+                 5 + Math.floor(Math.random() * 2),
+                 8 + Math.floor(Math.random() * 2)];
+    S.flashVus = [];
     clearMini();
     setupEngines(qs[0]);
     render();
@@ -718,24 +775,74 @@
   /* ------------------------------ mini-jeux ------------------------------ */
   function clearMini() {
     if (miniTimer) { clearTimeout(miniTimer); miniTimer = null; }
+    if (flashTick) { clearInterval(flashTick); flashTick = null; }
     S.mini = null;
   }
 
+  /* la liste complete : les deux jeux d'origine plus le registre externe */
+  function flashCatalogue() {
+    var out = [{ id: 'bricks' }, { id: 'melt' }];
+    (window.QUIZ_FLASH || []).forEach(function (f) { out.push(f); });
+    return out;
+  }
+
   function openFlash() {
-    var kind = Math.random() < 0.5 ? 'bricks' : 'melt';
-    var sh = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+    var cat = flashCatalogue();
+    var vus = S.flashVus || [];
+    var libres = cat.filter(function (f) { return vus.indexOf(f.id) < 0; });
+    if (!libres.length) libres = cat;
+    var def = libres[Math.floor(Math.random() * libres.length)];
+    S.flashVus = vus.concat([def.id]);
+
     var id = Date.now();
     snd('alarm');
-    S.mini = { id: id, kind: kind, shape: sh, hit: [], bad: 0, taps: 0, need: 6, done: false, won: false };
+
+    if (def.id === 'bricks' || def.id === 'melt') {
+      var sh = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+      S.mini = { id: id, kind: def.id, shape: sh, hit: [], bad: 0, taps: 0, need: 6, done: false, won: false };
+      render();
+      miniTimer = setTimeout(function () {
+        var m = S.mini;
+        if (m && m.id === id && !m.done) { snd('ko'); m.done = true; m.won = false; render(); }
+      }, def.id === 'bricks' ? 11000 : 7000);
+      return;
+    }
+
+    /* jeu du registre : la zone generique se construit une fois, puis un
+       battement de 60 ms anime la scene sans repeindre tout l'ecran */
+    S.mini = { id: id, kind: 'zone', def: def, done: false, won: false, msg: '', built: false };
     render();
-    miniTimer = setTimeout(function () {
+    var t0 = Date.now();
+    flashTick = setInterval(function () {
       var m = S.mini;
-      if (m && m.id === id && !m.done) {
-        snd('ko');
-        m.done = true; m.won = false;
-        render();
+      if (!m || m.id !== id || m.done) return;
+      var t = Date.now() - t0;
+      try { def.tick(el.miniZone, flashApi(m), t); } catch (e) {}
+      if (t >= def.duree) {
+        var api = flashApi(m);
+        if (def.timeout) def.timeout(api); else api.lose('Trop tard !');
       }
-    }, kind === 'bricks' ? 11000 : 7000);
+    }, 60);
+  }
+
+  /* la petite API remise a chaque jeu : il ne connait rien d'autre du jeu */
+  function flashApi(m) {
+    return {
+      zone: el.miniZone,
+      rm: rm,
+      snd: snd,
+      item: itemSvg,
+      mob: mobSvg,
+      win: function () { finFlash(m, true, ''); },
+      lose: function (msg) { finFlash(m, false, msg || ''); }
+    };
+  }
+
+  function finFlash(m, won, msg) {
+    if (!m || m.done) return;
+    m.done = true; m.won = won; m.msg = msg;
+    clearInterval(flashTick); flashTick = null;
+    render();
   }
 
   function hitBrick(i) {
@@ -1193,8 +1300,43 @@
   function renderMini() {
     var m = S.mini;
     el.overlayMini.hidden = !m;
-    if (!m) { el.miniPanel.dataset.melting = '0'; return; }
+    if (!m) {
+      el.miniPanel.dataset.melting = '0';
+      if (el.miniZone) { el.miniZone.hidden = true; el.miniZone.textContent = ''; }
+      return;
+    }
 
+    /* --- jeux du registre --- */
+    if (m.kind === 'zone') {
+      var d = m.def;
+      el.miniBricks.hidden = true;
+      el.miniMelt.hidden = true;
+      el.miniPanel.dataset.melting = '0';
+      el.miniZone.hidden = false;
+      el.miniBadge.textContent = m.done ? 'FINI' : Math.round(d.duree / 1000) + ' SEC';
+      el.miniTitle.textContent = m.done ? (m.won ? 'BIEN JOUÉ !' : 'RATÉ !') : d.titre;
+      el.miniSub.textContent = m.done
+        ? (m.won ? 'Bonus empoché. La question t’attend.' : (m.msg || 'Pas grave, ça ne coûte aucun point.'))
+        : d.sub;
+      if (m.done) { el.miniTime.style.animation = ''; el.miniTime.style.width = '0%'; }
+      else if (el.miniTime.dataset.id !== String(m.id)) {
+        el.miniTime.dataset.id = String(m.id);
+        el.miniTime.style.width = '100%';
+        el.miniTime.style.animation = 'timeBar ' + d.duree + 'ms linear both';
+      }
+      if (!m.built) {
+        m.built = true;
+        el.miniZone.textContent = '';
+        el.miniZone.className = 'mini-zone fz-' + d.id;
+        try { d.build(el.miniZone, flashApi(m)); } catch (e) {}
+      }
+      el.miniZone.classList.toggle('is-done', !!m.done);
+      el.btnMiniNext.hidden = !m.done;
+      el.btnMiniNext.textContent = m.won ? 'BONUS ENCAISSÉ ›' : 'ON CONTINUE ›';
+      return;
+    }
+
+    if (el.miniZone) { el.miniZone.hidden = true; el.miniZone.textContent = ''; }
     el.miniBadge.textContent = m.done ? 'FINI' : (m.kind === 'bricks' ? '11 SEC' : '7 SEC');
     el.miniTitle.textContent = m.done
       ? (m.won ? 'BIEN JOUÉ !' : 'TROP TARD !')

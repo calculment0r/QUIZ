@@ -283,6 +283,9 @@ button { font: inherit; color: inherit; border: 0; background: none; }
 }
 .tool-btn:active { transform: translateY(3px); }
 .tool-btn .snd-off { display: none; }
+.tool-btn .mus-off { display: none; }
+.tool-btn[aria-pressed="false"] .mus-off { display: block; }
+.tool-btn[aria-pressed="false"] svg rect:not([fill="#FF4B4B"]) { opacity: .35; }
 .tool-btn[aria-pressed="false"] .snd-on { display: none; }
 .tool-btn[aria-pressed="false"] .snd-off { display: block; }
 

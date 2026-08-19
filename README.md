@@ -144,6 +144,26 @@ Ils vivent dans `assets/js/quiz-flash.js`, chacun autonome : pour en ajouter un,
 il suffit d'une fiche avec `build`, `tick` et une duree. L'API recue donne
 `win()`, `lose()`, les bruitages et les dessins.
 
+### Le son et la musique
+
+Trois pieges de telephone, tous traites dans `snd()` et `reveilAudio()` :
+
+1. `resume()` est **asynchrone** — on attend le reveil du contexte avant de
+   programmer les notes, sinon elles tombent dans le passe et on n'entend rien ;
+2. le contexte audio doit naitre **pendant un vrai geste** : il est cree au
+   tout premier appui sur l'ecran, pas au premier bruitage (certains partent
+   d'un minuteur, ce qui ne compte pas comme un geste) ;
+3. sur iPhone, le **petit interrupteur silencieux** coupe l'audio web : tant
+   qu'un element `<audio>` joue, le systeme bascule en categorie lecture et le
+   son passe quand meme. On garde donc un WAV silencieux en boucle, fabrique a
+   la volee (aucun fichier a telecharger).
+
+La musique (`assets/js/quiz-music.js`) est une boucle 8 bits de quatre mesures
+en la mineur, 112 pulsations par minute, entierement synthetisee : basse,
+arpege, melodie et deux percussions, programmes 250 ms a l'avance pour ne pas
+hoqueter. Volume discret, fondu d'entree, coupee quand le jeu passe en
+arriere-plan. Bouton dedie a cote de celui du son, preference gardee.
+
 ### La vitrine
 
 Chaque bonne reponse debloque la creature ou l'objet dont il vient d'etre

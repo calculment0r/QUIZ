@@ -465,7 +465,7 @@
     mini: null, bonus: 0, combo: 0, bestCombo: 0, chaos: 0,
     usedOk: [], usedKo: [],
     confirmBack: false, openRecap: null, copied: false,
-    sound: true,
+    sound: true, musique: true,
     craft: null, forge: null,        /* etat des deux moteurs jouables */
     echo: null, inEcho: false, echoQ: null   /* epreuve de rattrapage */
   };
@@ -503,6 +503,7 @@
     miniBricks: $('miniBricks'), miniTarget: $('miniTarget'), miniStat: $('miniStat'),
     miniGrid: $('miniGrid'), miniMelt: $('miniMelt'), meltPips: $('meltPips'),
     btnStab: $('btnStab'), btnMiniNext: $('btnMiniNext'),
+    btnMusique: $('btnMusique'),
     btnCollection: $('btnCollection'), collCount: $('collCount'),
     overlayVitrine: $('overlayVitrine'), vitrineCorps: $('vitrineCorps'),
     vitrineCompte: $('vitrineCompte'), neuf: $('neuf'), neufListe: $('neufListe'),
@@ -536,27 +537,117 @@
     win: [[659, 0.08, 'square', 0.09], [880, 0.08, 'square', 0.09], [1046, 0.2, 'square', 0.1]]
   };
 
+  /* ===================== LE SON =====================
+     Trois pieges de telephone, tous corriges ici :
+
+     1. resume() est asynchrone. L'ancienne version programmait les notes a
+        ac.currentTime juste apres l'appel : sur iPhone le contexte etait encore
+        endormi et les notes tombaient dans le passe. On attend maintenant le
+        reveil avant de jouer.
+     2. Le contexte doit naitre pendant un vrai geste. Il est desormais cree au
+        tout premier appui sur l'ecran, pas au premier bruitage : certains
+        bruitages partent d'un minuteur (l'alerte des Flash), ce qui ne compte
+        pas comme un geste et laissait le contexte endormi pour toujours.
+     3. Sur iPhone, le petit interrupteur silencieux coupe l'audio web. Tant
+        qu'un element <audio> joue, le systeme bascule en categorie lecture et
+        le son passe malgre l'interrupteur : on garde donc un silence en boucle. */
+  var audioPret = false, silence = null;
+
+  function contexteAudio() {
+    if (ac) return ac;
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    try { ac = new AC(); } catch (e) { ac = null; }
+    return ac;
+  }
+
+  /* un fichier WAV silencieux fabrique a la volee : pas de donnees embarquees */
+  function urlSilence(secondes) {
+    var taux = 8000, n = Math.floor(taux * secondes);
+    var buf = new ArrayBuffer(44 + n), v = new DataView(buf), i;
+    function txt(pos, str) { for (i = 0; i < str.length; i++) v.setUint8(pos + i, str.charCodeAt(i)); }
+    txt(0, 'RIFF'); v.setUint32(4, 36 + n, true); txt(8, 'WAVEfmt ');
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, taux, true); v.setUint32(28, taux, true);
+    v.setUint16(32, 1, true); v.setUint16(34, 8, true);
+    txt(36, 'data'); v.setUint32(40, n, true);
+    for (i = 0; i < n; i++) v.setUint8(44 + i, 128);      /* 128 = silence en 8 bits */
+    return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+  }
+
+  function garderSessionAudio() {
+    if (silence || !isIOS()) return;
+    try {
+      silence = document.createElement('audio');
+      silence.src = urlSilence(0.5);
+      silence.loop = true;
+      silence.setAttribute('playsinline', '');
+      silence.volume = 0.001;
+      var p = silence.play();
+      if (p && p.catch) p.catch(function () {});
+    } catch (e) {}
+  }
+
+  /* appele au tout premier appui : c'est le seul moment ou un telephone
+     accepte de reveiller l'audio */
+  function reveilAudio() {
+    var c = contexteAudio();
+    if (!c) return;
+    garderSessionAudio();
+    if (c.state === 'suspended' && c.resume) { try { c.resume(); } catch (e) {} }
+    try {
+      var b = c.createBuffer(1, 1, 22050), s0 = c.createBufferSource();
+      s0.buffer = b; s0.connect(c.destination); s0.start(0);
+    } catch (e) {}
+    audioPret = true;
+    if (S.musique) demarreMusique();
+  }
+
+  function joueNotes(notes) {
+    var t = ac.currentTime + 0.02;          /* jamais dans le passe */
+    notes.forEach(function (n) {
+      var o = ac.createOscillator(), g = ac.createGain();
+      o.type = n[2];
+      o.frequency.value = n[0];
+      g.gain.setValueAtTime(n[3], t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + n[1]);
+      o.connect(g); g.connect(ac.destination);
+      o.start(t); o.stop(t + n[1] + 0.02);
+      t += n[1] * 0.85;
+    });
+  }
+
   function snd(kind) {
     if (!S.sound) return;
     var notes = NOTES[kind];
     if (!notes) return;
+    var c = contexteAudio();
+    if (!c) return;
     try {
-      var AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return;
-      if (!ac) ac = new AC();
-      if (ac.state === 'suspended') ac.resume();
-      var t = ac.currentTime;
-      notes.forEach(function (n) {
-        var o = ac.createOscillator(), g = ac.createGain();
-        o.type = n[2];
-        o.frequency.value = n[0];
-        g.gain.setValueAtTime(n[3], t);
-        g.gain.exponentialRampToValueAtTime(0.0001, t + n[1]);
-        o.connect(g); g.connect(ac.destination);
-        o.start(t); o.stop(t + n[1] + 0.02);
-        t += n[1] * 0.85;
-      });
-    } catch (e) { /* audio indisponible : le jeu continue */ }
+      if (c.state === 'running') { joueNotes(notes); return; }
+      /* endormi : on le reveille, et on ne joue qu'une fois reveille */
+      if (c.resume) {
+        var p = c.resume();
+        if (p && p.then) p.then(function () { try { joueNotes(notes); } catch (e) {} }).catch(function () {});
+        else joueNotes(notes);
+      }
+    } catch (e) { /* audio indisponible : le jeu continue sans */ }
+  }
+
+  /* ------------------------------ musique ------------------------------ */
+  function demarreMusique() {
+    if (!S.musique || !window.QUIZ_MUSIC) return;
+    var c = contexteAudio();
+    if (!c) return;
+    if (c.state !== 'running' && c.resume) {
+      var p = c.resume();
+      if (p && p.then) { p.then(function () { window.QUIZ_MUSIC.demarre(c); }).catch(function () {}); return; }
+    }
+    window.QUIZ_MUSIC.demarre(c);
+  }
+
+  function arreteMusique() {
+    if (window.QUIZ_MUSIC) window.QUIZ_MUSIC.arrete();
   }
 
   function mat(txt) {
@@ -1101,6 +1192,8 @@
     /* --- accueil --- */
     el.edition.textContent = 'éd. 2026 · à jour ' + (S.data ? S.data.aJour : '26.3') + ' · BUILD ' + BUILD;
     majCompteur();
+    el.btnMusique.setAttribute('aria-pressed', S.musique ? 'true' : 'false');
+    el.btnMusique.setAttribute('aria-label', S.musique ? 'Couper la musique' : 'Remettre la musique');
     el.btnSound.setAttribute('aria-pressed', S.sound ? 'true' : 'false');
     el.btnSound.setAttribute('aria-label', S.sound ? 'Couper le son' : 'Remettre le son');
 
@@ -1719,6 +1812,13 @@
     snd('crack');
     render();
   });
+  el.btnMusique.addEventListener('click', function () {
+    S.musique = !S.musique;
+    try { localStorage.setItem('mcq2026-musique', S.musique ? '1' : '0'); } catch (e) {}
+    if (S.musique) { reveilAudio(); demarreMusique(); } else { arreteMusique(); }
+    snd('sel');
+    render();
+  });
   el.btnCollection.addEventListener('click', function () { snd('sel'); ouvrirVitrine(); });
   $('btnVitrineClose').addEventListener('click', function () { el.overlayVitrine.hidden = true; });
   el.btnStab.addEventListener('click', tapStab);
@@ -1752,7 +1852,25 @@
   try {
     var pref = localStorage.getItem('mcq2026-sound');
     if (pref !== null) S.sound = pref === '1';
+    var prefM = localStorage.getItem('mcq2026-musique');
+    if (prefM !== null) S.musique = prefM === '1';
   } catch (e) {}
+
+  /* le reveil de l'audio se fait au tout premier appui, ou qu'il tombe */
+  ['pointerdown', 'touchstart', 'keydown'].forEach(function (ev) {
+    window.addEventListener(ev, function once() {
+      ['pointerdown', 'touchstart', 'keydown'].forEach(function (e2) {
+        window.removeEventListener(e2, once);
+      });
+      reveilAudio();
+    }, { passive: true });
+  });
+
+  /* on met la musique en veille quand le jeu passe en arriere-plan */
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) arreteMusique();
+    else if (S.musique && audioPret) demarreMusique();
+  });
 
   /* ======================= INSTALLATION (PWA) ======================= */
   /* Objectif : « JOUER depuis l'icone du telephone ». Chrome/Android propose une

@@ -104,6 +104,7 @@
   function itemSvg(id, size) {
     var it = (window.QUIZ_GAMEPLAY && window.QUIZ_GAMEPLAY.items[id]) || ['cube', '#8B8B8B', '#ABABAB', '#6A6A6A', id];
     var kind = it[0], c = it[1], hi = it[2], lo = it[3];
+    var WOOD = '#A9762F', WOODL = '#7A521C';       /* le manche des outils */
     var r = function (x, y, w, h, f) {
       return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + f + '"></rect>';
     };
@@ -157,6 +158,32 @@
       case 'spear':
         body = r(10, 2, 3, 3, hi) + r(9, 5, 2, 2, hi) + r(7, 6, 2, 3, c) + r(4, 9, 3, 4, c) + r(3, 12, 2, 2, lo);
         break;
+      /* --- outils : le manche est toujours en bois, la tete prend la matiere --- */
+      case 'pioche':
+        body = r(2, 4, 4, 2, c) + r(6, 3, 4, 2, c) + r(10, 4, 4, 2, c) +
+               r(2, 4, 4, 1, hi) + r(10, 4, 4, 1, hi) + r(7, 5, 2, 2, c) +
+               r(8, 6, 2, 2, WOOD) + r(7, 8, 2, 2, WOOD) + r(6, 10, 2, 2, WOOD) + r(5, 12, 2, 2, WOODL);
+        break;
+      case 'hache':
+        body = r(8, 1, 6, 6, c) + r(8, 1, 6, 1, hi) + r(7, 2, 1, 4, hi) + r(8, 6, 4, 1, lo) +
+               r(6, 6, 2, 2, WOOD) + r(5, 8, 2, 2, WOOD) + r(4, 10, 2, 2, WOOD) + r(3, 12, 2, 2, WOODL);
+        break;
+      case 'pelle':
+        body = r(9, 2, 4, 4, c) + r(9, 2, 4, 1, hi) + r(9, 5, 4, 1, lo) +
+               r(7, 6, 2, 2, WOOD) + r(6, 8, 2, 2, WOOD) + r(5, 10, 2, 2, WOOD) + r(4, 12, 2, 2, WOODL);
+        break;
+      case 'epee':
+        body = r(9, 2, 3, 7, c) + r(9, 2, 1, 7, hi) + r(9, 8, 3, 1, lo) +
+               r(6, 9, 7, 2, lo) + r(5, 11, 3, 2, WOOD) + r(4, 13, 2, 2, WOODL);
+        break;
+      case 'four':
+        body = r(2, 3, 12, 11, c) + r(2, 3, 12, 2, hi) + r(2, 12, 12, 2, lo) +
+               r(4, 6, 8, 5, '#1A1A22') + r(5, 9, 6, 2, '#F2712C') + r(6, 10, 4, 1, '#FFC145');
+        break;
+      case 'chaudron':
+        body = r(2, 4, 12, 9, c) + r(2, 4, 12, 2, hi) + r(4, 6, 8, 3, '#3A7BBF') +
+               r(2, 11, 12, 2, lo) + r(3, 13, 2, 2, lo) + r(11, 13, 2, 2, lo);
+        break;
       default:
         body = r(4, 4, 8, 8, c);
     }
@@ -188,7 +215,7 @@
                  c: { x: '#2A2028', r: '#FF4B4B', '.': null } },
     blaze:     { p: ['.y.y.y.y', 'yyyyyyyy', 'yxxyyxxy', 'yyyyyyyy', 'yyyyyyyy', '.y.y.y.y', 'o.o.o.o.', '........'],
                  c: { y: '#FFC145', x: '#6E4522', o: '#F2712C', '.': null } },
-    warden:    { p: ['.tttttt.', 'tttttttt', 'ttccttcc', 'tttttttt', 'ttccccttt', 'tttttttt', 't.tttt.t', '.t.tt.t.'],
+    warden:    { p: ['.tttttt.', 'tttttttt', 'ttccttcc', 'tttttttt', 'ttcccctt', 'tttttttt', 't.tttt.t', '.t.tt.t.'],
                  c: { t: '#1B3A3A', c: '#4FD9D0', '.': null } },
     allay:     { p: ['..bb....', '.bbbb...', '.bwwb...', '.bbbb...', 'w.bb.w..', '..bb....', '...b....', '........'],
                  c: { b: '#4FA9E8', w: '#CFE8FF', '.': null } },
@@ -199,7 +226,29 @@
     cochon:    { p: ['.pppppp.', 'pppppppp', 'pxppppxp', 'pppppppp', 'ppnnnnpp', 'ppnnnnpp', 'pppppppp', '.pppppp.'],
                  c: { p: '#F0A0A0', x: '#2A1B2A', n: '#D07070', '.': null } },
     villageois:{ p: ['.ssssss.', 'ssssssss', 'sxssssxs', 'ssnnnnss', 'ssnnnnss', 'ssssssss', 'sbbbbbbs', '.ssssss.'],
-                 c: { s: '#C8A882', x: '#2A2A33', n: '#A88060', b: '#6B4A2A', '.': null } }
+                 c: { s: '#C8A882', x: '#2A2A33', n: '#A88060', b: '#6B4A2A', '.': null } },
+    piglin:    { p: ['.pppppp.', 'pppppppp', 'pxppppxp', 'ppnnnnpp', 'ppnnnnpp', 'pppppppp', 'gggggggg', '.gg..gg.'],
+                 c: { p: '#E8A0A0', x: '#2A1B2A', n: '#C87878', g: '#C9962F', '.': null } },
+    wither:    { p: ['.kkkkkk.', 'kkkkkkkk', 'kbbkkbbk', 'kbbkkbbk', 'kkkkkkkk', 'kwkwkwkk', 'kkkkkkkk', '.k.kk.k.'],
+                 c: { k: '#2A2A2A', b: '#8FD8FF', w: '#4A4A4A', '.': null } },
+    dragon:    { p: ['..dddd..', '.dddddd.', 'ddmmddmm', 'dddddddd', 'dddddddd', '.dddddd.', '..dd.dd.', '.d....d.'],
+                 c: { d: '#1A1024', m: '#C86AE0', '.': null } },
+    golem:     { p: ['.gggggg.', 'gggggggg', 'gxggggxg', 'ggnnnngg', 'ggnnnngg', 'gggggggg', 'gvvvvvvg', '.gggggg.'],
+                 c: { g: '#C4C4C4', x: '#2A2A33', n: '#9A7A5A', v: '#3B8526', '.': null } },
+    cheval:    { p: ['..hh....', '.hhhh...', '.hhhh...', 'whhhh...', '.hhhhh..', '..hhhhh.', '..mmhhh.', '...mm...'],
+                 c: { h: '#8B5A2B', m: '#5C3A1B', w: '#E8E8E8', '.': null } },
+    lama:      { p: ['.ll.....', 'lllx....', 'llll....', '.lll....', '.lll....', '.llll...', '.lllll..', '..ll.ll.'],
+                 c: { l: '#E0D0B0', x: '#2A2A33', '.': null } },
+    happyghast:{ p: ['wwwwwwww', 'wxwwwwxw', 'wwwwwwww', 'wxwwwwxw', 'wwyyyyww', 'wwwwwwww', 'w.w.w.w.', '.w...w..'],
+                 c: { w: '#FFFFFF', x: '#1A1A22', y: '#FFC145', '.': null } },
+    noye:      { p: ['.nnnnnn.', 'nnnnnnnn', 'neennnee', 'neennnee', 'nnnnnnnn', 'nxxxxxxn', 'nnnnnnnn', '.nnnnnn.'],
+                 c: { n: '#3A7A7A', e: '#8FD8FF', x: '#16302E', '.': null } },
+    vex:       { p: ['..vvvv..', '.vvvvvv.', '.vrvvrv.', '.vvvvvv.', 'w.vvvv.w', 'w.vvvv.w', '..v..v..', '........'],
+                 c: { v: '#8FA8C8', r: '#FF4B4B', w: '#DCE8F5', '.': null } },
+    shulker:   { p: ['..ssss..', '.ssssss.', 'ssssssss', 'slllllls', 'slllllls', 'ssssssss', '.ssssss.', '..ssss..'],
+                 c: { s: '#6B3FA0', l: '#8F63C4', '.': null } },
+    phantom:   { p: ['........', '.f....f.', 'ff.ff.ff', 'ffffffff', 'feffffef', 'ffffffff', '.f.ff.f.', '..f..f..'],
+                 c: { f: '#1E4A5A', e: '#8FD8FF', '.': null } }
   };
 
   function mobSvg(id, size) {
@@ -284,11 +333,88 @@
     return { target: target, unit: spec.unit || '', chips: spec.chips };
   }
 
+  /* ===================== LA GROTTE A FOUILLER =====================
+     Si les quatre reponses sont des creatures que l'on sait dessiner, la
+     question devient une scene : plus de liste de textes, il faut reconnaitre
+     la bete. L'ordre du lexique compte : les variantes qui se dessineraient
+     pareil (cheval squelette, cheval zombie, mule) tombent sur le meme dessin,
+     donc la question est ecartee automatiquement — on ne peut pas demander de
+     distinguer deux images identiques. */
+  var SCENE_LEX = [
+    [/happy ?ghast/i, 'happyghast'],
+    [/cheval|mule|poney/i, 'cheval'],
+    [/creeper/i, 'creeper'],
+    [/noy[ée]/i, 'noye'],
+    [/zombie/i, 'zombie'],
+    [/squelette/i, 'squelette'],
+    [/enderman/i, 'enderman'],
+    [/araign/i, 'araignee'],
+    [/blaze/i, 'blaze'],
+    [/ghast/i, 'ghast'],
+    [/warden/i, 'warden'],
+    [/allay/i, 'allay'],
+    [/axolotl/i, 'axolotl'],
+    [/loup/i, 'loup'],
+    [/cochon/i, 'cochon'],
+    [/villageois/i, 'villageois'],
+    [/piglin/i, 'piglin'],
+    [/wither/i, 'wither'],
+    [/dragon/i, 'dragon'],
+    [/golem/i, 'golem'],
+    [/lama/i, 'lama'],
+    [/vex/i, 'vex'],
+    [/shulker/i, 'shulker'],
+    [/phantom/i, 'phantom']
+  ];
+
+  /* meme principe pour les objets : outils, blocs et minerais se reconnaissent
+     aussi bien qu'une creature, et cela couvre les questions de Survie */
+  var SCENE_OBJ = [
+    [/table de craft/i, 'table'], [/terre cuite/i, 'terrecuite'],
+    [/pioche/i, 'pioche'], [/hache/i, 'hache'], [/pelle/i, 'pelle'], [/[ée]p[ée]e/i, 'epee'],
+    [/four\b/i, 'four'], [/chaudron/i, 'chaudron'], [/enclume/i, 'enclume'],
+    [/bedrock/i, 'bedrock'], [/obsidienne/i, 'obsidienne'], [/netherite/i, 'netherite'],
+    [/charbon/i, 'charbon'], [/diamant/i, 'diamant'], [/[ée]meraude/i, 'emeraude'],
+    [/lapis/i, 'lapis'], [/cuivre/i, 'cuivre'], [/redstone/i, 'redstone'],
+    [/planche/i, 'planche'], [/b[ûu]che|bois/i, 'buche'], [/laine/i, 'laine'],
+    [/b[âa]ton/i, 'baton'], [/verre/i, 'verre'], [/b[ée]ton/i, 'beton'],
+    [/pierre/i, 'pierre'], [/sable/i, 'sable'], [/terre/i, 'terre'],
+    [/\bor\b|d.or\b/i, 'lingot-or'], [/\bfer\b/i, 'lingot-fer'],
+    [/torche/i, 'torche'], [/boussole/i, 'boussole'], [/papier/i, 'papier'],
+    [/cuir/i, 'cuir'], [/lit\b/i, 'lit']
+  ];
+
+  function sceneArt(txt) {
+    var i;
+    for (i = 0; i < SCENE_LEX.length; i++) if (SCENE_LEX[i][0].test(txt)) return { id: SCENE_LEX[i][1], kind: 'mob' };
+    for (i = 0; i < SCENE_OBJ.length; i++) if (SCENE_OBJ[i][0].test(txt)) return { id: SCENE_OBJ[i][1], kind: 'item' };
+    return null;
+  }
+
+  function sceneSpec(q) {
+    var arts = q.r.map(sceneArt);
+    var vus = {}, mobs = 0;
+    for (var i = 0; i < arts.length; i++) {
+      if (!arts[i]) return null;
+      if (vus[arts[i].id]) return null;       /* deux dessins identiques : refuse */
+      vus[arts[i].id] = 1;
+      if (arts[i].kind === 'mob') mobs++;
+    }
+    var low = q.q.toLowerCase();
+    var creatures = mobs >= 3;
+    var lieu = !creatures ? 'coffre'
+             : /nether|blaze|ghast|piglin/.test(low) ? 'nether'
+             : /\bend\b|dragon|shulker|ender/.test(low) ? 'end'
+             : 'grotte';
+    return { arts: arts, lieu: lieu, creatures: creatures };
+  }
+
   function routeOf(q) {
     var low = q.q.toLowerCase();
     if (/hauteur|jusqu.o[ùu]|niveau de lumi|creuser|profondeur/.test(low)) return 'slider';
     if (craftSpec(q)) return 'craft';
     if (forgeSpec(q)) return 'forge';
+    if (sceneSpec(q)) return 'scene';
     return 'blocks';
   }
 
@@ -358,6 +484,7 @@
     hudLabel: $('hudLabel'), combo: $('combo'), track: $('track'), counter: $('counter'),
     playfield: $('playfield'), consigne: $('consigne'), qText: $('qText'),
     depth: $('depth'), answers: $('answers'), expl: $('expl'),
+    scene: $('scene'),
     craft: $('craft'), craftOut: $('craftOut'), craftOutSlot: $('craftOutSlot'),
     craftOutName: $('craftOutName'), craftGrid: $('craftGrid'), craftHint: $('craftHint'),
     craftDock: $('craftDock'),
@@ -438,6 +565,10 @@
 
   function consigneFor(q, mode) {
     if (S.inEcho) return 'TU TE SOUVIENS ?';
+    if (mode === 'scene') {
+      var sp = sceneSpec(q);
+      return (sp && sp.creatures) ? 'TROUVE LA BONNE CRÉATURE' : 'TOUCHE LE BON OBJET';
+    }
     if (mode === 'craft') return 'CONSTRUIS LA RECETTE';
     if (mode === 'forge') return 'COMPOSE LA BONNE VALEUR';
     if (mode === 'slider') return /lumi/.test(q.q.toLowerCase()) ? 'RÈGLE LE BON NIVEAU' : 'DESCENDS À LA BONNE HAUTEUR';
@@ -1010,7 +1141,8 @@
       el.depth.hidden = mode !== 'slider';
       el.craft.hidden = mode !== 'craft';
       el.forge.hidden = mode !== 'forge';
-      el.answers.hidden = mode === 'slider' || mode === 'craft' || mode === 'forge';
+      el.scene.hidden = mode !== 'scene';
+      el.answers.hidden = mode !== 'blocks';
 
       if (mode === 'craft') { buildCraft(q); lastQSig = ''; }
       else if (mode === 'forge') { buildForge(q); lastQSig = ''; }
@@ -1019,6 +1151,7 @@
         if (sig !== lastQSig) {
           lastQSig = sig;
           if (mode === 'slider') { buildBands(q); el.answers.textContent = ''; }
+          else if (mode === 'scene') { buildScene(q); el.answers.textContent = ''; }
           else { buildAnswers(q); el.depth.textContent = ''; }
         }
       }
@@ -1043,6 +1176,9 @@
       } else if (mode === 'forge') {
         if (!S.forge || S.forge.total === 0) el.btnCta.textContent = 'COMPOSE LA VALEUR';
         else { el.btnCta.textContent = 'VALIDER LA VALEUR'; el.btnCta.classList.add('is-ready'); }
+      } else if (mode === 'scene') {
+        var sps = sceneSpec(q);
+        el.btnCta.textContent = (sps && sps.creatures) ? 'TOUCHE LA CRÉATURE' : "TOUCHE L'OBJET";
       } else if (mode === 'slider') {
         if (S.sel === null) el.btnCta.textContent = 'PLACE LE CURSEUR';
         else { el.btnCta.textContent = 'VALIDER'; el.btnCta.classList.add('is-ready'); }
@@ -1270,6 +1406,40 @@
       el.forgeChips.appendChild(b);
     });
     el.forgeReset.textContent = F.stack.length ? 'TOUT ENLEVER' : 'RIEN À ENLEVER';
+  }
+
+  /* --- LA SCENE : quatre creatures dans le noir, aucune etiquette ---
+     Les noms n'apparaissent qu'apres la reponse : sinon ce serait un QCM avec
+     des images, et l'enfant n'aurait rien reconnu du tout. */
+  function buildScene(q) {
+    el.scene.textContent = '';
+    if (!q) return;
+    var spec = sceneSpec(q);
+    if (!spec) { q.m = 'blocks'; buildAnswers(q); return; }
+    el.scene.dataset.lieu = spec.lieu;
+    el.scene.classList.toggle('is-locked', S.locked);
+
+    q.r.forEach(function (txt, i) {
+      var isOk = i === q.ok;
+      var mine = S.sel === i;
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'crea';
+      b.setAttribute('aria-label', S.locked ? txt : 'créature ' + (i + 1));
+      if (S.locked) {
+        if (isOk) b.classList.add('is-ok');
+        else if (mine) b.classList.add('is-ko');
+        else b.classList.add('is-dim');
+      }
+      if (!rm) b.style.animation = 'floatIn 260ms ease-out ' + (i * 70) + 'ms both';
+      var a = spec.arts[i];
+      var dessin = a.kind === 'mob' ? mobSvg(a.id, 72) : itemSvg(a.id, 66);
+      b.innerHTML = '<span class="crea-art">' + dessin + '</span>' +
+        '<span class="crea-nom">' + (S.locked ? txt : '?') + '</span>' +
+        '<span class="crea-mark">' + (S.locked ? (isOk ? '✓' : (mine ? '✗' : '')) : '') + '</span>';
+      b.addEventListener('click', function () { select(i); });
+      el.scene.appendChild(b);
+    });
   }
 
   function buildRecap() {

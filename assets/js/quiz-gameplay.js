@@ -115,7 +115,26 @@
     'boussole':       ['compass', '#C4C4C4', '#E8E8E8', '#C4362B', 'BOUSSOLE'],
     'pissenlit-dore': ['flower', '#FFE9A8', '#FFFFFF', '#C9962F', 'PISSENLIT DORÉ'],
     'lance':          ['spear',  '#A9762F', '#E8E8E8', '#7A521C', 'LANCE'],
-    'etiquette':      ['sheet',  '#EDEDE3', '#FFFFFF', '#C9962F', 'ÉTIQUETTE']
+    'etiquette':      ['sheet',  '#EDEDE3', '#FFFFFF', '#C9962F', 'ÉTIQUETTE'],
+    /* outils et blocs, pour les scenes ou il faut reconnaitre un objet */
+    'pioche':      ['pioche',   '#C4C4C4', '#E8E8E8', '#8F8F8F', 'PIOCHE'],
+    'hache':       ['hache',    '#C4C4C4', '#E8E8E8', '#8F8F8F', 'HACHE'],
+    'pelle':       ['pelle',    '#C4C4C4', '#E8E8E8', '#8F8F8F', 'PELLE'],
+    'epee':        ['epee',     '#C4C4C4', '#E8E8E8', '#8F8F8F', 'ÉPÉE'],
+    'four':        ['four',     '#8B8B8B', '#ABABAB', '#6A6A6A', 'FOUR'],
+    'chaudron':    ['chaudron', '#4A4A5A', '#6E6E7E', '#2A2A33', 'CHAUDRON'],
+    'pierre':      ['cube',     '#8B8B8B', '#ABABAB', '#6A6A6A', 'PIERRE'],
+    'sable':       ['cube',     '#E8DCB0', '#F5EDD2', '#C4B88A', 'SABLE'],
+    'terre':       ['cube',     '#7A5230', '#96683F', '#5C3A1B', 'TERRE'],
+    'obsidienne':  ['cube',     '#2A1B3A', '#453058', '#160C22', 'OBSIDIENNE'],
+    'bedrock':     ['cube',     '#4A4A50', '#6E6E7E', '#2A2A33', 'BEDROCK'],
+    'netherite':   ['ingot',    '#4A3A3A', '#6E5A5A', '#2A2020', 'NETHERITE'],
+    'emeraude':    ['gem',      '#3B8526', '#8BE07C', '#26591A', 'ÉMERAUDE'],
+    'lapis':       ['gem',      '#2A5C90', '#6BA3DB', '#1E456C', 'LAPIS'],
+    'cuivre':      ['cube',     '#C6613A', '#E08850', '#9E4A2A', 'CUIVRE'],
+    'verre':       ['cube',     '#BFE8F0', '#EAF9FC', '#8FBCC8', 'VERRE'],
+    'beton':       ['cube',     '#4FD9D0', '#ADF5F0', '#2E9E97', 'BÉTON'],
+    'terrecuite':  ['cube',     '#A05A3A', '#C07A56', '#7A3F26', 'TERRE CUITE']
   };
 
   window.QUIZ_GAMEPLAY = { craft: CRAFT, forge: FORGE, items: ITEMS };

@@ -843,6 +843,204 @@
     }
   };
 
-  window.QUIZ_MOTEURS = [portail, redstone, studio, casier, apprivoise, carte, theatre, machine, rail];
+
+  /* ===========================================================================
+     L'ENTREPOT DU GOLEM — plusieurs faits, trois coffres, un seul ordre
+     ---------------------------------------------------------------------------
+     Les fiches vivent dans quiz-defis.js. Le golem ne bouge qu'une fois tout le
+     plan pose : on peut se raviser autant qu'on veut, rien n'est valide avant
+     le bouton. Toucher un fait le fait passer au coffre suivant — un seul geste
+     par ligne, une seule cible, jamais de glisser-deposer.
+     =========================================================================== */
+  var golem = {
+    id: 'golem', prio: true, libre: true,
+
+    detecte: function (q) {
+      var D = window.QUIZ_DEFIS;
+      var f = D && D.tri && D.tri[q.q];
+      if (!f || !f.faits || f.faits.length < 3) return null;
+      /* garde-fou : chaque fait doit designer un coffre qui existe */
+      var ids = {};
+      f.coffres.forEach(function (c) { ids[c.id] = 1; });
+      for (var i = 0; i < f.faits.length; i++) if (!ids[f.faits[i].ou]) return null;
+      return f;
+    },
+
+    consigne: function (spec) { return spec.titre; },
+    cta: function (spec, etat) {
+      var n = 0, plan = etat.mem.plan || {};
+      spec.faits.forEach(function (_, i) { if (plan[i]) n++; });
+      return n < spec.faits.length ? 'RANGE TOUT (' + n + '/' + spec.faits.length + ')' : 'LÂCHER LE GOLEM';
+    },
+    pret: function (mem, spec) {
+      var plan = mem.plan || {};
+      for (var i = 0; i < spec.faits.length; i++) if (!plan[i]) return false;
+      return true;
+    },
+    juste: function (mem, spec) {
+      for (var i = 0; i < spec.faits.length; i++) if (mem.plan[i] !== spec.faits[i].ou) return false;
+      return true;
+    },
+
+    build: function (zone, q, spec, etat, api) {
+      var mem = etat.mem;
+      if (!mem.plan) mem.plan = {};
+
+      var tete = el('div', 'golem-tete');
+      var g = el('span', 'golem-art');
+      g.innerHTML = api.mob('golem', 34);
+      if (etat.locked) g.classList.add(etat.ok ? 'est-content' : 'est-perdu');
+      tete.appendChild(g);
+      var cof = el('div', 'golem-coffres');
+      spec.coffres.forEach(function (c) {
+        var b = el('span', 'golem-coffre', c.nom);
+        b.style.background = c.couleur;
+        cof.appendChild(b);
+      });
+      tete.appendChild(cof);
+      zone.appendChild(tete);
+
+      var liste = el('div', 'golem-liste');
+      spec.faits.forEach(function (f, i) {
+        var pose = mem.plan[i] || null;
+        var c = null;
+        spec.coffres.forEach(function (x) { if (x.id === pose) c = x; });
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'golem-fait';
+        b.dataset.rep = i;
+        var txt = el('span', 'golem-txt', f.txt);
+        var chip = el('span', 'golem-chip', c ? c.nom : 'À RANGER');
+        if (c) { chip.style.background = c.couleur; chip.style.color = '#140A26'; }
+        if (etat.locked) {
+          b.classList.add(pose === f.ou ? 'is-ok' : 'is-ko');
+          if (pose !== f.ou) {
+            var vrai = null;
+            spec.coffres.forEach(function (x) { if (x.id === f.ou) vrai = x; });
+            chip.textContent = (c ? c.nom : '—') + ' → ' + (vrai ? vrai.nom : '?');
+          }
+        } else {
+          b.addEventListener('click', function () {
+            /* on tourne : rien → premier coffre → suivant → ... → rien */
+            var k = -1;
+            spec.coffres.forEach(function (x, j) { if (x.id === pose) k = j; });
+            var suiv = spec.coffres[k + 1];
+            if (suiv) mem.plan[i] = suiv.id; else delete mem.plan[i];
+            api.snd('sel');
+            api.change();
+          });
+        }
+        b.appendChild(txt);
+        b.appendChild(chip);
+        liste.appendChild(b);
+      });
+      zone.appendChild(liste);
+      zone.appendChild(el('p', 'moteur-aide', etat.locked
+        ? 'Le golem range tout d’un coup, ou rien.'
+        : 'Touche une ligne pour changer son coffre. Rien ne part avant le bouton.'));
+    }
+  };
+
+  /* ===========================================================================
+     LA LIGNE DE TRANSFORMATION — quatre etapes a remettre dans l'ordre
+     ---------------------------------------------------------------------------
+     On reordonne a volonte, puis on lance la chaine. Elle s'arrete pile a la
+     premiere etape impossible : on voit ou ca coince, pas seulement que c'est
+     rouge.
+     =========================================================================== */
+  var chaine = {
+    id: 'chaine', prio: true, libre: true,
+
+    detecte: function (q) {
+      var D = window.QUIZ_DEFIS;
+      var f = D && D.chaine && D.chaine[q.q];
+      if (!f || !f.etapes || f.etapes.length < 3) return null;
+      return f;
+    },
+
+    consigne: function (spec) { return spec.titre; },
+    cta: function () { return 'LANCER LA CHAÎNE'; },
+    pret: function () { return true; },
+    juste: function (mem, spec) {
+      var o = mem.ordre || [];
+      for (var i = 0; i < spec.etapes.length; i++) if (o[i] !== i) return false;
+      return true;
+    },
+
+    build: function (zone, q, spec, etat, api) {
+      var mem = etat.mem;
+      if (!mem.ordre) {
+        /* melange de depart : jamais l'ordre juste, sinon il n'y aurait rien
+           a faire et le bouton suffirait */
+        var n = spec.etapes.length;
+        var o = [];
+        for (var k = 0; k < n; k++) o.push(k);
+        var juste = true, essais = 0;
+        while (juste && essais < 20) {
+          for (var a = n - 1; a > 0; a--) {
+            var r = Math.floor(Math.random() * (a + 1));
+            var t = o[a]; o[a] = o[r]; o[r] = t;
+          }
+          juste = o.every(function (v, i) { return v === i; });
+          essais++;
+        }
+        mem.ordre = o;
+      }
+
+      /* premiere etape fautive : la chaine s'y arrete */
+      var casse = -1;
+      for (var c = 0; c < mem.ordre.length; c++) {
+        if (mem.ordre[c] !== c) { casse = c; break; }
+      }
+
+      var pile = el('div', 'chaine-pile');
+      mem.ordre.forEach(function (idx, pos) {
+        var e = spec.etapes[idx];
+        var rang = el('div', 'chaine-rang');
+        if (etat.locked) {
+          if (casse < 0 || pos < casse) rang.classList.add('is-ok');
+          else if (pos === casse) rang.classList.add('is-casse');
+          else rang.classList.add('is-dim');
+        }
+        rang.appendChild(el('span', 'chaine-num', String(pos + 1)));
+        var art = el('span', 'chaine-art');
+        art.innerHTML = e.art[0] === 'mob' ? api.mob(e.art[1], 24) : api.item(e.art[1], 24);
+        rang.appendChild(art);
+        rang.appendChild(el('span', 'chaine-txt', e.txt));
+
+        if (!etat.locked) {
+          var fleches = el('span', 'chaine-fleches');
+          var haut = document.createElement('button');
+          haut.type = 'button'; haut.className = 'chaine-pas'; haut.textContent = '▲';
+          haut.setAttribute('aria-label', 'monter cette étape');
+          haut.disabled = pos === 0;
+          haut.addEventListener('click', function () {
+            var t = mem.ordre[pos - 1]; mem.ordre[pos - 1] = mem.ordre[pos]; mem.ordre[pos] = t;
+            api.snd('sel'); api.change();
+          });
+          var bas = document.createElement('button');
+          bas.type = 'button'; bas.className = 'chaine-pas'; bas.textContent = '▼';
+          bas.setAttribute('aria-label', 'descendre cette étape');
+          bas.disabled = pos === mem.ordre.length - 1;
+          bas.addEventListener('click', function () {
+            var t = mem.ordre[pos + 1]; mem.ordre[pos + 1] = mem.ordre[pos]; mem.ordre[pos] = t;
+            api.snd('sel'); api.change();
+          });
+          fleches.appendChild(haut);
+          fleches.appendChild(bas);
+          rang.appendChild(fleches);
+        }
+        pile.appendChild(rang);
+      });
+      zone.appendChild(pile);
+      zone.appendChild(el('p', 'moteur-aide', etat.locked
+        ? (casse < 0 ? 'La chaîne tourne du premier au dernier maillon.'
+                     : 'La chaîne s’arrête à l’étape ' + (casse + 1) + '.')
+        : 'Réordonne autant que tu veux : rien ne part avant le bouton.'));
+    }
+  };
+
+  window.QUIZ_MOTEURS = [golem, chaine, portail, redstone, studio, casier, apprivoise,
+                         carte, theatre, machine, rail];
   window.QUIZ_LIEUX = { art: vignette, table: LIEUX };
 })();

@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var BUILD = '11';
+  var BUILD = '12';
 
   /* ------------------------- tables d'effets (verbatim) ------------------------- */
   var FXOK = [

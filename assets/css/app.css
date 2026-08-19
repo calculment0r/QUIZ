@@ -1102,6 +1102,60 @@ button { font: inherit; color: inherit; border: 0; background: none; }
 .appri-objet.is-ko { background: #8E2419; box-shadow: inset 4px 4px 0 0 #E06A5F, inset -4px -4px 0 0 #5A1810; }
 .appri-objet.is-dim { filter: brightness(.55) saturate(.5); }
 
+/* --- l'entrepot du golem : cinq faits, trois coffres --- */
+.golem-tete { display: flex; align-items: center; gap: 10px; }
+.golem-art { flex: none; line-height: 0; }
+.golem-art.est-content { animation: growStay 620ms steps(5) both; }
+.golem-art.est-perdu { animation: tiltKo 620ms ease-in-out both; }
+.golem-coffres { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.golem-coffre {
+  display: block; padding: 6px 4px; text-align: center;
+  font-family: var(--pix); font-size: 7px; line-height: 1.5; color: #140A26;
+  box-shadow: inset 2px 2px 0 0 rgba(255, 255, 255, .35), inset -2px -2px 0 0 rgba(0, 0, 0, .3);
+}
+.golem-liste { display: flex; flex-direction: column; gap: 5px; }
+.golem-fait {
+  display: flex; align-items: center; gap: 8px; min-height: 46px; padding: 6px 8px;
+  cursor: pointer; text-align: left; background: #2A1B4A;
+  box-shadow: inset 3px 3px 0 0 #45306E, inset -3px -3px 0 0 #150C2B;
+}
+.golem-fait:active { transform: translateY(3px); }
+.golem-txt { flex: 1; min-width: 0; font-size: 13px; line-height: 1.3; color: #FFFFFF; }
+.golem-chip {
+  flex: none; padding: 5px 6px; text-align: center;
+  font-family: var(--pix); font-size: 6px; line-height: 1.5;
+  color: var(--ui-mute); background: rgba(12, 7, 20, .55);
+}
+.golem-fait.is-ok { box-shadow: inset 4px 0 0 0 var(--ok), inset 3px 3px 0 0 #45306E; }
+.golem-fait.is-ko { box-shadow: inset 4px 0 0 0 var(--ko), inset 3px 3px 0 0 #45306E; }
+
+/* --- la ligne de transformation : quatre etapes a remettre dans l'ordre --- */
+.chaine-pile { display: flex; flex-direction: column; gap: 5px; }
+.chaine-rang {
+  display: flex; align-items: center; gap: 7px; min-height: 52px; padding: 5px 7px;
+  background: #241640; box-shadow: inset 3px 3px 0 0 #45306E, inset -3px -3px 0 0 #150C2B;
+}
+.chaine-num {
+  flex: none; width: 20px; text-align: center;
+  font-family: var(--pix); font-size: 11px; color: var(--sg-gold);
+}
+.chaine-art { flex: none; line-height: 0; }
+.chaine-txt { flex: 1; min-width: 0; font-size: 13px; line-height: 1.3; color: #FFFFFF; }
+.chaine-fleches { flex: none; display: flex; gap: 3px; }
+.chaine-pas {
+  width: 44px; min-height: 44px; cursor: pointer;
+  font-size: 13px; color: #2B2B2B; background: #FFC145;
+  box-shadow: inset 3px 3px 0 0 #FFE9A8, inset -3px -3px 0 0 #C99416;
+}
+.chaine-pas:active { transform: translateY(3px); }
+.chaine-pas[disabled] { opacity: .3; cursor: default; }
+.chaine-rang.is-ok { box-shadow: inset 4px 0 0 0 var(--ok), inset 3px 3px 0 0 #45306E; }
+.chaine-rang.is-casse {
+  box-shadow: inset 4px 0 0 0 var(--ko), inset 3px 3px 0 0 #45306E;
+  animation: shakeHard 380ms steps(1) both;
+}
+.chaine-rang.is-dim { filter: brightness(.5) saturate(.5); }
+
 /* ------------------ 10 bis. MOTEUR ATELIER (grille de craft) ------------------ */
 /* Il pose lui-meme les ingredients : la reponse n'existe pas avant qu'il la
    construise. La grille fait toujours 3x3 pour ne jamais trahir la quantite. */
@@ -1423,6 +1477,10 @@ button { font: inherit; color: inherit; border: 0; background: none; }
   .portail-cadre { max-width: 172px; }
   .red-pas { min-height: 46px; width: 56px; }
   .livre { min-height: 48px; }
+  .golem-fait { min-height: 42px; }
+  .golem-txt, .chaine-txt { font-size: 12px; }
+  .chaine-rang { min-height: 46px; }
+  .chaine-pas { width: 38px; min-height: 38px; }
   .mach-case { padding: 5px 3px; }
 }
 

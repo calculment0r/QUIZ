@@ -73,6 +73,7 @@ assets/js/app.js            logique de jeu (etat + rendu DOM)
 assets/js/quiz-data.js      les 108 questions (window.QUIZ_DATA)
 assets/js/quiz-gameplay.js  couche gameplay : quelle epreuve pour quelle question
 assets/js/quiz-moteurs.js   les moteurs de reponse du registre (carte au tresor...)
+assets/js/quiz-defis.js     les defis a plusieurs faits (tri Java/Bedrock, chaines)
 assets/js/quiz-flash.js     les mini-jeux d'interlude (registre extensible)
 assets/js/quiz-music.js     la boucle 8 bits, synthetisee (aucun fichier audio)
 assets/fonts/               Press Start 2P auto-hebergee (+ licence OFL)
@@ -157,10 +158,22 @@ Le mode est choisi automatiquement, question par question, dans
 | **portail** | il bâtit le cadre d'obsidienne le plus econome, puis l'allume | 1 |
 | **redstone** | il regle jusqu'ou le signal porte, puis envoie l'impulsion | 1 |
 | **apprivoisement** | une bete, quatre objets au sol sans nom : il lui tend le bon | 1 |
-| **blocs** | QCM a 4 blocs a toucher | 26 |
+| **chaine** | quatre etapes melangees : il les remet dans l'ordre, puis lance la chaine | 3 |
+| **entrepot** | cinq faits, trois coffres : il pose tout le plan, puis lache le golem | 2 |
+| **blocs** | QCM a 4 blocs a toucher | 23 |
 
-**82 questions sur 108 (76 %)** se jouent autrement qu'en QCM.
-Par quiz : Survie 34/36, Mobs 30/36, Bedrock 18/36.
+**85 questions sur 108 (79 %)** se jouent autrement qu'en QCM.
+Par quiz : Survie 34/36, Mobs 31/36, Bedrock 20/36.
+
+### Les defis a plusieurs faits
+
+Deux epreuves demandaient ce que la banque ne savait pas donner : plusieurs
+faits sur un meme ecran. La banque est ecrite un fait par question. Plutot que
+de la reecrire, `assets/js/quiz-defis.js` accroche des fiches au **texte exact**
+d'une question qui existe deja : la question reste le titre du defi, la fiche
+apporte les faits voisins. Si la question change sans que la fiche suive, le
+moteur ne la reconnait plus et l'epreuve redevient un QCM — jamais une epreuve
+fausse.
 
 Les moteurs marques **prioritaires** dans le registre sont interroges *avant*
 les moteurs cables, parce qu'ils racontent mieux la meme question : batir un

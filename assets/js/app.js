@@ -75,6 +75,206 @@
     [/end|shulker|violet|ender/, '#6B3FA0', '#8F63C4', '#4A2A72', '#E0C8FF']
   ];
 
+/* ===================== FEEDBACK CONTEXTUEL =====================
+     Un effet tire au hasard felicitait "DIAMANT !" sur une question de laine.
+     On choisit d'abord un effet en rapport avec ce qui vient d'etre joue, et on
+     ne retombe sur le tirage aleatoire que si rien ne correspond. */
+  var FX_THEME_OK = [
+    [/diamant|glace|nautile/i, 'DIAMANT !'],
+    [/[ée]meraude|villageois/i, 'ÉMERAUDE !'],
+    [/p[ée]pite|lingot|\bor\b|dor[ée]/i, 'EN OR !'],
+    [/enchant|table d.enchantement/i, 'ENCHANTÉ !'],
+    [/fabriqu|recette|craft|table de craft/i, 'CRAFT OK'],
+    [/exp[ée]rience|niveau/i, 'NIVEAU + 1'],
+    [/pioche|outil|hache|pelle/i, 'PIOCHE OK'],
+    [/lave|nether|feu|blaze|magma/i, 'ÇA CHAUFFE'],
+    [/bloc|casse|pierre|obsidienne/i, 'BLOC CASSÉ']
+  ];
+  var FX_THEME_KO = [
+    [/creeper/i, 'CREEPER !'],
+    [/lave|nether|feu|blaze|magma/i, 'LAVE !'],
+    [/eau|oc[ée]an|dauphin|axolotl|noy/i, 'PLOUF'],
+    [/bedrock/i, 'BEDROCK...'],
+    [/explos|tnt/i, 'BOUM...']
+  ];
+
+  /* ===================== OBJETS PIXEL =====================
+     Un gabarit par famille de matiere, colore par l'objet : de quoi dessiner
+     tout l'atelier sans embarquer une planche de sprites. */
+  function itemSvg(id, size) {
+    var it = (window.QUIZ_GAMEPLAY && window.QUIZ_GAMEPLAY.items[id]) || ['cube', '#8B8B8B', '#ABABAB', '#6A6A6A', id];
+    var kind = it[0], c = it[1], hi = it[2], lo = it[3];
+    var r = function (x, y, w, h, f) {
+      return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + f + '"></rect>';
+    };
+    var body = '';
+    switch (kind) {
+      case 'cube':
+        body = r(2, 4, 12, 9, c) + r(2, 4, 12, 3, hi) + r(2, 11, 12, 2, lo) + r(5, 8, 2, 2, lo) + r(9, 9, 2, 2, lo);
+        break;
+      case 'log':
+        body = r(3, 3, 10, 11, c) + r(3, 3, 10, 2, hi) + r(6, 6, 4, 5, lo) + r(7, 7, 2, 3, hi);
+        break;
+      case 'ingot':
+        body = r(2, 5, 12, 7, c) + r(3, 4, 10, 1, hi) + r(2, 5, 12, 2, hi) + r(2, 11, 12, 2, lo) +
+               r(4, 7, 5, 2, hi);
+        break;
+      case 'nugget':
+        body = r(5, 4, 5, 5, c) + r(5, 4, 3, 3, hi) + r(9, 8, 4, 4, c) + r(9, 8, 2, 2, hi) +
+               r(3, 9, 4, 4, c) + r(3, 9, 2, 2, lo);
+        break;
+      case 'stick':
+        body = r(11, 2, 3, 3, hi) + r(9, 4, 3, 3, c) + r(7, 6, 3, 3, hi) + r(5, 8, 3, 3, c) +
+               r(3, 10, 3, 4, c) + r(3, 13, 3, 1, lo);
+        break;
+      case 'lump':
+        body = r(4, 4, 5, 5, c) + r(4, 4, 2, 2, hi) + r(8, 6, 5, 5, hi) + r(3, 9, 5, 4, c) +
+               r(9, 11, 3, 2, lo) + r(6, 2, 3, 2, lo);
+        break;
+      case 'gem':
+        body = r(5, 2, 6, 2, hi) + r(3, 4, 10, 5, c) + r(4, 9, 8, 2, c) + r(6, 11, 4, 2, lo) +
+               r(5, 4, 3, 3, hi);
+        break;
+      case 'sheet':
+        body = r(3, 3, 10, 11, c) + r(3, 3, 10, 1, hi) + r(3, 13, 10, 1, lo) + r(5, 6, 6, 1, lo) + r(5, 9, 4, 1, lo);
+        break;
+      case 'flower':
+        body = r(7, 8, 2, 6, lo) + r(4, 3, 8, 5, c) + r(5, 2, 6, 1, hi) + r(5, 4, 6, 2, hi) +
+               r(3, 10, 4, 2, lo) + r(9, 11, 4, 2, lo);
+        break;
+      case 'bed':
+        body = r(2, 7, 12, 5, c) + r(2, 7, 12, 2, hi) + r(2, 11, 12, 2, lo) + r(2, 5, 4, 2, '#FFFFFF');
+        break;
+      case 'torch':
+        body = r(7, 7, 2, 7, c) + r(6, 3, 4, 4, hi) + r(7, 2, 2, 1, lo) + r(7, 4, 2, 2, lo);
+        break;
+      case 'anvil':
+        body = r(2, 3, 12, 3, hi) + r(4, 6, 8, 3, c) + r(5, 9, 6, 2, lo) + r(3, 11, 10, 2, c);
+        break;
+      case 'compass':
+        body = r(3, 4, 10, 9, c) + r(3, 4, 10, 2, hi) + r(6, 7, 4, 3, '#2A1B4A') + r(7, 8, 2, 1, lo);
+        break;
+      case 'spear':
+        body = r(10, 2, 3, 3, hi) + r(9, 5, 2, 2, hi) + r(7, 6, 2, 3, c) + r(4, 9, 3, 4, c) + r(3, 12, 2, 2, lo);
+        break;
+      default:
+        body = r(4, 4, 8, 8, c);
+    }
+    return '<svg viewBox="0 0 16 16" width="' + size + '" height="' + size +
+      '" shape-rendering="crispEdges" aria-hidden="true">' + body + '</svg>';
+  }
+
+  function itemName(id) {
+    var it = window.QUIZ_GAMEPLAY && window.QUIZ_GAMEPLAY.items[id];
+    return it ? it[4] : id;
+  }
+
+  /* ===================== ROUTAGE DES EPREUVES =====================
+     La couche gameplay est verifiee contre le texte de la bonne reponse : si la
+     banque change sans que la fiche suive, la question repasse en mode BLOCS
+     plutot que de proposer une epreuve fausse. */
+  var MOTS = { un: 1, une: 1, deux: 2, trois: 3, quatre: 4, cinq: 5, six: 6, sept: 7, huit: 8, neuf: 9, dix: 10 };
+
+  /* "3 laines et 3 planches" -> [3,3] ; "Du papier et une pepite" -> [1,1] */
+  function countsIn(txt) {
+    var parts = String(txt).split(/\s+(?:et|\+)\s+/i);
+    var out = [];
+    for (var i = 0; i < parts.length; i++) {
+      var m = parts[i].trim().match(/^(?:du |de la |des |d')?\s*(\d+|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix)\b/i);
+      if (m) {
+        var raw = m[1].toLowerCase();
+        out.push(/^\d+$/.test(raw) ? parseInt(raw, 10) : MOTS[raw]);
+      } else {
+        out.push(1);           /* "Du papier" : un exemplaire implicite */
+      }
+    }
+    return out;
+  }
+
+  function sortedNums(a) { return a.slice().sort(function (x, y) { return x - y; }); }
+  function sameNums(a, b) {
+    if (a.length !== b.length) return false;
+    var p = sortedNums(a), q = sortedNums(b);
+    for (var i = 0; i < p.length; i++) if (p[i] !== q[i]) return false;
+    return true;
+  }
+
+  function craftSpec(q) {
+    var G = window.QUIZ_GAMEPLAY;
+    var spec = G && G.craft[q.q];
+    if (!spec) return null;
+    var total = spec.need.reduce(function (s, x) { return s + x.n; }, 0);
+    if (total < 2 || total > 9) return null;              /* un seul objet = QCM deguise */
+    /* garde-fou : les quantites de la fiche doivent correspondre a la reponse */
+    if (!sameNums(countsIn(q.r[q.ok]), spec.need.map(function (x) { return x.n; }))) return null;
+    return spec;
+  }
+
+  /* "20 minutes" -> 20 ; "9" -> 9 ; refuse les intervalles et les decimales */
+  function numberIn(txt) {
+    var m = String(txt).trim().match(/^(\d{1,4})(?:\s+[A-Za-zÀ-ÿ']+)?$/);
+    if (!m) return null;
+    var v = parseInt(m[1], 10);
+    return (v >= 1 && v <= 1000) ? v : null;
+  }
+
+  function forgeSpec(q) {
+    var G = window.QUIZ_GAMEPLAY;
+    var spec = G && G.forge[q.q];
+    if (!spec) return null;
+    /* les quatre reponses d'origine doivent etre des nombres distincts, sinon
+       composer une valeur n'aurait pas de sens pour cette question */
+    var nums = q.r.map(numberIn);
+    for (var i = 0; i < nums.length; i++) if (nums[i] === null) return null;
+    var uniq = {};
+    for (var j = 0; j < nums.length; j++) { if (uniq[nums[j]]) return null; uniq[nums[j]] = 1; }
+    var target = nums[q.ok];
+    return { target: target, unit: spec.unit || '', chips: spec.chips };
+  }
+
+  function routeOf(q) {
+    var low = q.q.toLowerCase();
+    if (/hauteur|jusqu.o[ùu]|niveau de lumi|creuser|profondeur/.test(low)) return 'slider';
+    if (craftSpec(q)) return 'craft';
+    if (forgeSpec(q)) return 'forge';
+    return 'blocks';
+  }
+
+  /* ===================== DIRECTEUR DE PARTIE =====================
+     Sans lui, "Mobs" et "Bedrock" tiraient douze QCM d'affilee : les seules
+     epreuves jouables de la banque vivent dans "Survie". Il garantit au moins
+     une epreuve jouable quand le vivier le permet, et espace les moteurs. */
+  function ensureVariety(picked, pool, lv) {
+    var hasEngine = picked.some(function (p) { return p.route !== 'blocks'; });
+    if (hasEngine) return picked;
+    var used = {};
+    picked.forEach(function (p) { used[p.q.q] = 1; });
+    var cand = pool.filter(function (p) { return !used[p.q.q] && routeOf(p.q) !== 'blocks'; });
+    if (!cand.length) return picked;                       /* le vivier n'a rien : on l'accepte */
+    /* on prefere rester proche du niveau choisi pour ne pas casser la difficulte */
+    var near = cand.filter(function (p) { return Math.abs(p.li - lv) <= 1; });
+    var chosen = (near.length ? near : cand)[Math.floor(Math.random() * (near.length ? near.length : cand.length))];
+    var slot = Math.min(picked.length - 1, 2 + Math.floor(Math.random() * 3));
+    picked[slot] = { q: chosen.q, li: chosen.li, route: routeOf(chosen.q) };
+    return picked;
+  }
+
+  /* jamais deux fois le meme moteur a la suite (les blocs restent majoritaires
+     dans la banque, on ne peut pas les espacer) */
+  function spreadEngines(list) {
+    for (var i = 1; i < list.length; i++) {
+      if (list[i].route === 'blocks' || list[i].route !== list[i - 1].route) continue;
+      for (var j = i + 1; j < list.length; j++) {
+        if (list[j].route !== list[i].route &&
+            (j + 1 >= list.length || list[j + 1].route !== list[i].route)) {
+          var t = list[i]; list[i] = list[j]; list[j] = t;
+          break;
+        }
+      }
+    }
+    return list;
+  }
+
   /* ------------------------------- etat ------------------------------- */
   var NB_QUESTIONS = 12;
   var S = {
@@ -87,7 +287,9 @@
     mini: null, bonus: 0, combo: 0, bestCombo: 0, chaos: 0,
     usedOk: [], usedKo: [],
     confirmBack: false, openRecap: null, copied: false,
-    sound: true
+    sound: true,
+    craft: null, forge: null,        /* etat des deux moteurs jouables */
+    echo: null, inEcho: false, echoQ: null   /* epreuve de rattrapage */
   };
 
   var rm = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
@@ -104,6 +306,12 @@
     hudLabel: $('hudLabel'), combo: $('combo'), track: $('track'), counter: $('counter'),
     playfield: $('playfield'), consigne: $('consigne'), qText: $('qText'),
     depth: $('depth'), answers: $('answers'), expl: $('expl'),
+    craft: $('craft'), craftOut: $('craftOut'), craftOutSlot: $('craftOutSlot'),
+    craftOutName: $('craftOutName'), craftGrid: $('craftGrid'), craftHint: $('craftHint'),
+    craftDock: $('craftDock'),
+    forge: $('forge'), forgeTotal: $('forgeTotal'), forgeUnit: $('forgeUnit'),
+    forgeFill: $('forgeFill'), forgeVerdict: $('forgeVerdict'), forgeChips: $('forgeChips'),
+    forgeReset: $('forgeReset'), echoBadge: $('echoBadge'),
     btnCta: $('btnCta'), qStage: $('qStage'),
     fx: $('fx'), fxParts: $('fxParts'), fxLabel: $('fxLabel'),
     resultSub: $('resultSub'), resultScore: $('resultScore'), resultRank: $('resultRank'),
@@ -175,15 +383,57 @@
     return pool[(t.length + (t.charCodeAt(0) || 0) || 0) % pool.length];
   }
 
-  function modeOf(q) {
-    var t = q.q.toLowerCase();
-    if (/hauteur|jusqu.o[ùu]|niveau de lumi|creuser|profondeur|quelle est la hauteur/.test(t)) return 'slider';
-    return 'blocks';
-  }
-
   function consigneFor(q, mode) {
+    if (S.inEcho) return 'TU TE SOUVIENS ?';
+    if (mode === 'craft') return 'CONSTRUIS LA RECETTE';
+    if (mode === 'forge') return 'COMPOSE LA BONNE VALEUR';
     if (mode === 'slider') return /lumi/.test(q.q.toLowerCase()) ? 'RÈGLE LE BON NIVEAU' : 'DESCENDS À LA BONNE HAUTEUR';
     return 'TOUCHE LE BON BLOC';
+  }
+
+  /* la question en cours : celle de la partie, ou celle du rattrapage */
+  function curQ() { return S.inEcho ? S.echoQ : S.questions[S.qi]; }
+
+  /* prepare l'etat du moteur correspondant a la question affichee */
+  function setupEngines(q) {
+    S.craft = null;
+    S.forge = null;
+    if (!q) return;
+    if (q.m === 'craft') {
+      var cs = craftSpec(q);
+      if (cs) {
+        S.craft = {
+          need: cs.need, dock: cs.dock, result: cs.result,
+          placed: new Array(9), armed: cs.dock[0]
+        };
+      } else { q.m = 'blocks'; }
+    } else if (q.m === 'forge') {
+      var fs = forgeSpec(q);
+      if (fs) S.forge = { target: fs.target, unit: fs.unit, chips: fs.chips, total: 0, stack: [] };
+      else q.m = 'blocks';
+    }
+  }
+
+  function craftPlacedCounts() {
+    var c = {};
+    (S.craft ? S.craft.placed : []).forEach(function (id) { if (id) c[id] = (c[id] || 0) + 1; });
+    return c;
+  }
+
+  function craftIsOk() {
+    if (!S.craft) return false;
+    var got = craftPlacedCounts(), want = {};
+    S.craft.need.forEach(function (x) { want[x.id] = x.n; });
+    var kg = Object.keys(got), kw = Object.keys(want);
+    if (kg.length !== kw.length) return false;
+    for (var i = 0; i < kw.length; i++) if (got[kw[i]] !== want[kw[i]]) return false;
+    return true;
+  }
+
+  function craftCount() {
+    var n = 0;
+    (S.craft ? S.craft.placed : []).forEach(function (id) { if (id) n++; });
+    return n;
   }
 
   function quizName() { return S.data ? S.data.quiz[S.qz].titre : ''; }
@@ -250,17 +500,28 @@
       if (seen.indexOf(p.q.q) >= 0) k = 1;
       for (var j = 0; j < k; j++) bag.push(idx);
     });
-    var order = shuf(bag), taken = {}, picked = [];
+    var order = shuf(bag), taken = {}, seenText = {}, picked = [];
     for (var i = 0; i < order.length && picked.length < n; i++) {
-      if (!taken[order[i]]) { taken[order[i]] = 1; picked.push(pool[order[i]]); }
+      var cand = pool[order[i]];
+      /* jamais deux fois la meme question dans une partie, meme si elle existe
+         a deux niveaux differents */
+      if (taken[order[i]] || seenText[cand.q.q]) continue;
+      taken[order[i]] = 1;
+      seenText[cand.q.q] = 1;
+      picked.push(cand);
     }
+
+    /* directeur de partie : au moins une epreuve jouable si le vivier le permet,
+       et jamais deux fois le meme moteur a la suite */
+    picked.forEach(function (p) { p.route = routeOf(p.q); });
+    picked = spreadEngines(ensureVariety(picked, pool, lv));
 
     var qs = picked.map(function (p) {
       var q = p.q, r = q.r, ok = q.ok;
       var idx = shuf(q.r.map(function (_, k) { return k; }));
       r = idx.map(function (k) { return q.r[k]; });
       ok = idx.indexOf(q.ok);
-      return { q: q.q, r: r, ok: ok, explication: q.explication, m: modeOf(q), li: p.li };
+      return { q: q.q, r: r, ok: ok, explication: q.explication, m: p.route, li: p.li };
     });
     try { localStorage.setItem(key, JSON.stringify(qs.map(function (x) { return x.q; }))); } catch (e) {}
 
@@ -268,27 +529,48 @@
     S.sel = null; S.locked = false; S.wasOk = null; S.results = []; S.fx = null;
     S.openRecap = null; S.combo = 0; S.bestCombo = 0; S.chaos = 0; S.bonus = 0;
     S.usedOk = []; S.usedKo = []; S.copied = false;
+    S.echo = null; S.inEcho = false; S.echoQ = null;
     S.flashAt = [2 + Math.floor(Math.random() * 2), 7 + Math.floor(Math.random() * 2)];
     clearMini();
+    setupEngines(qs[0]);
     render();
   }
 
   function select(i) {
     if (S.locked) return;
-    var q = S.questions[S.qi];
+    var q = curQ();
     snd('sel');
     S.sel = i;
     if (q && q.m === 'slider') { render(); return; }
     validate(false, i);
   }
 
-  function makeFx(ok) {
+  /* label prefere pour la question en cours : d'abord le moteur, puis le sujet */
+  function fxPreferred(ok, q) {
+    if (!q) return null;
+    if (ok && q.m === 'craft') return 'CRAFT OK';
+    if (ok && q.m === 'forge') return 'IMPECCABLE';
+    var hay = q.q + ' ' + (q.r ? q.r[q.ok] : '');
+    var table = ok ? FX_THEME_OK : FX_THEME_KO;
+    for (var i = 0; i < table.length; i++) if (table[i][0].test(hay)) return table[i][1];
+    return null;
+  }
+
+  function makeFx(ok, q) {
     var F = ok ? FXOK : FXKO;
     var key = ok ? 'usedOk' : 'usedKo';
     var used = S[key] || [];
     if (used.length >= F.length) used = [];
-    var k = Math.floor(Math.random() * F.length), guard = 0;
-    while (used.indexOf(k) >= 0 && guard < 80) { k = Math.floor(Math.random() * F.length); guard++; }
+    var k = -1;
+    var want = fxPreferred(ok, q);
+    if (want) {
+      for (var w = 0; w < F.length; w++) if (F[w][4] === want && used.indexOf(w) < 0) { k = w; break; }
+    }
+    if (k < 0) {
+      k = Math.floor(Math.random() * F.length);
+      var guard = 0;
+      while (used.indexOf(k) >= 0 && guard < 80) { k = Math.floor(Math.random() * F.length); guard++; }
+    }
     var f = F[k], parts = [];
     if (!rm) {
       for (var i = 0; i < f[1]; i++) {
@@ -306,31 +588,122 @@
 
   function validate(timeout, forced) {
     if (S.locked) return;
-    var q = S.questions[S.qi];
+    var q = curQ();
     if (!q) return;
-    var pick = (forced === undefined || forced === null) ? S.sel : forced;
-    if (pick === null && !timeout) return;
-    var ok = !timeout && pick === q.ok;
+
+    var ok;
+    if (q.m === 'craft') {
+      if (!S.craft || craftCount() === 0) return;         /* rien pose : on ne valide pas */
+      ok = craftIsOk();
+    } else if (q.m === 'forge') {
+      if (!S.forge || S.forge.total === 0) return;
+      ok = S.forge.total === S.forge.target;
+    } else {
+      var pick = (forced === undefined || forced === null) ? S.sel : forced;
+      if (pick === null && !timeout) return;
+      ok = !timeout && pick === q.ok;
+      S.sel = pick;
+      q.pick = pick;             /* garde en memoire pour le duel du rattrapage */
+    }
+
     snd(ok ? 'ok' : 'ko');
-    S.locked = true; S.wasOk = ok; S.sel = pick;
+    S.locked = true;
+    S.wasOk = ok;
+    S.fx = makeFx(ok, q);
+
+    if (S.inEcho) {
+      /* le rattrapage ne touche pas au score des douze epreuves */
+      S.echo.ok = ok;
+      S.live = ok ? 'Rattrapage réussi' : 'Toujours incorrect';
+      render();
+      return;
+    }
+
     S.results = S.results.concat([ok]);
     S.combo = ok ? S.combo + 1 : 0;
     S.bestCombo = Math.max(S.bestCombo || 0, S.combo);
-    S.fx = makeFx(ok);
     S.live = ok ? 'Correct' : 'Incorrect, la bonne réponse était ' + q.r[q.ok];
+
+    /* ECHO : une seule question ratee revient plus tard, autrement posee */
+    if (!ok && !S.echo) {
+      var at = S.qi + 4;
+      S.echo = { qIndex: S.qi, q: q, at: Math.min(at, S.questions.length), phase: 'pending', ok: null };
+    }
     render();
+  }
+
+  /* ===================== ECHO =====================
+     La question ratee revient une fois, ~4 epreuves plus tard. Si elle etait un
+     QCM, elle revient en duel entre sa reponse et la bonne : c'est un autre
+     geste, pas la meme question reposee a l'identique. */
+  function startEcho(resumeIndex) {
+    var src = S.echo.q;
+    var eq;
+    if (src.m === 'blocks') {
+      var mine = (typeof src.pick === 'number' && src.pick !== src.ok) ? src.pick : null;
+      var wrong = mine !== null ? mine : (src.ok === 0 ? 1 : 0);
+      var pair = shuf([src.ok, wrong]);
+      eq = {
+        q: src.q,
+        r: pair.map(function (i) { return src.r[i]; }),
+        ok: pair.indexOf(src.ok),
+        explication: src.explication,
+        m: 'blocks'
+      };
+    } else {
+      eq = { q: src.q, r: src.r, ok: src.ok, explication: src.explication, m: src.m };
+    }
+    S.echoQ = eq;
+    S.inEcho = true;
+    S.echo.phase = 'active';
+    S.echo.resume = resumeIndex;
+    S.sel = null; S.locked = false; S.wasOk = null; S.fx = null; S.live = '';
+    setupEngines(eq);
+    snd('alarm');
+    render();
+  }
+
+  function finishEcho() {
+    var resume = S.echo.resume;
+    S.echo.phase = 'done';
+    S.inEcho = false;
+    S.echoQ = null;
+    if (resume >= S.questions.length) {
+      S.screen = 'result'; S.copied = false; S.openRecap = null;
+      S.locked = false; S.fx = null;
+      snd('win'); render();
+      return;
+    }
+    gotoQuestion(resume);
+  }
+
+  /* reprend la partie sur l'epreuve demandee (sortie de rattrapage) */
+  function gotoQuestion(nq) {
+    S.qi = nq; S.sel = null; S.locked = false; S.wasOk = null; S.fx = null; S.live = '';
+    clearMini();
+    setupEngines(S.questions[nq]);
+    render();
+    if (!rm && (S.flashAt || []).indexOf(nq) >= 0) openFlash();
   }
 
   function next() {
     if (!S.locked) return;
-    if (S.qi + 1 >= S.questions.length) {
+    if (S.inEcho) { finishEcho(); return; }
+
+    var nq = S.qi + 1;
+
+    if (S.echo && S.echo.phase === 'pending' && nq >= S.echo.at) {
+      startEcho(nq);
+      return;
+    }
+    if (nq >= S.questions.length) {
       S.screen = 'result'; S.copied = false; S.openRecap = null;
       snd('win'); render();
       return;
     }
-    var nq = S.qi + 1;
     S.qi = nq; S.sel = null; S.locked = false; S.wasOk = null; S.fx = null; S.live = '';
     clearMini();
+    setupEngines(S.questions[nq]);
     render();
     if (!rm && (S.flashAt || []).indexOf(nq) >= 0) openFlash();
   }
@@ -420,7 +793,7 @@
     var total = S.questions.length;
     var totalQ = total || NB_QUESTIONS;
     var score = S.results.filter(Boolean).length;
-    var q = S.questions[S.qi];
+    var q = curQ();
     var mode = q ? q.m : 'blocks';
 
     /* --- cycle jour / nuit pilote par l'avancee dans la partie --- */
@@ -457,7 +830,8 @@
     /* --- question --- */
     if (S.screen === 'q') {
       el.hudLabel.textContent = quizName() + ' · ' + levelName();
-      el.combo.hidden = (S.combo || 0) < 2;
+      el.echoBadge.hidden = !S.inEcho;
+      el.combo.hidden = S.inEcho || (S.combo || 0) < 2;
       el.combo.textContent = 'COMBO x' + (S.combo || 0);
 
       if (el.track.childElementCount !== totalQ) {
@@ -471,21 +845,36 @@
           cell.style.cssText = S.results[t]
             ? 'background-color:#4CD137;box-shadow:inset 0 3px 0 rgba(255,255,255,.55)'
             : 'background-color:#8B5A2B;background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.5) 0 2px,transparent 2px 5px)';
-        } else if (t === S.qi) {
+        } else if (t === S.qi && !S.inEcho) {
           cell.style.cssText = 'background-color:rgba(255,193,69,.45);box-shadow:inset 0 0 0 3px #FFC145';
         }
+        /* une epreuve rattrapee garde sa marque d'echec, avec le liseré du rattrapage */
+        cell.classList.toggle('is-repaired',
+          !!(S.echo && S.echo.phase === 'done' && S.echo.ok && t === S.echo.qIndex));
       }
 
       var answered = S.qi + (S.locked ? 1 : 0);
-      el.counter.textContent = Math.min(answered + (S.locked ? 0 : 1), total || 1) + '/' + totalQ;
+      el.counter.textContent = S.inEcho
+        ? 'ÉCHO'
+        : Math.min(answered + (S.locked ? 0 : 1), total || 1) + '/' + totalQ;
       el.consigne.textContent = q ? consigneFor(q, mode) : '';
       el.qText.textContent = q ? q.q : '';
 
-      var sig = [S.qi, S.locked ? 1 : 0, S.sel, mode].join('|');
-      if (sig !== lastQSig) {
-        lastQSig = sig;
-        if (mode === 'slider') { buildBands(q); el.depth.hidden = false; el.answers.hidden = true; el.answers.textContent = ''; }
-        else { buildAnswers(q); el.answers.hidden = false; el.depth.hidden = true; el.depth.textContent = ''; }
+      /* une seule aire de jeu visible a la fois */
+      el.depth.hidden = mode !== 'slider';
+      el.craft.hidden = mode !== 'craft';
+      el.forge.hidden = mode !== 'forge';
+      el.answers.hidden = mode === 'slider' || mode === 'craft' || mode === 'forge';
+
+      if (mode === 'craft') { buildCraft(q); lastQSig = ''; }
+      else if (mode === 'forge') { buildForge(q); lastQSig = ''; }
+      else {
+        var sig = [S.qi, S.inEcho ? 'E' : '', S.locked ? 1 : 0, S.sel, mode].join('|');
+        if (sig !== lastQSig) {
+          lastQSig = sig;
+          if (mode === 'slider') { buildBands(q); el.answers.textContent = ''; }
+          else { buildAnswers(q); el.depth.textContent = ''; }
+        }
       }
 
       if (S.locked && q) {
@@ -499,11 +888,20 @@
       /* bouton d'action bas d'ecran */
       el.btnCta.className = 'btn-cta';
       if (S.locked) {
-        el.btnCta.textContent = S.qi + 1 >= total ? 'VOIR LE SCORE' : 'SUIVANT ›';
+        var last = S.qi + 1 >= total && !(S.echo && S.echo.phase === 'pending');
+        el.btnCta.textContent = S.inEcho ? 'ON REPART ›' : (last ? 'VOIR LE SCORE' : 'SUIVANT ›');
         el.btnCta.classList.add('is-next');
+      } else if (mode === 'craft') {
+        if (craftCount() === 0) el.btnCta.textContent = 'POSE LES INGRÉDIENTS';
+        else { el.btnCta.textContent = 'VALIDER LA RECETTE'; el.btnCta.classList.add('is-ready'); }
+      } else if (mode === 'forge') {
+        if (!S.forge || S.forge.total === 0) el.btnCta.textContent = 'COMPOSE LA VALEUR';
+        else { el.btnCta.textContent = 'VALIDER LA VALEUR'; el.btnCta.classList.add('is-ready'); }
       } else if (mode === 'slider') {
         if (S.sel === null) el.btnCta.textContent = 'PLACE LE CURSEUR';
         else { el.btnCta.textContent = 'VALIDER'; el.btnCta.classList.add('is-ready'); }
+      } else if (S.inEcho) {
+        el.btnCta.textContent = 'CHOISIS TA RÉPONSE';
       } else {
         el.btnCta.textContent = 'ÉPREUVE ' + (S.qi + 1) + ' / ' + totalQ;
       }
@@ -609,11 +1007,120 @@
     });
   }
 
+  /* --- ATELIER : grille 3x3 + dock d'ingredients (tap-tap, pas de glisser) --- */
+  function buildCraft(q) {
+    var C = S.craft;
+    if (!C) return;
+    el.craft.classList.toggle('is-locked', S.locked);
+
+    var ok = S.locked && S.wasOk;
+    el.craftOut.classList.toggle('is-done', !!ok);
+    el.craftOutSlot.innerHTML = ok ? itemSvg(C.result.art, 34) : '';
+    el.craftOutName.textContent = ok ? C.result.name + ' — CRAFTÉ' : 'RÉSULTAT';
+
+    /* la grille : ses ingredients, ou la recette exacte apres un echec */
+    var showFix = S.locked && !S.wasOk;
+    var fix = [];
+    if (showFix) C.need.forEach(function (x) { for (var i = 0; i < x.n; i++) fix.push(x.id); });
+
+    el.craftGrid.textContent = '';
+    for (var i = 0; i < 9; i++) {
+      var cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'cell';
+      var id = showFix ? (fix[i] || null) : C.placed[i];
+      if (id) {
+        cell.classList.add('is-filled');
+        cell.innerHTML = itemSvg(id, 30);
+        cell.setAttribute('aria-label', itemName(id));
+      } else {
+        cell.setAttribute('aria-label', 'case vide');
+      }
+      if (showFix && id) cell.classList.add('is-ghost');
+      if (S.locked && !showFix && ok) cell.classList.add('is-ghost');
+      (function (k) {
+        cell.addEventListener('click', function () { tapCell(k); });
+      })(i);
+      el.craftGrid.appendChild(cell);
+    }
+
+    el.craftHint.textContent = showFix
+      ? 'LA BONNE RECETTE'
+      : (S.locked ? 'RECETTE VALIDÉE' : 'TOUCHE UN INGRÉDIENT PUIS UNE CASE');
+
+    el.craftDock.textContent = '';
+    C.dock.forEach(function (id) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'ing' + (C.armed === id ? ' is-armed' : '');
+      b.setAttribute('aria-label', itemName(id));
+      b.setAttribute('aria-pressed', C.armed === id ? 'true' : 'false');
+      b.innerHTML = itemSvg(id, 28) + '<span class="ing-name">' + itemName(id) + '</span>';
+      b.addEventListener('click', function () {
+        if (S.locked) return;
+        C.armed = id;
+        snd('sel');
+        render();
+      });
+      el.craftDock.appendChild(b);
+    });
+  }
+
+  function tapCell(i) {
+    var C = S.craft;
+    if (!C || S.locked) return;
+    if (C.placed[i]) { C.placed[i] = null; snd('crack'); }
+    else if (C.armed) { C.placed[i] = C.armed; snd('sel'); }
+    render();
+  }
+
+  /* --- FORGE : composer la valeur, aucune cible affichee avant validation --- */
+  function buildForge(q) {
+    var F = S.forge;
+    if (!F) return;
+    el.forge.classList.toggle('is-locked', S.locked);
+
+    el.forgeTotal.textContent = String(F.total);
+    el.forgeUnit.textContent = F.unit;
+    var head = el.forgeTotal.parentNode;
+    head.classList.toggle('is-ok', !!(S.locked && S.wasOk));
+    head.classList.toggle('is-ko', !!(S.locked && !S.wasOk));
+
+    var pct = F.target ? Math.min(100, Math.round(F.total / F.target * 100)) : 0;
+    el.forgeFill.style.width = (S.locked && !S.wasOk ? 100 : pct) + '%';
+
+    el.forgeVerdict.hidden = !S.locked;
+    if (S.locked) {
+      el.forgeVerdict.textContent = S.wasOk
+        ? 'Exactement ' + F.target + (F.unit ? ' ' + F.unit : '') + '.'
+        : 'Tu as posé ' + F.total + ' — il en fallait ' + F.target + '.';
+    }
+
+    el.forgeChips.textContent = '';
+    F.chips.forEach(function (v) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip';
+      b.textContent = '+' + v;
+      b.setAttribute('aria-label', 'ajouter ' + v);
+      b.addEventListener('click', function () {
+        if (S.locked) return;
+        if (F.total + v > 1000) return;
+        F.total += v; F.stack.push(v);
+        snd('sel');
+        render();
+      });
+      el.forgeChips.appendChild(b);
+    });
+    el.forgeReset.textContent = F.stack.length ? 'TOUT ENLEVER' : 'RIEN À ENLEVER';
+  }
+
   function buildRecap() {
     el.recap.textContent = '';
     S.results.forEach(function (ok, i) {
       var qq = S.questions[i];
       var open = S.openRecap === i;
+      var fixed = !!(S.echo && S.echo.phase === 'done' && S.echo.ok && S.echo.qIndex === i);
       var row = document.createElement('button');
       row.type = 'button';
       row.className = 'recap-row' + (open ? ' is-open' : '');
@@ -622,7 +1129,9 @@
         '<span class="recap-line">' +
         '<span class="recap-chip" style="background-color:' + (ok ? '#4CD137' : '#FF4B4B') + '"></span>' +
         '<span class="recap-num">' + (i + 1 < 10 ? '0' : '') + (i + 1) + '</span>' +
-        '<span class="recap-q"></span></span>' +
+        '<span class="recap-q"></span>' +
+        (fixed ? '<span class="recap-fixed">RATTRAPÉ</span>' : '') +
+        '</span>' +
         (open ? '<span class="recap-ans"></span>' : '');
       row.querySelector('.recap-q').textContent = qq ? qq.q : '';
       if (open) row.querySelector('.recap-ans').textContent = qq ? 'Réponse : ' + qq.r[qq.ok] : '';
@@ -734,6 +1243,12 @@
   el.btnReplay.addEventListener('click', function () {
     S.screen = 'levels'; S.fx = null; S.locked = false; S.sel = null; render();
   });
+  el.forgeReset.addEventListener('click', function () {
+    if (!S.forge || S.locked) return;
+    S.forge.total = 0; S.forge.stack = [];
+    snd('crack');
+    render();
+  });
   el.btnStab.addEventListener('click', tapStab);
   el.btnMiniNext.addEventListener('click', miniOut);
 
@@ -741,7 +1256,10 @@
     if (S.screen === 'home' && (e.key === 'Enter' || e.key === ' ')) { start(); return; }
     if (S.screen === 'q') {
       if (S.mini) return;
-      if (!S.locked && e.key >= '1' && e.key <= '4') { select(parseInt(e.key, 10) - 1); return; }
+      var cm = curQ() ? curQ().m : 'blocks';
+      if (!S.locked && (cm === 'blocks' || cm === 'slider') && e.key >= '1' && e.key <= '4') {
+        select(parseInt(e.key, 10) - 1); return;
+      }
       if (e.key === 'Enter') { if (S.locked) next(); else validate(false); return; }
       if (e.key === 'Escape') { S.confirmBack = true; render(); return; }
     }

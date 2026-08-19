@@ -71,6 +71,7 @@ sw.js                       service worker (cache hors ligne)
 assets/css/app.css          tout le style (palette, animations, responsive)
 assets/js/app.js            logique de jeu (etat + rendu DOM)
 assets/js/quiz-data.js      les 108 questions (window.QUIZ_DATA)
+assets/js/quiz-gameplay.js  couche gameplay : quelle epreuve pour quelle question
 assets/fonts/               Press Start 2P auto-hebergee (+ licence OFL)
 assets/icons/               icones pixel de l'application
 design/                     maquettes Claude Design d'origine (reference)
@@ -95,12 +96,42 @@ docs/                       handoff, direction de jeu, questions source,
   (`mcq2026-v1` → `mcq2026-v2`) pour que les telephones deja installes
   recuperent la nouvelle version.
 
-Deux modes de reponse, choisis automatiquement selon la question :
+### Les quatre facons de repondre
 
-- **blocs** : 4 blocs a toucher (1 colonne, 2 si les reponses sont courtes) ;
-- **profondeur** : quand la question parle de hauteur, de niveau de lumiere ou
-  de creuser, les reponses deviennent des paliers dans une coupe verticale du
-  monde, et il faut valider avec le gros bouton.
+Le mode est choisi automatiquement, question par question, dans
+`assets/js/quiz-gameplay.js` :
+
+| Mode | Ce que fait le joueur | Questions concernees |
+|---|---|---|
+| **atelier** | il pose les ingredients dans une grille 3x3 : la reponse est l'objet fabrique | 8 |
+| **forge** | il compose une valeur avec des briques (+100, +10, +1...) sans voir la cible | 16 |
+| **profondeur** | il descend a la bonne couche dans une coupe verticale du monde | 4 |
+| **blocs** | QCM a 4 blocs a toucher | 80 |
+
+Trois regles de loyaute, verifiees par les tests :
+
+- l'atelier n'est utilise que si la recette compte **au moins deux ingredients**
+  a poser : un seul objet a choisir resterait un QCM deguise ;
+- la grille fait **toujours 3x3**, pour que le nombre de cases ne trahisse
+  jamais la quantite attendue ;
+- la forge n'est utilisee que si les quatre reponses d'origine sont des nombres
+  de meme nature, et la cible n'apparait qu'apres validation.
+
+La couche gameplay est **verifiee au chargement** contre le texte de la bonne
+reponse : si une reponse change dans `quiz-data.js` sans que la fiche suive, la
+question retombe en mode blocs au lieu de proposer une epreuve fausse.
+
+### Directeur de partie et rattrapage
+
+- **Variete garantie** : sans lui, « Mobs » et « Bedrock » tiraient douze QCM
+  d'affilee, car les seules epreuves jouables de la banque vivent dans
+  « Survie ». Il en glisse une quand le vivier le permet, en restant proche du
+  niveau choisi, et evite deux fois le meme moteur a la suite.
+- **ECHO** : la premiere question ratee revient une fois, environ quatre
+  epreuves plus tard. Si c'etait un QCM, elle revient **en duel** entre la
+  reponse donnee et la bonne : un autre geste, pas la meme question reposee.
+  Le rattrapage **ne change pas le score** — il marque la case de la piste et
+  ajoute « RATTRAPÉ » au bilan.
 
 ---
 
@@ -114,6 +145,11 @@ Parcours complet joue automatiquement (Chromium) sur quatre formats :
 - pas de debordement horizontal, panneaux qui defilent en interne ;
 - 30 parties simulees : la bonne reponse marquee correspond toujours aux
   donnees source, score coherent avec la ligne de recapitulatif ;
+- 2000 parties simulees par quiz et par niveau : **100 % contiennent au moins
+  une epreuve jouable** (c'etait 0 % pour Mobs et Bedrock avant le directeur) ;
+  6 a 8 sur 12 dans Survie, 1 a 2 ailleurs — la banque elle-meme est la limite ;
+- aucune recette de l'atelier n'est gagnable sans la connaitre (ni en
+  remplissant la grille, ni en posant un de chaque ingredient) ;
 - `prefers-reduced-motion`, `forced-colors` et couleurs inversees prises en
   compte ;
 - rechargement hors ligne apres installation : partie jouable.

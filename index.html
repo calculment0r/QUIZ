@@ -280,6 +280,7 @@
       <div class="hud">
         <button type="button" class="btn-back btn-back-sm" id="btnQuit" aria-label="Quitter">&#8249;</button>
         <div class="hud-label" id="hudLabel"></div>
+        <div class="echo-badge" id="echoBadge" hidden>ÉCHO</div>
         <div class="combo" id="combo" hidden></div>
       </div>
 
@@ -293,6 +294,30 @@
           <p class="consigne" id="consigne"></p>
           <p class="q-text" id="qText"></p>
           <div class="depth" id="depth" hidden></div>
+
+          <!-- MOTEUR ATELIER : il pose les ingredients, la reponse est l'objet -->
+          <div class="craft" id="craft" hidden>
+            <div class="craft-out" id="craftOut">
+              <span class="craft-out-slot" id="craftOutSlot"></span>
+              <span class="craft-out-name" id="craftOutName"></span>
+            </div>
+            <div class="craft-grid" id="craftGrid"></div>
+            <p class="craft-hint" id="craftHint"></p>
+            <div class="craft-dock" id="craftDock"></div>
+          </div>
+
+          <!-- MOTEUR FORGE : il compose la valeur, aucune cible affichee -->
+          <div class="forge" id="forge" hidden>
+            <div class="forge-head">
+              <span class="forge-total" id="forgeTotal">0</span>
+              <span class="forge-unit" id="forgeUnit"></span>
+            </div>
+            <div class="forge-bar"><span id="forgeFill"></span></div>
+            <p class="forge-verdict" id="forgeVerdict" hidden></p>
+            <div class="forge-chips" id="forgeChips"></div>
+            <button type="button" class="forge-reset" id="forgeReset">TOUT ENLEVER</button>
+          </div>
+
           <div class="answers" id="answers" hidden></div>
           <div class="expl" id="expl" hidden></div>
         </div>
@@ -387,6 +412,7 @@
 </div>
 
 <script src="./assets/js/quiz-data.js"></script>
+<script src="./assets/js/quiz-gameplay.js"></script>
 <script src="./assets/js/app.js"></script>
 </body>
 </html>

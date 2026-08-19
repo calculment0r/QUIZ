@@ -65,7 +65,7 @@ Details techniques de l'installation :
 ## 3. Structure
 
 ```
-index.html                  ecran unique : decor, 5 ecrans, 3 surcouches
+index.html                  ecran unique : decor, 6 ecrans, 4 surcouches
 manifest.webmanifest        carte d'identite de l'application installable
 sw.js                       service worker (cache hors ligne)
 assets/css/app.css          tout le style (palette, animations, responsive)
@@ -73,6 +73,7 @@ assets/js/app.js            logique de jeu (etat + rendu DOM)
 assets/js/quiz-data.js      les 108 questions (window.QUIZ_DATA)
 assets/js/quiz-gameplay.js  couche gameplay : quelle epreuve pour quelle question
 assets/js/quiz-flash.js     les mini-jeux d'interlude (registre extensible)
+assets/js/quiz-music.js     la boucle 8 bits, synthetisee (aucun fichier audio)
 assets/fonts/               Press Start 2P auto-hebergee (+ licence OFL)
 assets/icons/               icones pixel de l'application
 design/                     maquettes Claude Design d'origine (reference)
@@ -110,6 +111,31 @@ elles ne changent jamais et ce sont les plus lourdes.
 En prime, quand une nouvelle version prend la main, la page se recharge toute
 seule une fois — sauf en pleine partie, ou elle attend le retour a l'accueil.
 
+### Les trois mondes
+
+Chaque quiz a son paysage, pilote par un seul attribut (`data-monde` sur `.app`)
+et une poignee de variables CSS — ciel, sol, nuages, astres :
+
+| Quiz | Monde | Ce qui change |
+|---|---|---|
+| Survie & Craft | **les Plaines** | ciel violet, herbe, soleil et lune qui traversent la partie |
+| Mobs & Mondes | **le Nether** | ciel rouge, netherrack, braises qui montent, pas de soleil |
+| Bedrock & 2026 | **l'End** | vide noir, pierre de l'End, piliers d'obsidienne, spores |
+
+Le changement passe par un **rideau** : le terrain monte en marches d'escalier,
+le paysage change derriere, le rideau redescend. Meme grammaire que l'intro —
+des blocs, jamais un fondu. Quand le monde ne change pas (on repart des Plaines
+vers les Plaines), le rideau ne se joue pas : une transition qui ne transitionne
+rien est du temps perdu.
+
+### L'annonce du defi
+
+Avant, choisir un niveau lancait la premiere question dans la seconde : on
+n'avait le temps ni de se preparer, ni de voir dans quel monde on tombait. Un
+ecran s'intercale desormais — embleme du quiz, nom du monde, niveau, nombre
+d'epreuves, nombre d'alertes Flash, et le meilleur score deja fait sur ce
+quiz + ce niveau (garde sur le telephone). La partie ne part qu'au bouton.
+
 ### Les quatre facons de repondre
 
 Le mode est choisi automatiquement, question par question, dans
@@ -145,17 +171,50 @@ question retombe en mode blocs au lieu de proposer une epreuve fausse.
 
 ### Les Flash
 
-Onze mini-jeux d'interlude, **trois par partie**, jamais deux fois le meme dans
-la meme partie. Ils ne touchent jamais au score de connaissance : etre savant et
-etre rapide, ce n'est pas la meme chose.
+Quatorze mini-jeux d'interlude, **trois par partie**, jamais deux fois le meme
+dans la meme partie. Ils ne touchent jamais au score de connaissance : etre
+savant et etre rapide, ce n'est pas la meme chose.
 
 Casse la forme · le chunk qui fond · le creeper qui gonfle · ne regarde pas
 l'Enderman · la peche · la lave qui monte · le coffre memoire · la ruee du
-minage · l'esquive du squelette · ghast pong · le MLG au seau.
+minage · l'esquive du squelette · ghast pong · le MLG au seau · **la bille
+d'equilibre** · **secoue l'arbre** · **ne bouge plus**.
 
 Ils vivent dans `assets/js/quiz-flash.js`, chacun autonome : pour en ajouter un,
 il suffit d'une fiche avec `build`, `tick` et une duree. L'API recue donne
-`win()`, `lose()`, les bruitages et les dessins.
+`win()`, `lose()`, `lance()`, les bruitages et les dessins.
+
+#### Les trois jeux a capteurs
+
+- **la bille d'equilibre** : poser le telephone a plat, le pencher pour rouler
+  la bille dans un labyrinthe 9x6 jusqu'au trou ;
+- **secoue l'arbre** : dix secousses franches font tomber dix pommes ;
+- **ne bouge plus** : la position du telephone au depart devient l'etalon, la
+  tour perd un bloc a chaque ecart de plus de 11 degres.
+
+Trois precautions, dans cet ordre :
+
+1. **iOS n'ouvre les capteurs que sur un geste.** Un Flash s'ouvre tout seul
+   entre deux questions : il n'y a donc aucun geste au moment de l'ouverture.
+   Chaque jeu a capteur affiche d'abord une **porte** — un gros bouton — et
+   c'est lui qui demande la permission puis lance le chronometre (`api.lance()`,
+   jeux marques `differe`). Le compte a rebours n'avance pas pendant la lecture
+   de la consigne.
+2. **Sans capteur, ca se joue quand meme.** Ordinateur, telephone sans
+   gyroscope, permission refusee : si aucune mesure n'arrive dans la seconde,
+   le jeu bascule tout seul sur des boutons (quatre fleches, un bouton a taper,
+   un bouton a garder appuye).
+3. **Le zero, c'est l'enfant, pas le telephone.** La position de depart est
+   captee et tout se mesure en ecart par rapport a elle : on peut jouer couche,
+   assis, dans la voiture.
+
+#### Piege a ne pas refaire
+
+La zone d'un Flash recoit la classe `jeu-<id>`. Elle recevait avant `fz-<id>`,
+qui entrait en collision avec `.fz-lave` — la coulee de lave. Resultat : la zone
+du jeu de la lave heritait de `position:absolute; height:0` et le jeu se jouait
+dans un rectangle de zero pixel. Ne jamais nommer un element interne comme un
+identifiant de jeu.
 
 ### Le son et la musique
 
@@ -174,8 +233,15 @@ Trois pieges de telephone, tous traites dans `snd()` et `reveilAudio()` :
 La musique (`assets/js/quiz-music.js`) est une boucle 8 bits de quatre mesures
 en la mineur, 112 pulsations par minute, entierement synthetisee : basse,
 arpege, melodie et deux percussions, programmes 250 ms a l'avance pour ne pas
-hoqueter. Volume discret, fondu d'entree, coupee quand le jeu passe en
-arriere-plan. Bouton dedie a cote de celui du son, preference gardee.
+hoqueter. Fondu d'entree, coupee quand le jeu passe en arriere-plan. Bouton
+dedie a cote de celui du son, preference gardee.
+
+Le **niveau** se regle en un seul endroit (`VOLUME`, dans `quiz-music.js`). Il
+etait a 0.055 : les bruitages du jeu tapant entre 0.07 et 0.10, la musique
+passait dessous et devenait inaudible des qu'on jouait. Il est a **0.20**, les
+percussions ayant ete rabaissees en compensation — la grosse caisse culmine a
+0.068, donc en dessous du moindre bruitage. La musique s'entend, sans jamais
+couvrir ce qui compte.
 
 ### La vitrine
 
@@ -215,7 +281,18 @@ Parcours complet joue automatiquement (Chromium) sur quatre formats :
   remplissant la grille, ni en posant un de chaque ingredient) ;
 - `prefers-reduced-motion`, `forced-colors` et couleurs inversees prises en
   compte ;
-- rechargement hors ligne apres installation : partie jouable.
+- rechargement hors ligne apres installation : partie jouable ;
+- les trois mondes : le rideau se joue, le ciel et le sol changent, l'ecran
+  d'annonce se remplit et son bouton de depart reste visible sans defiler
+  (en paysage il passe a droite, en deux colonnes) ;
+- les quatorze Flash tiennent dans leur cadre en 390x844, 320x568 et 844x390,
+  tous les boutons >= 44 px ;
+- jeux a capteurs : le chronometre n'avance pas tant que la porte n'est pas
+  ouverte, l'inclinaison et les secousses simulees gagnent la manche, la
+  bascule sans capteur arrive bien apres une seconde, et les ecouteurs sont
+  debranches a la fin de la manche ;
+- la lave : sans rien toucher on perd a 1,5 s (c'etait 0,8 s, avant meme
+  d'avoir lu la consigne) et un bloc toutes les 900 ms fait gagner.
 
 ---
 

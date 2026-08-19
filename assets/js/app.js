@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var BUILD = '6';
+  var BUILD = '7';
 
   /* ------------------------- tables d'effets (verbatim) ------------------------- */
   var FXOK = [
@@ -481,6 +481,9 @@
     edition: $('edition'), btnPlay: $('btnPlay'), btnSound: $('btnSound'),
     btnInstall: $('btnInstall'),
     levelsTitle: $('levelsTitle'),
+    briefIco: $('briefIco'), briefMonde: $('briefMonde'), briefQuiz: $('briefQuiz'),
+    briefNiveau: $('briefNiveau'), briefNb: $('briefNb'), briefFlash: $('briefFlash'),
+    briefBest: $('briefBest'), briefMot: $('briefMot'), btnGo: $('btnGo'),
     hudLabel: $('hudLabel'), combo: $('combo'), track: $('track'), counter: $('counter'),
     playfield: $('playfield'), consigne: $('consigne'), qText: $('qText'),
     depth: $('depth'), answers: $('answers'), expl: $('expl'),
@@ -735,6 +738,39 @@
       '<rect x="9" y="9" width="2" height="3" fill="' + m[4] + '"></rect></svg>';
   }
 
+  /* ------------------------------ les mondes ------------------------------
+     Chaque quiz a son decor. Le changement passe par un rideau : le terrain
+     monte, le paysage change derriere, le terrain redescend. C'est la meme
+     grammaire que l'intro — des blocs, jamais un fondu. */
+  var MONDES = [
+    { id: 'plaine', nom: 'LES PLAINES', ciel: '#4E2AA8',
+      mot: 'Le soleil se lève sur ton terrain. Douze épreuves t’attendent.' },
+    { id: 'nether', nom: 'LE NETHER', ciel: '#5E1410',
+      mot: 'Il fait chaud ici. Les créatures ne pardonnent pas l’à-peu-près.' },
+    { id: 'end', nom: 'L’END', ciel: '#100C1F',
+      mot: 'Le vide, les îles blanches, et tout ce qui vient de sortir.' }
+  ];
+  function mondeDe(qz) { return MONDES[qz] || MONDES[0]; }
+
+  var transitTimer = null;
+  function transitionMonde(id, apres) {
+    var actuel = app.dataset.monde || 'plaine';
+    if (actuel === id || rm) {
+      app.dataset.monde = id;
+      if (apres) apres();
+      return;
+    }
+    clearTimeout(transitTimer);
+    app.dataset.transit = '1';
+    snd('crack');
+    /* a 380 ms le rideau couvre tout l'ecran : c'est la que le monde change */
+    setTimeout(function () {
+      app.dataset.monde = id;
+      if (apres) apres();
+    }, 380);
+    transitTimer = setTimeout(function () { app.dataset.transit = '0'; }, 1200);
+  }
+
   /* ------------------------------ navigation ------------------------------ */
   function start() {
     if (S.phase !== 'dusk') return;
@@ -750,14 +786,46 @@
     /* une nouvelle version attendait la fin de la partie */
     if (S.rechargeEnAttente) { location.reload(); return; }
     paint('#140A26');
+    app.dataset.monde = 'plaine';
+    app.dataset.transit = '0';
     S.screen = 'home'; S.phase = 'dusk';
     S.sel = null; S.locked = false; S.fx = null; S.questions = []; S.confirmBack = false;
     clearMini();
     render();
   }
 
-  function toQuizzes() { snd('sel'); S.screen = 'quizzes'; S.confirmBack = false; clearMini(); render(); }
-  function pickQuiz(i) { snd('sel'); S.qz = i; S.screen = 'levels'; render(); }
+  function toQuizzes() {
+    snd('sel');
+    S.confirmBack = false;
+    clearMini();
+    transitionMonde('plaine', function () { S.screen = 'quizzes'; render(); });
+    if (rm) render();
+  }
+
+  function toLevels() {
+    snd('sel');
+    S.screen = 'levels'; S.confirmBack = false;
+    clearMini(); render();
+  }
+
+  function pickQuiz(i) {
+    snd('sel');
+    S.qz = i;
+    paint(mondeDe(i).ciel);
+    transitionMonde(mondeDe(i).id, function () { S.screen = 'levels'; render(); });
+    if (rm) render();
+  }
+
+  /* le meilleur score par quiz et par niveau : l'annonce du defi le rappelle */
+  function cleBest() {
+    return 'mcq2026-best-' + (S.data ? S.data.quiz[S.qz].id : S.qz) + '-' + S.lv;
+  }
+  function lisBest() {
+    try { return parseInt(localStorage.getItem(cleBest()) || '-1', 10); } catch (e) { return -1; }
+  }
+  function ecrisBest(score) {
+    if (score > lisBest()) { try { localStorage.setItem(cleBest(), String(score)); } catch (e) {} }
+  }
 
   function begin(lv) {
     var d = S.data;
@@ -805,7 +873,9 @@
     });
     try { localStorage.setItem(key, JSON.stringify(qs.map(function (x) { return x.q; }))); } catch (e) {}
 
-    S.lv = lv; S.screen = 'q'; S.questions = qs; S.qi = 0;
+    /* on ne demarre plus dans le dos du joueur : l'annonce du defi s'affiche
+       d'abord, la partie ne part qu'au bouton */
+    S.lv = lv; S.screen = 'brief'; S.questions = qs; S.qi = 0;
     S.sel = null; S.locked = false; S.wasOk = null; S.results = []; S.fx = null;
     S.openRecap = null; S.combo = 0; S.bestCombo = 0; S.chaos = 0; S.bonus = 0;
     S.usedOk = []; S.usedKo = []; S.copied = false;
@@ -818,6 +888,14 @@
     S.flashVus = [];
     clearMini();
     setupEngines(qs[0]);
+    render();
+  }
+
+  /* le bouton de l'annonce : c'est lui qui ouvre vraiment la partie */
+  function lancePartie() {
+    if (S.screen !== 'brief') return;
+    snd('win');
+    S.screen = 'q';
     render();
   }
 
@@ -962,6 +1040,7 @@
     if (resume >= S.questions.length) {
       S.screen = 'result'; S.copied = false; S.openRecap = null;
       S.locked = false; S.fx = null;
+      ecrisBest(S.results.filter(Boolean).length);
       snd('win'); render();
       return;
     }
@@ -991,6 +1070,7 @@
     if (nq >= S.questions.length) {
       stopFallWindow();
       S.screen = 'result'; S.copied = false; S.openRecap = null;
+      ecrisBest(S.results.filter(Boolean).length);
       snd('win'); render();
       return;
     }
@@ -1004,6 +1084,7 @@
 
   /* ------------------------------ mini-jeux ------------------------------ */
   function clearMini() {
+    arreteFlash();
     if (miniTimer) { clearTimeout(miniTimer); miniTimer = null; }
     if (flashTick) { clearInterval(flashTick); flashTick = null; }
     S.mini = null;
@@ -1039,13 +1120,17 @@
     }
 
     /* jeu du registre : la zone generique se construit une fois, puis un
-       battement de 60 ms anime la scene sans repeindre tout l'ecran */
-    S.mini = { id: id, kind: 'zone', def: def, done: false, won: false, msg: '', built: false };
+       battement de 60 ms anime la scene sans repeindre tout l'ecran.
+       Les jeux a capteurs se declarent "differe" : ils affichent d'abord un
+       bouton (le seul moment ou iOS accepte de donner l'acces aux capteurs) et
+       ne demarrent le chronometre qu'en appelant api.lance(). */
+    S.mini = { id: id, kind: 'zone', def: def, done: false, won: false, msg: '',
+               built: false, lance: !def.differe };
     render();
-    var t0 = Date.now();
+    var t0 = def.differe ? 0 : Date.now();
     flashTick = setInterval(function () {
       var m = S.mini;
-      if (!m || m.id !== id || m.done) return;
+      if (!m || m.id !== id || m.done || !t0) return;
       var t = Date.now() - t0;
       try { def.tick(el.miniZone, flashApi(m), t); } catch (e) {}
       if (t >= def.duree) {
@@ -1053,6 +1138,20 @@
         if (def.timeout) def.timeout(api); else api.lose('Trop tard !');
       }
     }, 60);
+    S.mini.demarrer = function () {
+      if (t0) return;
+      t0 = Date.now();
+      S.mini.lance = true;
+      render();
+    };
+  }
+
+  /* un jeu qui a branche des ecouteurs (capteurs) doit pouvoir les debrancher */
+  function arreteFlash() {
+    var m = S.mini;
+    if (m && m.kind === 'zone' && m.built && m.def && m.def.stop) {
+      try { m.def.stop(el.miniZone); } catch (e) {}
+    }
   }
 
   /* la petite API remise a chaque jeu : il ne connait rien d'autre du jeu */
@@ -1063,6 +1162,7 @@
       snd: snd,
       item: itemSvg,
       mob: mobSvg,
+      lance: function () { if (m.demarrer) m.demarrer(); },
       win: function () { finFlash(m, true, ''); },
       lose: function (msg) { finFlash(m, false, msg || ''); }
     };
@@ -1070,6 +1170,7 @@
 
   function finFlash(m, won, msg) {
     if (!m || m.done) return;
+    arreteFlash();
     m.done = true; m.won = won; m.msg = msg;
     clearInterval(flashTick); flashTick = null;
     render();
@@ -1203,6 +1304,24 @@
     el.levelsTitle.textContent = quizName();
     var pools = document.querySelectorAll('[data-pool]');
     for (var pi = 0; pi < pools.length; pi++) pools[pi].textContent = NB_QUESTIONS + ' ÉPREUVES TIRÉES DE 36';
+
+    /* --- annonce du defi --- */
+    if (S.screen === 'brief') {
+      var mo = mondeDe(S.qz);
+      if (el.briefIco.dataset.qz !== String(S.qz)) {
+        el.briefIco.dataset.qz = String(S.qz);
+        var ico = document.querySelector('[data-quiz="' + S.qz + '"] .card-ico');
+        el.briefIco.innerHTML = ico ? ico.innerHTML : '';
+      }
+      el.briefMonde.textContent = 'MONDE · ' + mo.nom;
+      el.briefQuiz.textContent = quizName();
+      el.briefNiveau.textContent = 'NIVEAU ' + levelName().toUpperCase();
+      el.briefNb.textContent = String(S.questions.length);
+      el.briefFlash.textContent = rm ? 'AUCUNE' : String((S.flashAt || []).length);
+      var best = lisBest();
+      el.briefBest.textContent = best >= 0 ? best + ' / ' + S.questions.length : 'AUCUN';
+      el.briefMot.textContent = mo.mot;
+    }
 
     /* --- question --- */
     if (S.screen === 'q') {
@@ -1603,6 +1722,7 @@
         ? (m.won ? 'Bonus empoché. La question t’attend.' : (m.msg || 'Pas grave, ça ne coûte aucun point.'))
         : d.sub;
       if (m.done) { el.miniTime.style.animation = ''; el.miniTime.style.width = '0%'; }
+      else if (!m.lance) { el.miniTime.style.animation = ''; el.miniTime.style.width = '100%'; }
       else if (el.miniTime.dataset.id !== String(m.id)) {
         el.miniTime.dataset.id = String(m.id);
         el.miniTime.style.width = '100%';
@@ -1611,7 +1731,10 @@
       if (!m.built) {
         m.built = true;
         el.miniZone.textContent = '';
-        el.miniZone.className = 'mini-zone fz-' + d.id;
+        /* prefixe distinct de fz- : un identifiant de jeu ne doit jamais
+           tomber sur une classe d'element (fz-lave, la coulee, ecrasait la
+           zone entiere du jeu de la lave et la reduisait a zero pixel) */
+        el.miniZone.className = 'mini-zone jeu-' + d.id;
         try { d.build(el.miniZone, flashApi(m)); } catch (e) {}
       }
       el.miniZone.classList.toggle('is-done', !!m.done);
@@ -1781,7 +1904,9 @@
   for (var nb = 0; nb < navBtns.length; nb++) {
     navBtns[nb].addEventListener('click', function (ev) {
       var to = ev.currentTarget.getAttribute('data-nav');
-      if (to === 'home') toHome(); else toQuizzes();
+      if (to === 'home') toHome();
+      else if (to === 'levels') toLevels();
+      else toQuizzes();
     });
   }
   var quizBtns = document.querySelectorAll('[data-quiz]');
@@ -1803,6 +1928,7 @@
     S.screen = 'levels'; S.confirmBack = false; S.locked = false; S.sel = null; S.fx = null;
     clearMini(); render();
   });
+  el.btnGo.addEventListener('click', lancePartie);
   el.btnCta.addEventListener('click', function () { if (S.locked) next(); else validate(false); });
   el.btnShare.addEventListener('click', share);
   el.btnReplay.addEventListener('click', function () {
@@ -1828,6 +1954,7 @@
 
   window.addEventListener('keydown', function (e) {
     if (S.screen === 'home' && (e.key === 'Enter' || e.key === ' ')) { start(); return; }
+    if (S.screen === 'brief' && (e.key === 'Enter' || e.key === ' ')) { lancePartie(); return; }
     if (S.screen === 'q') {
       if (S.mini) return;
       var cm = curQ() ? curQ().m : 'blocks';
@@ -1838,7 +1965,8 @@
       if (e.key === 'Escape') { S.confirmBack = true; render(); return; }
     }
     if (e.key === 'Escape') {
-      if (S.screen === 'levels') toQuizzes();
+      if (S.screen === 'brief') toLevels();
+      else if (S.screen === 'levels') toQuizzes();
       else if (S.screen === 'quizzes') toHome();
     }
   });

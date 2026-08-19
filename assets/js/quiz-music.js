@@ -17,6 +17,12 @@
 
   var BPM = 112;
   var PAS = 60 / BPM / 4;          /* duree d'une double-croche */
+
+  /* Le volume du fond. Les bruitages du jeu tapent entre 0.07 et 0.10 en
+     amplitude : en dessous de 0.15 ici, la musique passe sous les bruitages et
+     on ne l'entend plus des qu'on joue. 0.20 la remet au niveau d'un fond
+     sonore franc, les percussions ayant ete rabaissees pour compenser. */
+  var VOLUME = 0.20;
   var MESURES = 4;
   var PAS_TOTAL = MESURES * 16;    /* 64 pas dans la boucle */
 
@@ -69,7 +75,7 @@
     s.buffer = bufferDeBruit();
     f.type = aigu ? 'highpass' : 'lowpass';
     f.frequency.value = aigu ? 6000 : 220;
-    g.gain.setValueAtTime(aigu ? 0.16 : 0.5, t);
+    g.gain.setValueAtTime(aigu ? 0.10 : 0.34, t);
     g.gain.exponentialRampToValueAtTime(0.0001, t + (aigu ? 0.04 : 0.14));
     s.connect(f); f.connect(g); g.connect(gain);
     s.start(t); s.stop(t + 0.2);
@@ -123,7 +129,7 @@
       /* fondu d'entree : la musique ne doit jamais surgir d'un coup */
       gain.gain.cancelScheduledValues(ac.currentTime);
       gain.gain.setValueAtTime(0.0001, ac.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.055, ac.currentTime + 1.2);
+      gain.gain.exponentialRampToValueAtTime(VOLUME, ac.currentTime + 1.2);
       battement();
       minuteur = setInterval(battement, 60);
     },
@@ -135,7 +141,7 @@
       minuteur = null;
       if (gain && ac) {
         gain.gain.cancelScheduledValues(ac.currentTime);
-        gain.gain.setValueAtTime(gain.gain.value || 0.055, ac.currentTime);
+        gain.gain.setValueAtTime(gain.gain.value || VOLUME, ac.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.35);
       }
     },

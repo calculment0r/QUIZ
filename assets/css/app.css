@@ -61,6 +61,17 @@
   --pix: 'Press Start 2P', ui-monospace, 'Courier New', monospace;
   --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Ubuntu, sans-serif;
 
+  /* Palette du monde courant. Trois decors pour trois quiz : les Plaines par
+     defaut, le Nether, l'End. Tout le decor lit ces variables, donc changer de
+     monde ne demande aucun changement de structure — juste un attribut. */
+  --ciel-jour: linear-gradient(180deg, #4E2AA8 0%, #7A3FD0 46%, #F2712C 100%);
+  --ciel-nuit: linear-gradient(180deg, #04041A 0%, #0A0930 45%, #1B1444 78%, #2A1B4A 100%);
+  --sol: linear-gradient(180deg, #4CD137 0px, #4CD137 14px, #2E8B26 14px, #2E8B26 40px, #8B5A2B 40px, #6E4522 100%);
+  --nuage: #FFFFFF;
+  --nuage-nuit: #3A2A5E;
+  --nuage-op: .8;
+  --astres-op: 1;
+
   --safe-t: env(safe-area-inset-top, 0px);
   --safe-b: env(safe-area-inset-bottom, 0px);
   --safe-l: env(safe-area-inset-left, 0px);
@@ -115,6 +126,10 @@ button { font: inherit; color: inherit; border: 0; background: none; }
 @keyframes grassUp { from { clip-path: inset(100% 0 0 0) } to { clip-path: inset(0 0 0 0) } }
 @keyframes riseFade { 0% { transform: translateY(0); opacity: 1 } 100% { transform: translateY(-80px); opacity: 0 } }
 @keyframes fadeOut { to { opacity: 0 } }
+@keyframes braise { 0% { transform: translateY(0); opacity: 0 } 15% { opacity: 1 } 100% { transform: translateY(-190px); opacity: 0 } }
+@keyframes spore { 0% { transform: translateY(0); opacity: 0 } 20% { opacity: .9 } 100% { transform: translateY(-230px); opacity: 0 } }
+@keyframes rideau { 0% { clip-path: inset(100% 0 0 0) } 32% { clip-path: inset(0 0 0 0) } 52% { clip-path: inset(0 0 0 0) } 100% { clip-path: inset(0 0 100% 0) } }
+@keyframes secousse { 0%, 100% { transform: translateX(0) } 20% { transform: translateX(-7px) } 45% { transform: translateX(6px) } 70% { transform: translateX(-4px) } }
 @keyframes panelIn { 0% { transform: translateY(46px); opacity: 0 } 70% { transform: translateY(-6px); opacity: 1 } 100% { transform: translateY(0); opacity: 1 } }
 @keyframes popIn { 0% { transform: scale(.7); opacity: 0 } 60% { transform: scale(1.08); opacity: 1 } 100% { transform: scale(1); opacity: 1 } }
 @keyframes floatIn { from { transform: translateY(18px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
@@ -158,14 +173,14 @@ button { font: inherit; color: inherit; border: 0; background: none; }
 .sky { position: absolute; inset: 0; }
 .sky-dusk { background: linear-gradient(180deg, #140A26 0%, #3D1B4E 30%, #7A2B52 48%, #C43B22 57%, #F2712C 61%, #F2712C 100%); }
 .sky-day {
-  background: linear-gradient(180deg, #4E2AA8 0%, #7A3FD0 46%, #F2712C 100%);
+  background: var(--ciel-jour);
   opacity: 0;
   transition: opacity 1100ms ease-in-out 200ms;
 }
 .app[data-phase="day"] .sky-day, .app[data-phase="rising"] .sky-day { opacity: 1; }
 .sky-night {
   opacity: 0;
-  background: linear-gradient(180deg, #04041A 0%, #0A0930 45%, #1B1444 78%, #2A1B4A 100%);
+  background: var(--ciel-nuit);
   transition: opacity 900ms linear;
 }
 .sky-night i { position: absolute; display: block; }
@@ -177,8 +192,8 @@ button { font: inherit; color: inherit; border: 0; background: none; }
   position: absolute; display: block; background: #7A2B52; opacity: .45;
   transition: background-color 600ms linear 900ms, opacity 600ms linear 900ms;
 }
-.app[data-phase="day"] .cloud { background: #FFFFFF; opacity: .8; }
-.app[data-phase="day"][data-night="1"] .cloud { background: #3A2A5E; opacity: .5; }
+.app[data-phase="day"] .cloud { background: var(--nuage); opacity: var(--nuage-op); }
+.app[data-phase="day"][data-night="1"] .cloud { background: var(--nuage-nuit); opacity: calc(var(--nuage-op) * .62); }
 
 .sun {
   position: absolute; left: 50%; top: 58%;
@@ -217,7 +232,7 @@ button { font: inherit; color: inherit; border: 0; background: none; }
 
 .ground {
   position: absolute; left: 0; right: 0; top: 64%; bottom: 0; opacity: 0;
-  background: linear-gradient(180deg, #4CD137 0px, #4CD137 14px, #2E8B26 14px, #2E8B26 40px, #8B5A2B 40px, #6E4522 100%);
+  background: var(--sol);
   transition: opacity 500ms linear;
 }
 .ground-tex {
@@ -238,6 +253,64 @@ button { font: inherit; color: inherit; border: 0; background: none; }
                     repeating-linear-gradient(90deg, transparent 0 20px, rgba(255, 255, 255, .03) 20px 40px);
 }
 
+/* --------------------- 5 bis. LES TROIS MONDES ---------------------
+   Un attribut sur .app suffit : data-monde vaut plaine, nether ou end. Les
+   variables ci-dessus repeignent ciel, sol et nuages ; les deux couches
+   .monde-* ajoutent ce qui n'existe que la (braises, piliers d'obsidienne). */
+.astres { position: absolute; inset: 0; opacity: var(--astres-op); transition: opacity 500ms linear; }
+
+.app[data-monde="nether"] {
+  --ciel-jour: linear-gradient(180deg, #2B0A0A 0%, #5E1410 34%, #9E2A18 62%, #F2712C 100%);
+  --ciel-nuit: linear-gradient(180deg, #150404 0%, #2E0908 48%, #4A130F 80%, #6E1E18 100%);
+  --sol: linear-gradient(180deg, #A83A2A 0px, #A83A2A 12px, #7A2418 12px, #7A2418 38px, #4A130F 38px, #2E0B08 100%);
+  --nuage: #E0644A;
+  --nuage-nuit: #6E1E18;
+  --nuage-op: .35;
+  --astres-op: 0;                 /* pas de soleil au Nether */
+}
+.app[data-monde="end"] {
+  --ciel-jour: linear-gradient(180deg, #07060F 0%, #100C1F 40%, #231A38 74%, #3A2A57 100%);
+  --ciel-nuit: linear-gradient(180deg, #03030A 0%, #0A0716 45%, #160F28 78%, #241A3B 100%);
+  --sol: linear-gradient(180deg, #E8E2AE 0px, #E8E2AE 12px, #C9C28C 12px, #C9C28C 38px, #9A9366 38px, #6E6A48 100%);
+  --nuage: #6E5F9E;
+  --nuage-nuit: #2A1B4A;
+  --nuage-op: 0;                  /* ni nuages ni astres dans l'End */
+  --astres-op: 0;
+}
+
+.monde { position: absolute; inset: 0; pointer-events: none; }
+.monde > div { display: none; position: absolute; inset: 0; }
+.app[data-monde="nether"] .monde-nether { display: block; }
+.app[data-monde="end"] .monde-end { display: block; }
+
+.braise {
+  position: absolute; bottom: 24%; display: block; width: 5px; height: 5px;
+  background: #FFC145; box-shadow: 0 0 8px rgba(242, 113, 44, .9);
+  animation: braise 4200ms steps(14) infinite;
+}
+.spore {
+  position: absolute; bottom: 22%; display: block; width: 4px; height: 4px;
+  background: #C8B6FF; box-shadow: 0 0 10px rgba(154, 122, 255, .8);
+  animation: spore 6000ms steps(16) infinite;
+}
+.piliers { position: absolute; left: 0; right: 0; top: 30%; height: 36%; opacity: .85; }
+
+/* --------------------- 5 ter. LE RIDEAU DE MONDE ---------------------
+   Meme grammaire que l'intro : un mur de terrain monte en marches d'escalier,
+   le paysage change derriere, le mur redescend. Aucun fondu : ce jeu est en
+   blocs, les transitions aussi. */
+.transit { position: absolute; inset: 0; z-index: 12; pointer-events: none; display: none; }
+.app[data-transit="1"] .transit { display: block; }
+.transit-mur {
+  position: absolute; inset: 0; display: block; background: var(--sol);
+  background-blend-mode: multiply;
+  box-shadow: inset 0 8px 0 rgba(255, 255, 255, .18), inset 0 -8px 0 rgba(0, 0, 0, .35);
+  clip-path: inset(100% 0 0 0);
+}
+.app[data-transit="1"] .transit-mur { animation: rideau 1150ms steps(9) both; }
+.transit-p { position: absolute; bottom: 26%; display: block; background: #FFE9A8; }
+.app[data-transit="1"] .transit-p { animation: riseFade 620ms 320ms ease-out both; }
+
 /* ------------------------------ 6. ECRANS ------------------------------ */
 .screen {
   position: absolute; inset: 0; z-index: 6;
@@ -250,6 +323,7 @@ button { font: inherit; color: inherit; border: 0; background: none; }
 .app[data-screen="home"] #screen-home,
 .app[data-screen="quizzes"] #screen-quizzes,
 .app[data-screen="levels"] #screen-levels,
+.app[data-screen="brief"] #screen-brief,
 .app[data-screen="q"] #screen-q,
 .app[data-screen="result"] #screen-result { display: flex; }
 
@@ -375,6 +449,52 @@ button { font: inherit; color: inherit; border: 0; background: none; }
 .card-l3 { background: #4FD9D0; box-shadow: inset 5px 5px 0 0 #ADF5F0, inset -5px -5px 0 0 #2E9E97, 0 6px 0 0 #1F736E, 0 8px 16px rgba(0, 0, 0, .35); }
 .card-l3 .card-name { color: #0C3B38; text-shadow: 2px 2px 0 rgba(255, 255, 255, .3); }
 .card-l3 .card-sub, .card-l3 .card-pool { color: #0C3B38; }
+
+/* ------------------- 9 bis. L'ANNONCE DU DEFI -------------------
+   Entre le choix du niveau et la premiere question. Avant, la partie demarrait
+   sans prevenir : on n'avait pas le temps de se preparer, ni de voir dans quel
+   monde on tombait. Un ecran, un bouton, et le decor du monde derriere. */
+.brief-wrap {
+  width: 100%; max-width: 520px; margin: auto;
+  display: flex; flex-direction: column; gap: 12px;
+  max-height: 100%; overflow-y: auto; overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch; padding: 2px;
+  animation: panelIn 420ms cubic-bezier(.34, 1.4, .64, 1) both;
+}
+.brief-carte {
+  padding: 18px 16px; text-align: center;
+  background: rgba(42, 27, 74, .92);
+  box-shadow: inset 6px 6px 0 0 #45306E, inset -6px -6px 0 0 #150C2B, 0 10px 0 0 rgba(12, 7, 20, .55);
+}
+.brief-ico { display: block; line-height: 0; margin: 0 auto 10px; }
+.brief-ico svg { width: 58px; height: 58px; animation: breathe 2.4s steps(4) infinite alternate; }
+.brief-monde {
+  font-family: var(--pix); font-size: 9px; line-height: 1.7; letter-spacing: 1px; color: var(--cyan);
+}
+.brief-quiz {
+  margin-top: 8px;
+  font-family: var(--pix); font-size: clamp(13px, 4vw, 19px); line-height: 1.4;
+  color: #FFC145; text-shadow: 3px 3px 0 rgba(12, 7, 20, .8);
+}
+.brief-niveau { margin-top: 8px; font-family: var(--pix); font-size: 10px; line-height: 1.6; color: #FFFFFF; }
+.brief-lignes { margin-top: 16px; display: flex; flex-direction: column; gap: 6px; }
+.brief-ligne {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  min-height: 38px; padding: 0 12px; background: rgba(12, 7, 20, .45);
+  box-shadow: inset 3px 3px 0 0 rgba(0, 0, 0, .45);
+}
+.brief-k { font-family: var(--pix); font-size: 8px; line-height: 1.6; color: var(--ui-mute); text-align: left; }
+.brief-v { font-family: var(--pix); font-size: 11px; line-height: 1.6; color: #FFFFFF; }
+.brief-mot { margin-top: 14px; font-size: 15px; line-height: 1.45; color: #FFFFFF; text-wrap: pretty; }
+
+.btn-go {
+  width: 100%; min-height: 72px; flex: none; cursor: pointer;
+  font-family: var(--pix); font-size: clamp(13px, 4vw, 18px); line-height: 1.4;
+  color: #143206; background: #4CD137;
+  box-shadow: inset 6px 6px 0 0 #8BE07C, inset -6px -6px 0 0 #2E8B26, 0 8px 0 0 #1C5A17;
+  animation: growStay 700ms 260ms steps(6) both;
+}
+.btn-go:active { transform: translateY(6px); box-shadow: inset 6px 6px 0 0 #8BE07C, inset -6px -6px 0 0 #2E8B26; }
 
 /* ------------------------------ 10. QUESTION ------------------------------ */
 .screen-q { padding-left: max(10px, var(--safe-l)); padding-right: max(10px, var(--safe-r)); }
@@ -817,7 +937,7 @@ button { font: inherit; color: inherit; border: 0; background: none; }
 }
 
 /* --- la lave qui monte --- */
-.fz-lave {
+.fz-coulee {
   position: absolute; left: 0; right: 0; bottom: 0; height: 0;
   background: linear-gradient(180deg, #FFC145 0%, #F2712C 40%, #C43B22 100%);
   box-shadow: 0 -4px 0 rgba(255, 233, 168, .6);
@@ -881,6 +1001,80 @@ button { font: inherit; color: inherit; border: 0; background: none; }
   .fz-btn { min-height: 50px; }
   .mini-zone { gap: 6px; margin-top: 8px; }
 }
+
+/* --- la lave qui monte : le rouge d'alerte quand la marge fond --- */
+.fz-scene-lave.is-chaud { box-shadow: inset 0 0 0 4px #FF4B4B, inset 4px 4px 0 0 rgba(255, 255, 255, .1); }
+
+/* =================== LES JEUX A CAPTEURS ===================
+   Ils commencent tous par une porte : un bouton plein ecran. C'est le seul
+   moment ou iOS accepte de donner acces aux capteurs, et c'est aussi le moment
+   ou l'enfant met le telephone dans la bonne position. */
+.fz-porte {
+  display: flex; flex-direction: column; gap: 12px; padding: 16px 12px;
+  text-align: center; background: rgba(12, 7, 20, .45);
+  box-shadow: inset 4px 4px 0 0 rgba(0, 0, 0, .45);
+}
+.fz-porte-titre { font-family: var(--pix); font-size: clamp(10px, 3vw, 13px); line-height: 1.6; color: #FFC145; }
+.fz-porte-txt { font-size: 14px; line-height: 1.45; color: #FFFFFF; text-wrap: pretty; }
+
+/* --- la bille d'equilibre --- */
+.fz-scene-laby { height: 200px; background: linear-gradient(180deg, #241640 0%, #150C2B 100%); }
+.fz-laby-plan { position: absolute; inset: 0; }
+.fz-mur {
+  position: absolute; display: block; background: #6A4A22;
+  box-shadow: inset 3px 3px 0 0 #8B6631, inset -3px -3px 0 0 #4A330F;
+}
+.fz-trou {
+  position: absolute; display: block; width: 26px; height: 26px; margin: -13px 0 0 -13px;
+  background: #0C0714; box-shadow: inset 0 0 0 3px #4FD9D0, 0 0 14px rgba(79, 217, 208, .7);
+  animation: breathe 1.6s steps(3) infinite alternate;
+}
+.fz-bille {
+  position: absolute; display: block; width: 18px; height: 18px; margin: -9px 0 0 -9px;
+  background: #E4E8FF; box-shadow: inset 4px 4px 0 0 #FFFFFF, inset -4px -4px 0 0 #9AA2C8;
+}
+.fz-quad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.fz-quad .fz-btn { min-height: 54px; font-size: 15px; }
+
+/* --- secoue l'arbre --- */
+.fz-scene-arbre { background: linear-gradient(180deg, #4E2AA8 0%, #7A3FD0 55%, #4CD137 100%); }
+.fz-scene-arbre.is-shake { animation: secousse 260ms steps(4) both; }
+.fz-arbre { position: absolute; inset: 0; }
+.fz-feuillage {
+  position: absolute; left: 50%; top: 6%; width: 150px; max-width: 62%; height: 56%; transform: translateX(-50%); display: block;
+  background: #2E8B26; box-shadow: inset 6px 6px 0 0 #4CD137, inset -6px -6px 0 0 #1C5A17;
+}
+.fz-tronc {
+  position: absolute; left: 50%; bottom: 0; width: 30px; height: 36%; margin-left: -15px; display: block;
+  background: #8B5A2B; box-shadow: inset 4px 0 0 0 #B37C46, inset -4px 0 0 0 #5C3A1B;
+}
+.fz-pommes { position: absolute; left: 50%; top: 6%; width: 150px; max-width: 62%; height: 56%; transform: translateX(-50%); }
+.fz-pomme {
+  position: absolute; display: block; width: 12px; height: 12px;
+  background: #FF4B4B; box-shadow: inset 3px 3px 0 0 #FF8A8A;
+  transition: transform 380ms cubic-bezier(.5, 0, 1, .6), opacity 380ms linear;
+}
+.fz-pomme.is-tombe { transform: translateY(120px); opacity: 0; }
+
+/* --- ne bouge plus --- */
+.fz-scene-tour { background: linear-gradient(180deg, #1E1236 0%, #3D1B4E 100%); }
+/* la tour occupe toute la hauteur de la scene et ses blocs se partagent la
+   place : elle tient donc aussi bien dans 158 px que dans 96 px de paysage */
+.fz-tour-pile {
+  position: absolute; left: 50%; top: 12px; bottom: 12px; width: 62px; margin-left: -31px;
+  display: flex; flex-direction: column-reverse; gap: 4px;
+  transform-origin: 50% 100%; transition: transform 120ms linear;
+}
+.fz-tour-pile.is-chaud .fz-bloc { box-shadow: inset 4px 4px 0 0 #FF8A8A, inset -4px -4px 0 0 #B42A2A; }
+.fz-bloc {
+  display: block; flex: 1 1 0; min-height: 0; background: #8B8B8B;
+  box-shadow: inset 4px 4px 0 0 #ABABAB, inset -4px -4px 0 0 #6A6A6A;
+  transition: transform 420ms cubic-bezier(.5, 0, 1, .6), opacity 420ms linear;
+}
+.fz-bloc.is-tombe { transform: translate(38px, 90px) rotate(38deg); opacity: 0; }
+.fz-jauge { height: 14px; background: rgba(0, 0, 0, .5); box-shadow: inset 3px 3px 0 0 rgba(0, 0, 0, .5); }
+.fz-jauge-fill { display: block; height: 100%; width: 100%; background: #4CD137; transition: width 120ms linear; }
+.fz-btn.fz-tenir { touch-action: none; }
 
 /* ------------------------------ 12. RESULTAT ------------------------------ */
 .screen-result { padding-top: calc(var(--sp) + var(--safe-t)); padding-bottom: calc(var(--sp) + var(--safe-b)); }
@@ -1173,6 +1367,42 @@ button { font: inherit; color: inherit; border: 0; background: none; }
 /* pointeur fin (souris) : on garde le survol, sinon les mobiles collent l'etat hover */
 @media (hover: none) {
   .card:hover, .btn-play:hover, .btn-install:hover { filter: none; }
+}
+
+/* Telephone couche : l'annonce du defi passe en deux colonnes, sinon le bouton
+   de depart tombe sous la ligne de flottaison et il faut deviner qu'on peut
+   faire defiler. */
+@media (orientation: landscape) and (max-height: 560px) {
+  .brief-wrap {
+    max-width: 860px;
+    display: grid; align-content: center;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 8px 14px; overflow: visible;
+  }
+  .brief-wrap .panel-head { grid-area: 1 / 1 / 2 / 3; }
+  .brief-carte {
+    grid-area: 2 / 1; padding: 12px; min-height: 0;
+    overflow-y: auto; overscroll-behavior: contain;
+  }
+  .btn-go { grid-area: 2 / 2; align-self: center; min-height: 64px; }
+  .brief-ico { margin-bottom: 6px; }
+  .brief-ico svg { width: 40px; height: 40px; }
+  .brief-quiz { margin-top: 4px; }
+  .brief-niveau { margin-top: 4px; }
+  .brief-lignes { margin-top: 10px; gap: 4px; }
+  .brief-ligne { min-height: 32px; }
+  .brief-mot { margin-top: 10px; font-size: 13px; }
+
+  /* jeux a capteurs : le labyrinthe garde ses six rangees dans moins de
+     hauteur, donc la bille et le trou retrecissent avec lui */
+  .fz-scene-laby { height: 128px; }
+  .fz-bille { width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; }
+  .fz-trou { width: 20px; height: 20px; margin: -10px 0 0 -10px; }
+  .fz-quad .fz-btn { min-height: 46px; }
+  .fz-pomme { width: 10px; height: 10px; }
+  .fz-porte { padding: 10px; gap: 8px; }
+  .fz-porte-txt { font-size: 13px; }
 }
 
 /* ------------------------------ 15. A11Y ------------------------------ */

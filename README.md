@@ -74,7 +74,9 @@ assets/js/quiz-data.js      les 108 questions (window.QUIZ_DATA)
 assets/fonts/               Press Start 2P auto-hebergee (+ licence OFL)
 assets/icons/               icones pixel de l'application
 design/                     maquettes Claude Design d'origine (reference)
-docs/                       handoff, direction de jeu, questions source
+docs/                       handoff, direction de jeu, questions source,
+                            et APPROCHE_QUESTION_GAMEPLAY_SWAN.md (feuille de
+                            route : sortir du QCM, moteurs de jeu reutilisables)
 ```
 
 ---

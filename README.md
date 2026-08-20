@@ -145,35 +145,46 @@ Le mode est choisi automatiquement, question par question, dans
 
 | Mode | Ce que fait le joueur | Questions |
 |---|---|---|
-| **scene** | quatre creatures dans le noir ou quatre objets dans un coffre, sans etiquette : il faut reconnaitre | 23 |
+| **scene** | quatre creatures dans le noir ou quatre objets dans un coffre, sans etiquette : il faut reconnaitre | 25 |
 | **forge** | il compose une valeur avec des briques (+100, +10, +1...) sans voir la cible | 14 |
+| **carte** | quatre paysages sans nom : il reconnait le lieu, plante son epingle, confirme | 9 |
 | **theatre** | le sujet sur scene, la condition affichee : il parie, puis tire le levier — rien ne se passe avant | 9 |
 | **atelier** | il pose les ingredients dans une grille 3x3 : la reponse est l'objet fabrique | 8 |
-| **carte** | quatre paysages sans nom : il reconnait le lieu, plante son epingle, confirme | 7 |
+| **enseigne** | il ecrit le nom lettre par lettre au lieu de le choisir dans une liste | 5 |
 | **machine** | entree, station, sortie : la sortie est dessinee, le procede est a trouver | 5 |
 | **rail** | une gare vide, quatre wagons : il accroche le bon et fait partir le train | 5 |
 | **ascenseur** | il descend la cabine au bon palier et ecrase le frein | 4 |
+| **chaine** | quatre etapes melangees : il les remet dans l'ordre, puis lance la chaine | 3 |
+| **entrepot** | cinq faits, trois coffres : il pose tout le plan, puis lache le golem | 2 |
 | **casier** | une mission, une pioche, quatre livres : il equipe, puis lance la mission | 2 |
 | **studio** | il glisse un socle sous le bloc de note et appuie sur JOUER — le son vient apres | 2 |
+| **toise** | il mesure a la regle graduee au lieu de lire une longueur | 2 |
+| **cadran** | il compose le numero de version roue par roue | 2 |
+| **machines** | il allume les appareils qui font tourner l'edition, et seulement ceux-la | 2 |
 | **portail** | il bâtit le cadre d'obsidienne le plus econome, puis l'allume | 1 |
 | **redstone** | il regle jusqu'ou le signal porte, puis envoie l'impulsion | 1 |
 | **apprivoisement** | une bete, quatre objets au sol sans nom : il lui tend le bon | 1 |
-| **chaine** | quatre etapes melangees : il les remet dans l'ordre, puis lance la chaine | 3 |
-| **entrepot** | cinq faits, trois coffres : il pose tout le plan, puis lache le golem | 2 |
-| **blocs** | QCM a 4 blocs a toucher | 23 |
+| **blocs** | QCM a 4 blocs a toucher | 8 |
 
-**85 questions sur 108 (79 %)** se jouent autrement qu'en QCM.
-Par quiz : Survie 34/36, Mobs 31/36, Bedrock 20/36.
+**100 questions sur 108 (93 %)** se jouent autrement qu'en QCM.
+Par quiz : Survie 35/36, Mobs 35/36, Bedrock 30/36.
 
-### Les defis a plusieurs faits
+Les **8 QCM restants** sont des questions dont les quatre reponses sont des
+phrases, et dont trois sont fausses par construction (« Ils grandissent plus
+vite », « Le quartz et l'ambre »). Leur donner un decor ne changerait pas le
+geste : ce serait toujours lire quatre etiquettes. La regle de la maison vaut
+aussi contre soi — *si l'epreuve marcherait aussi bien avec quatre boutons,
+elle n'est pas une epreuve.*
 
-Deux epreuves demandaient ce que la banque ne savait pas donner : plusieurs
-faits sur un meme ecran. La banque est ecrite un fait par question. Plutot que
-de la reecrire, `assets/js/quiz-defis.js` accroche des fiches au **texte exact**
-d'une question qui existe deja : la question reste le titre du defi, la fiche
-apporte les faits voisins. Si la question change sans que la fiche suive, le
-moteur ne la reconnait plus et l'epreuve redevient un QCM — jamais une epreuve
-fausse.
+### Ecrire plutot que reconnaitre
+
+Six questions de Bedrock demandent un nom propre, et trois des quatre reponses
+proposees sont des noms qui **n'existent pas** (« Le Bazar », « Les Robux »).
+Impossible d'en faire une epreuve de reconnaissance sans dessiner des choses
+inventees. Le moteur **enseigne** demande donc l'inverse : composer le vrai nom
+lettre par lettre, avec quelques lettres intruses dans le sac. Rien n'est
+invente, et c'est plus dur qu'un QCM — il faut savoir l'ecrire, pas le
+retrouver dans une liste.
 
 Les moteurs marques **prioritaires** dans le registre sont interroges *avant*
 les moteurs cables, parce qu'ils racontent mieux la meme question : batir un

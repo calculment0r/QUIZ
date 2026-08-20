@@ -90,5 +90,48 @@
     }
   };
 
-  window.QUIZ_DEFIS = { tri: TRI, chaine: CHAINE };
+  /* --------------------------------------------------------------------------
+     L'ENSEIGNE — ecrire le nom au lieu de le reconnaitre
+     Six questions de Bedrock demandent un nom propre : trois des quatre
+     reponses proposees sont des noms qui n'existent pas. On ne peut pas
+     demander de les reconnaitre en image sans les inventer. On demande donc
+     l'inverse : composer le vrai nom, lettre par lettre. Rien n'est invente,
+     et il faut savoir l'ecrire, pas le retrouver dans une liste.
+     -------------------------------------------------------------------------- */
+  var ENSEIGNE = {
+    'Comment s’appelle la boutique intégrée à Bedrock ?': { mot: 'MARKETPLACE' },
+    "Comment s'appelle la boutique intégrée à Bedrock ?": { mot: 'MARKETPLACE' },
+    'Quelle monnaie utilise-t-on sur le Marketplace ?': { mot: 'MINECOINS' },
+    'Comment s’appellent les modifications sur Bedrock ?': { mot: 'ADDONS' },
+    "Comment s'appellent les modifications sur Bedrock ?": { mot: 'ADDONS' },
+    'Comment s’appellent les serveurs officiels payants de Minecraft ?': { mot: 'REALMS' },
+    "Comment s'appellent les serveurs officiels payants de Minecraft ?": { mot: 'REALMS' },
+    'Quel nouveau jeu a été annoncé au Minecraft Live de mars 2026 ?': { mot: 'DUNGEONS' }
+  };
+
+  /* --------------------------------------------------------------------------
+     LES MACHINES — allumer celles qui font tourner l'edition
+     -------------------------------------------------------------------------- */
+  var MACHINES = {
+    'Sur quelles machines joue-t-on à Minecraft Bedrock ?': {
+      titre: 'ALLUME LES MACHINES QUI FONT TOURNER BEDROCK',
+      appareils: [
+        { id: 'console', nom: 'CONSOLE', bon: true },
+        { id: 'tel', nom: 'TÉLÉPHONE', bon: true },
+        { id: 'windows', nom: 'PC WINDOWS', bon: true },
+        { id: 'linux', nom: 'MAC ET LINUX', bon: false }
+      ]
+    },
+    'Peut-on jouer avec un ami sur une autre plateforme en Bedrock ?': {
+      titre: 'ALLUME CE QUI PEUT JOUER AVEC TOI',
+      appareils: [
+        { id: 'console', nom: 'UNE CONSOLE', bon: true },
+        { id: 'tel', nom: 'UN TÉLÉPHONE', bon: true },
+        { id: 'windows', nom: 'UN PC WINDOWS', bon: true },
+        { id: 'java', nom: 'UN PC EN ÉDITION JAVA', bon: false }
+      ]
+    }
+  };
+
+  window.QUIZ_DEFIS = { tri: TRI, chaine: CHAINE, enseigne: ENSEIGNE, machines: MACHINES };
 })();

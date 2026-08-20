@@ -6,7 +6,7 @@
 (function () {
   'use strict';
 
-  var BUILD = '12';
+  var BUILD = '13';
 
   /* ------------------------- tables d'effets (verbatim) ------------------------- */
   var FXOK = [
@@ -243,6 +243,18 @@
         body = r(6, 3, 4, 3, c) + r(3, 6, 10, 5, c) + r(3, 6, 10, 2, hi) +
                r(1, 8, 2, 4, lo) + r(13, 8, 2, 4, lo) + r(3, 10, 10, 2, lo);
         break;
+      case 'coffre':
+        body = r(2, 5, 12, 8, c) + r(2, 5, 12, 2, hi) + r(2, 8, 12, 1, lo) +
+               r(2, 11, 12, 2, lo) + r(7, 7, 2, 3, '#C9962F') + r(7, 8, 2, 1, '#2A2A33');
+        break;
+      case 'banniere':
+        body = r(2, 2, 12, 2, '#8B5A2B') + r(4, 4, 8, 8, c) + r(4, 4, 8, 2, hi) +
+               r(4, 12, 3, 2, c) + r(9, 12, 3, 2, c) + r(6, 7, 4, 3, lo);
+        break;
+      case 'armure':
+        body = r(4, 3, 8, 3, c) + r(2, 5, 12, 6, c) + r(2, 5, 12, 2, hi) +
+               r(1, 6, 2, 4, c) + r(13, 6, 2, 4, c) + r(4, 11, 3, 3, lo) + r(9, 11, 3, 3, lo);
+        break;
       default:
         body = r(4, 4, 8, 8, c);
     }
@@ -264,6 +276,12 @@
        distinguer d'un coup d'oeil des autres reponses possibles, sinon la
        question serait injouable (le chat est noir, le renard orange ; les
        trois illageois se reconnaissent a leur arme) --- */
+    'cheval-squelette': { p: ['..bbbb..', '.bbbbbb.', 'bbxbbbbb', '.bbbbbb.', '.bb..bb.', 'bbbbbbbb', '.b.bb.b.', '.b....b.'],
+                 c: { b: '#E8E4D4', x: '#2A2A33', '.': null } },
+    'cheval-zombie': { p: ['..gggg..', '.gggggg.', 'ggxggggg', '.gggggg.', '.gg..gg.', 'gggggggg', '.g.gg.g.', '.g....g.'],
+                 c: { g: '#4A7A3A', x: '#1B2A18', '.': null } },
+    mule:      { p: ['..mmmm..', '.mmmmmm.', 'mmxmmmmm', '.mmmmmm.', '.mmkkmm.', 'mmkkkkmm', '.m.mm.m.', '.m....m.'],
+                 c: { m: '#6E5038', x: '#2A2A33', k: '#3A2A1E', '.': null } },
     chat:      { p: ['k......k', 'kk....kk', '.kkkkkk.', '.kxkkxk.', '.kkwwkk.', '.wwwwww.', '.wwwwww.', '.k....k.'],
                  c: { k: '#2A2A33', w: '#F2F2F2', x: '#4CD137', '.': null } },
     perroquet: { p: ['..rr....', '.rrrr...', '.rxrbb..', '.rrrbbb.', '..bbbbb.', '..bbyy..', '...yy...', '...y.y..'],
@@ -457,7 +475,10 @@
     [/vindicateur/i, 'vindicateur'],
     [/pillard/i, 'pillard'],
     [/slime/i, 'slime'],
-    [/cheval|mule|poney/i, 'cheval'],
+    [/cheval squelette/i, 'cheval-squelette'],
+    [/cheval zombie/i, 'cheval-zombie'],
+    [/\bmules?\b/i, 'mule'],
+    [/cheval|poney/i, 'cheval'],
     [/creeper/i, 'creeper'],
     [/noy[ée]/i, 'noye'],
     [/zombie/i, 'zombie'],
@@ -498,6 +519,10 @@
     [/\bos\b/i, 'os'], [/livre/i, 'livre-enchante'], [/potion/i, 'potion'],
     [/cartes? d.explorateur|\bcartes?\b/i, 'carte'], [/fl[èe]che/i, 'fleche'],
     [/totem/i, 'totem'], [/disque/i, 'disque'], [/selle/i, 'selle'],
+    [/armure de nautile/i, 'armure-nautile'], [/armure/i, 'armure'],
+    /* « un coffre » oui, « dans les coffres de l'End » non : le pluriel designe
+       un lieu, pas l'objet qu'on tient dans la main */
+    [/\bcoffre\b/i, 'coffre'], [/banni[èe]re/i, 'banniere'],
     [/pissenlit/i, 'pissenlit'],
     [/table de craft/i, 'table'], [/terre cuite/i, 'terrecuite'],
     [/pioche/i, 'pioche'], [/hache/i, 'hache'], [/pelle/i, 'pelle'], [/[ée]p[ée]e/i, 'epee'],

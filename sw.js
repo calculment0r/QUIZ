@@ -6,7 +6,7 @@
    navigation.
    Pense-bete : bumper CACHE a chaque mise en ligne pour forcer le rafraichissement.
    ============================================================================= */
-var CACHE = 'mcq2026-v12';
+var CACHE = 'mcq2026-v13';
 
 /* chemins relatifs au scope : marche a la racine comme dans un sous-dossier
    GitHub Pages (ex. /QUIZ/) sans rien reconfigurer */

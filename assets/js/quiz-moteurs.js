@@ -90,6 +90,12 @@
       d: [[6, 1, 4, 8, '#5C3A1B'], [5, 0, 6, 2, '#3A2A1E'], [10, 2, 3, 3, '#3A4A6A'], [2, 6, 2, 3, '#8B5A2B'], [7, 5, 2, 2, '#2A1B14']] },
     'structure-oceanique': { nom: 'UNE STRUCTURE OCÉANIQUE', ciel: ['#1E4E80', '#3A7BBF'], sol: '#2E9E97', bas: '#1E6E68',
       d: [[3, 3, 10, 6, '#5FBFA8'], [3, 3, 10, 1, '#ADF5F0'], [6, 5, 4, 4, '#2E9E97'], [7, 6, 2, 2, '#FFC145'], [1, 7, 2, 2, '#5FBFA8']] },
+    'nulle-part': { nom: 'NULLE PART', ciel: ['#1A1A22', '#2A2A33'], sol: '#3A3A44', bas: '#22222A',
+      d: [[5, 3, 6, 4, '#6A6A7A'], [7, 4, 2, 2, '#FF4B4B'], [3, 2, 10, 1, '#FF4B4B'], [3, 8, 10, 1, '#FF4B4B']] },
+    'atelier': { nom: 'ON LA FABRIQUE', ciel: ['#3A2A1E', '#6E5A44'], sol: '#8B5A2B', bas: '#5C3A1B',
+      d: [[3, 3, 10, 6, '#B0813F'], [3, 3, 10, 2, '#D3A25C'], [5, 5, 2, 2, '#8B5A2B'], [9, 5, 2, 2, '#8B5A2B'], [6, 7, 4, 2, '#8B5A2B']] },
+    'noye': { nom: 'SUR LES NOYÉS', ciel: ['#123A50', '#1E5C74'], sol: '#2E6E68', bas: '#1A4A44',
+      d: [[6, 3, 4, 5, '#4A7A3A'], [6, 3, 4, 2, '#5E9448'], [7, 4, 1, 1, '#1B2A18'], [9, 4, 1, 1, '#1B2A18'], [3, 1, 1, 1, '#ADF5F0'], [12, 5, 1, 1, '#ADF5F0']] },
     'camp-abandonne': { nom: 'UN CAMP ABANDONNÉ', ciel: ['#4A5A7A', '#9AA8C0'], sol: '#9AA84A', bas: '#6E7A2A',
       d: [[2, 4, 5, 5, '#C08A4A'], [3, 3, 3, 2, '#8B5A2B'], [10, 5, 4, 4, '#C08A4A'], [8, 8, 2, 1, '#3A2A1E'], [12, 2, 1, 3, '#8B5A2B']] }
   };
@@ -104,7 +110,10 @@
     [/temples? du d[ée]sert/i, 'temple-desert'],
     [/camps? abandonn/i, 'camp-abandonne'],
     [/structures? oc[ée]anique|monument/i, 'structure-oceanique'],
-    [/villages?\b/i, 'village'],
+    [/villageois|villages?\b/i, 'village'],
+    [/aucune|nulle part/i, 'nulle-part'],
+    [/on la fabrique|on le fabrique|fabriqu/i, 'atelier'],
+    [/noy[ée]s?\b/i, 'noye'],
     [/deep ?dark/i, 'deepdark'],
     [/grottes? luxuriante/i, 'grotte-luxuriante'],
     [/grottes? de gemme|am[ée]thyste/i, 'grotte-gemme'],
@@ -156,7 +165,7 @@
       return { ids: ids };
     },
 
-    consigne: function () { return 'RECONNAIS LE LIEU, PLANTE TON ÉPINGLE'; },
+    consigne: function () { return 'OÙ ÇA ? PLANTE TON ÉPINGLE'; },
 
     cta: function (spec, etat) {
       return etat.sel === null ? 'CHOISIS UN TERRITOIRE' : 'PLANTER ICI';
@@ -1040,7 +1049,315 @@
     }
   };
 
-  window.QUIZ_MOTEURS = [golem, chaine, portail, redstone, studio, casier, apprivoise,
-                         carte, theatre, machine, rail];
+
+  /* ===========================================================================
+     LA TOISE — combien de blocs ?
+     ---------------------------------------------------------------------------
+     Quand les quatre reponses sont des longueurs, on ne les lit pas : on les
+     mesure. Une regle graduee, deux gros boutons, et la creature dessinee a
+     cote pour comparer.
+     =========================================================================== */
+  function mesure(txt) {
+    var m = /^\s*(\d{1,3})(?:[,.](\d))?\s*blocs?\s*$/i.exec(String(txt));
+    if (!m) return null;
+    return parseInt(m[1], 10) + (m[2] ? parseInt(m[2], 10) / 10 : 0);
+  }
+
+  var toise = {
+    id: 'toise', prio: true, libre: true,
+
+    detecte: function (q) {
+      if (!/haut|distance|t[ée]l[ée]port|port[ée]e|\blong/i.test(q.q)) return null;
+      var v = q.r.map(mesure), vus = {};
+      for (var i = 0; i < v.length; i++) {
+        if (v[i] === null) return null;
+        if (vus[v[i]]) return null;
+        vus[v[i]] = 1;
+      }
+      var tri = v.slice().sort(function (a, b) { return a - b; });
+      var pas = tri[1] - tri[0];
+      for (var k = 2; k < tri.length; k++) pas = Math.min(pas, tri[k] - tri[k - 1]);
+      if (pas <= 0) return null;
+      var max = tri[tri.length - 1] + pas * 2;
+      if (max / pas > 40) return null;                  /* trop de crans : injouable */
+      return { but: v[q.ok], pas: pas, max: max, crans: Math.round(max / pas) };
+    },
+
+    consigne: function () { return 'MESURE, PUIS VALIDE'; },
+    cta: function (spec, etat) {
+      return etat.mem.n ? 'C’EST CETTE LONGUEUR' : 'RÈGLE LA MESURE';
+    },
+    pret: function (mem) { return !!mem.n; },
+    juste: function (mem, spec) { return Math.abs(mem.n * spec.pas - spec.but) < 0.001; },
+
+    build: function (zone, q, spec, etat, api) {
+      var mem = etat.mem;
+      var val = (mem.n || 0) * spec.pas;
+      var but = Math.round(spec.but / spec.pas);
+
+      var regle = el('div', 'toise-regle');
+      if (etat.locked) regle.classList.add(etat.ok ? 'est-juste' : 'est-faux');
+      var sujet = el('span', 'toise-sujet');
+      sujet.innerHTML = sujetSvg(q.q, 34, null);
+      regle.appendChild(sujet);
+      var barre = el('div', 'toise-barre');
+      for (var i = 0; i < spec.crans; i++) {
+        var c = el('span', 'toise-cran');
+        if (mem.n && i < mem.n) c.classList.add('is-pris');
+        if (etat.locked && i < but) c.classList.add('is-vrai');
+        barre.appendChild(c);
+      }
+      regle.appendChild(barre);
+      zone.appendChild(regle);
+
+      if (!etat.locked) {
+        var r = el('div', 'red-reglage');
+        var moins = document.createElement('button');
+        moins.type = 'button'; moins.className = 'red-pas'; moins.textContent = '−';
+        moins.setAttribute('aria-label', 'moins');
+        moins.addEventListener('click', function () {
+          mem.n = Math.max(1, (mem.n || 1) - 1); api.snd('sel'); api.change();
+        });
+        var plus = document.createElement('button');
+        plus.type = 'button'; plus.className = 'red-pas'; plus.textContent = '+';
+        plus.setAttribute('aria-label', 'plus');
+        plus.addEventListener('click', function () {
+          mem.n = Math.min(spec.crans, (mem.n || 0) + 1); api.snd('sel'); api.change();
+        });
+        r.appendChild(moins);
+        r.appendChild(el('span', 'red-nb', mem.n ? String(val).replace('.', ',') + ' BLOCS' : '— BLOCS'));
+        r.appendChild(plus);
+        zone.appendChild(r);
+      }
+      zone.appendChild(el('p', 'moteur-aide', etat.locked
+        ? 'La bonne mesure : ' + String(spec.but).replace('.', ',') + ' blocs.'
+        : 'Un cran vaut ' + String(spec.pas).replace('.', ',') + ' bloc(s).'));
+    }
+  };
+
+  /* ===========================================================================
+     LE CADRAN DE VERSION — composer le numero, pas le reconnaitre
+     ---------------------------------------------------------------------------
+     Chaque roue ne propose que des chiffres qui existent vraiment dans les
+     quatre reponses : rien n'est invente, mais il y a plus de combinaisons que
+     de reponses, donc il faut savoir, pas deviner.
+     =========================================================================== */
+  function parts(txt) {
+    var m = /^\s*(\d+(?:\.\d+)*)\s*$/.exec(String(txt));
+    return m ? m[1].split('.') : null;
+  }
+
+  var cadran = {
+    id: 'cadran', prio: true, libre: true,
+
+    detecte: function (q) {
+      if (!/version|num[ée]ro/i.test(q.q)) return null;
+      var p = q.r.map(parts);
+      for (var i = 0; i < p.length; i++) if (!p[i]) return null;
+      var n = 0;
+      p.forEach(function (x) { n = Math.max(n, x.length); });
+      if (n < 2) return null;
+      /* les valeurs possibles de chaque roue, prises dans les vraies reponses */
+      var roues = [];
+      for (var k = 0; k < n; k++) {
+        var vus = {}, liste = [];
+        p.forEach(function (x) {
+          var v = x[k] === undefined ? '0' : x[k];
+          if (!vus[v]) { vus[v] = 1; liste.push(v); }
+        });
+        liste.sort(function (a, b) { return parseInt(a, 10) - parseInt(b, 10); });
+        roues.push(liste);
+      }
+      if (roues.every(function (r) { return r.length < 2; })) return null;
+      return { roues: roues, but: String(q.r[q.ok]).trim() };
+    },
+
+    consigne: function () { return 'COMPOSE LE NUMÉRO DE VERSION'; },
+    cta: function () { return 'VALIDER LE NUMÉRO'; },
+    pret: function () { return true; },
+    juste: function (mem, spec) {
+      return (mem.pos || []).map(function (i, k) { return spec.roues[k][i]; }).join('.') === spec.but;
+    },
+
+    build: function (zone, q, spec, etat, api) {
+      var mem = etat.mem;
+      if (!mem.pos) mem.pos = spec.roues.map(function () { return 0; });
+
+      var bloc = el('div', 'cadran-bloc');
+      if (etat.locked) bloc.classList.add(etat.ok ? 'est-juste' : 'est-faux');
+      spec.roues.forEach(function (liste, k) {
+        if (k) bloc.appendChild(el('span', 'cadran-point', '.'));
+        var roue = el('div', 'cadran-roue');
+        var haut = document.createElement('button');
+        haut.type = 'button'; haut.className = 'cadran-pas'; haut.textContent = '▲';
+        haut.setAttribute('aria-label', 'chiffre suivant');
+        haut.disabled = etat.locked || liste.length < 2;
+        haut.addEventListener('click', function () {
+          mem.pos[k] = (mem.pos[k] + 1) % liste.length; api.snd('sel'); api.change();
+        });
+        var bas = document.createElement('button');
+        bas.type = 'button'; bas.className = 'cadran-pas'; bas.textContent = '▼';
+        bas.setAttribute('aria-label', 'chiffre précédent');
+        bas.disabled = etat.locked || liste.length < 2;
+        bas.addEventListener('click', function () {
+          mem.pos[k] = (mem.pos[k] + liste.length - 1) % liste.length; api.snd('sel'); api.change();
+        });
+        roue.appendChild(haut);
+        roue.appendChild(el('span', 'cadran-nb', liste[mem.pos[k]]));
+        roue.appendChild(bas);
+        bloc.appendChild(roue);
+      });
+      zone.appendChild(bloc);
+      zone.appendChild(el('p', 'moteur-aide', etat.locked
+        ? 'Le bon numéro : ' + spec.but + '.'
+        : 'Chaque roue ne montre que des chiffres qui existent vraiment.'));
+    }
+  };
+
+  /* ===========================================================================
+     L'ENSEIGNE — ecrire le nom au lieu de le choisir
+     ---------------------------------------------------------------------------
+     Pour ces questions-la, trois des quatre reponses sont des noms qui
+     n'existent pas : impossible de demander de les reconnaitre en image sans
+     les inventer. On demande donc l'inverse — composer le vrai nom, lettre par
+     lettre. C'est plus dur qu'un QCM, et rigoureusement exact.
+     =========================================================================== */
+  var enseigne = {
+    id: 'enseigne', prio: true, libre: true,
+
+    detecte: function (q) {
+      var D = window.QUIZ_DEFIS;
+      var f = D && D.enseigne && D.enseigne[q.q];
+      if (!f || !f.mot || f.mot.length > 12) return null;
+      /* les lettres du mot, plus quatre intruses : jamais toutes les lettres
+         disponibles, sinon il suffirait de tout poser */
+      var sac = f.mot.split('');
+      'BCDFGHJKLPQVWXYZ'.split('').forEach(function (L) {
+        if (sac.length < f.mot.length + 4 && f.mot.indexOf(L) < 0) sac.push(L);
+      });
+      return { mot: f.mot, sac: sac };
+    },
+
+    consigne: function () { return 'ÉCRIS LE NOM SUR L’ENSEIGNE'; },
+    cta: function (spec, etat) {
+      var n = (etat.mem.pose || []).length;
+      return n < spec.mot.length ? 'IL MANQUE ' + (spec.mot.length - n) + ' LETTRE(S)' : 'ACCROCHER L’ENSEIGNE';
+    },
+    pret: function (mem, spec) { return (mem.pose || []).length === spec.mot.length; },
+    juste: function (mem, spec) {
+      return mem.pose.map(function (i) { return mem.sac[i]; }).join('') === spec.mot;
+    },
+
+    build: function (zone, q, spec, etat, api) {
+      var mem = etat.mem;
+      if (!mem.sac) {
+        var s2 = spec.sac.slice();
+        for (var a = s2.length - 1; a > 0; a--) {
+          var r = Math.floor(Math.random() * (a + 1));
+          var t = s2[a]; s2[a] = s2[r]; s2[r] = t;
+        }
+        mem.sac = s2;
+        mem.pose = [];
+      }
+
+      var panneau = el('div', 'enseigne-panneau');
+      if (etat.locked) panneau.classList.add(etat.ok ? 'est-juste' : 'est-faux');
+      for (var i = 0; i < spec.mot.length; i++) {
+        var c = el('span', 'enseigne-case', mem.pose[i] === undefined ? '' : mem.sac[mem.pose[i]]);
+        if (etat.locked) {
+          var lu = mem.pose[i] === undefined ? '' : mem.sac[mem.pose[i]];
+          c.classList.add(lu === spec.mot.charAt(i) ? 'is-ok' : 'is-ko');
+          if (lu !== spec.mot.charAt(i)) c.textContent = spec.mot.charAt(i);
+        }
+        panneau.appendChild(c);
+      }
+      zone.appendChild(panneau);
+
+      if (!etat.locked) {
+        var sac = el('div', 'enseigne-sac');
+        mem.sac.forEach(function (L, i) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'enseigne-lettre';
+          b.textContent = L;
+          if (mem.pose.indexOf(i) >= 0) b.classList.add('is-prise');
+          b.addEventListener('click', function () {
+            var k = mem.pose.indexOf(i);
+            if (k >= 0) mem.pose.splice(k, 1);
+            else if (mem.pose.length < spec.mot.length) mem.pose.push(i);
+            api.snd('sel');
+            api.change();
+          });
+          sac.appendChild(b);
+        });
+        zone.appendChild(sac);
+      }
+      zone.appendChild(el('p', 'moteur-aide', etat.locked
+        ? 'Le nom exact : ' + spec.mot + '.'
+        : 'Touche une lettre posée pour la reprendre.'));
+    }
+  };
+
+  /* ===========================================================================
+     LES MACHINES — allumer celles qui font tourner l'edition
+     =========================================================================== */
+  var machines = {
+    id: 'machines', prio: true, libre: true,
+
+    detecte: function (q) {
+      var D = window.QUIZ_DEFIS;
+      var f = D && D.machines && D.machines[q.q];
+      return (f && f.appareils && f.appareils.length >= 3) ? f : null;
+    },
+
+    consigne: function (spec) { return spec.titre; },
+    cta: function (spec, etat) {
+      var n = 0;
+      spec.appareils.forEach(function (_, i) { if ((etat.mem.on || {})[i]) n++; });
+      return n === 0 ? 'ALLUME AU MOINS UNE MACHINE' : 'VALIDER (' + n + ')';
+    },
+    pret: function (mem) {
+      var n = 0;
+      Object.keys(mem.on || {}).forEach(function (k) { if (mem.on[k]) n++; });
+      return n > 0;
+    },
+    juste: function (mem, spec) {
+      for (var i = 0; i < spec.appareils.length; i++) {
+        if (!!(mem.on || {})[i] !== !!spec.appareils[i].bon) return false;
+      }
+      return true;
+    },
+
+    build: function (zone, q, spec, etat, api) {
+      var mem = etat.mem;
+      if (!mem.on) mem.on = {};
+      var grille = el('div', 'machines-grille');
+      spec.appareils.forEach(function (a, i) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'machine';
+        if (mem.on[i]) b.classList.add('is-on');
+        if (etat.locked) b.classList.add(!!mem.on[i] === !!a.bon ? 'is-ok' : 'is-ko');
+        var ecran = el('span', 'machine-ecran');
+        b.appendChild(ecran);
+        b.appendChild(el('span', 'machine-nom', a.nom));
+        if (!etat.locked) {
+          b.addEventListener('click', function () {
+            mem.on[i] = !mem.on[i];
+            api.snd(mem.on[i] ? 'sel' : 'crack');
+            api.change();
+          });
+        }
+        grille.appendChild(b);
+      });
+      zone.appendChild(grille);
+      zone.appendChild(el('p', 'moteur-aide', etat.locked
+        ? 'Une machine allumée à tort compte autant qu’une machine oubliée.'
+        : 'Allume toutes celles qui marchent, et seulement celles-là.'));
+    }
+  };
+
+  window.QUIZ_MOTEURS = [toise, cadran, enseigne, machines, golem, chaine, portail, redstone,
+                         studio, casier, apprivoise, carte, theatre, machine, rail];
   window.QUIZ_LIEUX = { art: vignette, table: LIEUX };
 })();

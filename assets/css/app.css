@@ -1156,6 +1156,81 @@ button { font: inherit; color: inherit; border: 0; background: none; }
 }
 .chaine-rang.is-dim { filter: brightness(.5) saturate(.5); }
 
+/* --- la toise : combien de blocs ? --- */
+.toise-regle {
+  display: flex; align-items: center; gap: 8px; padding: 10px;
+  background: #241640; box-shadow: inset 3px 3px 0 0 rgba(0, 0, 0, .45);
+}
+.toise-sujet { flex: none; line-height: 0; }
+.toise-barre { flex: 1; min-width: 0; display: flex; gap: 2px; }
+.toise-cran { flex: 1; min-width: 0; height: 30px; display: block; background: #3A2A5E; }
+.toise-cran.is-pris { background: #FFC145; }
+.toise-cran.is-vrai { background: #4CD137; }
+.toise-regle.est-juste { box-shadow: inset 0 0 0 4px var(--ok); }
+.toise-regle.est-faux { box-shadow: inset 0 0 0 4px var(--ko); }
+
+/* --- le cadran de version --- */
+.cadran-bloc {
+  display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px;
+  background: #241640; box-shadow: inset 4px 4px 0 0 #45306E, inset -4px -4px 0 0 #150C2B;
+}
+.cadran-roue { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.cadran-pas {
+  width: 58px; min-height: 44px; cursor: pointer;
+  font-size: 13px; color: #2B2B2B; background: #FFC145;
+  box-shadow: inset 3px 3px 0 0 #FFE9A8, inset -3px -3px 0 0 #C99416;
+}
+.cadran-pas:active { transform: translateY(3px); }
+.cadran-pas[disabled] { opacity: .3; cursor: default; }
+.cadran-nb {
+  min-width: 58px; padding: 6px 4px; text-align: center;
+  font-family: var(--pix); font-size: clamp(14px, 4.4vw, 20px); line-height: 1.3;
+  color: var(--halo); background: rgba(12, 7, 20, .6);
+  font-variant-numeric: tabular-nums;
+}
+.cadran-point { align-self: flex-end; padding-bottom: 48px; font-family: var(--pix); font-size: 18px; color: var(--sg-gold); }
+.cadran-bloc.est-juste { box-shadow: inset 0 0 0 4px var(--ok); }
+.cadran-bloc.est-faux { box-shadow: inset 0 0 0 4px var(--ko); animation: shakeHard 380ms steps(1) both; }
+
+/* --- l'enseigne : ecrire le nom --- */
+.enseigne-panneau {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; padding: 10px;
+  background: #6A4A22; box-shadow: inset 5px 5px 0 0 #8B6631, inset -5px -5px 0 0 #4A330F;
+}
+.enseigne-case {
+  width: 26px; height: 34px; display: grid; place-items: center;
+  font-family: var(--pix); font-size: 13px; color: #FFE9A8;
+  background: rgba(12, 7, 20, .55); box-shadow: inset 2px 2px 0 0 rgba(0, 0, 0, .5);
+}
+.enseigne-case.is-ok { color: #143206; background: var(--ok); }
+.enseigne-case.is-ko { color: #FFFFFF; background: #8E2419; }
+.enseigne-panneau.est-faux { animation: shakeHard 380ms steps(1) both; }
+.enseigne-sac { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.enseigne-lettre {
+  width: 44px; min-height: 44px; cursor: pointer;
+  font-family: var(--pix); font-size: 13px; color: #2B2B2B; background: #FFC145;
+  box-shadow: inset 3px 3px 0 0 #FFE9A8, inset -3px -3px 0 0 #C99416, 0 4px 0 0 #8F6A0E;
+}
+.enseigne-lettre:active { transform: translateY(3px); }
+.enseigne-lettre.is-prise { color: #6A6A7A; background: #2A1B4A; box-shadow: inset 3px 3px 0 0 #150C2B; }
+
+/* --- les machines a allumer --- */
+.machines-grille { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.machine {
+  min-height: 76px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  cursor: pointer; padding: 8px; background: #2A1B4A;
+  box-shadow: inset 4px 4px 0 0 #45306E, inset -4px -4px 0 0 #150C2B, 0 5px 0 0 #0C0714;
+}
+.machine:active { transform: translateY(4px); }
+.machine-ecran {
+  width: 46px; height: 28px; display: block; background: #150C2B;
+  box-shadow: inset 3px 3px 0 0 rgba(255, 255, 255, .08);
+}
+.machine.is-on .machine-ecran { background: #4FD9D0; box-shadow: inset 3px 3px 0 0 #ADF5F0, 0 0 12px rgba(79, 217, 208, .8); }
+.machine-nom { font-family: var(--pix); font-size: 7px; line-height: 1.5; color: #FFFFFF; text-align: center; }
+.machine.is-ok { box-shadow: inset 0 0 0 4px var(--ok), inset 4px 4px 0 0 #45306E; }
+.machine.is-ko { box-shadow: inset 0 0 0 4px var(--ko), inset 4px 4px 0 0 #45306E; }
+
 /* ------------------ 10 bis. MOTEUR ATELIER (grille de craft) ------------------ */
 /* Il pose lui-meme les ingredients : la reponse n'existe pas avant qu'il la
    construise. La grille fait toujours 3x3 pour ne jamais trahir la quantite. */
@@ -1481,6 +1556,14 @@ button { font: inherit; color: inherit; border: 0; background: none; }
   .golem-txt, .chaine-txt { font-size: 12px; }
   .chaine-rang { min-height: 46px; }
   .chaine-pas { width: 38px; min-height: 38px; }
+  .cadran-pas { width: 46px; min-height: 40px; }
+  .cadran-nb { min-width: 46px; }
+  .cadran-point { padding-bottom: 42px; }
+  .enseigne-case { width: 22px; height: 28px; font-size: 11px; }
+  .enseigne-lettre { width: 40px; min-height: 40px; }
+  .machine { min-height: 62px; }
+  .machine-ecran { width: 38px; height: 22px; }
+  .toise-cran { height: 24px; }
   .mach-case { padding: 5px 3px; }
 }
 
